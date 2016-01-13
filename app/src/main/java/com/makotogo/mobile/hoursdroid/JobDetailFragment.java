@@ -27,7 +27,7 @@ public class JobDetailFragment extends Fragment {
     /**
      * The key to be used when storing a Job object as a Fragment argument
      */
-    public static final String ARG_JOB_DETAIL = "arg.job.detail";
+    public static final String ARG_JOB_DETAIL = "arg." + JobDetailFragment.class.getSimpleName();
 
     /**
      * The Job that is edited by this Fragment

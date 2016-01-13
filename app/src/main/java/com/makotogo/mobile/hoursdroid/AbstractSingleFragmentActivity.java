@@ -1,10 +1,8 @@
 package com.makotogo.mobile.hoursdroid;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 
 public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
@@ -26,6 +24,11 @@ public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
         /// dependency, I am forced to use getSupportActionBar() or the framework
         /// NPEs on startup... sheesh.
         getSupportActionBar().setTitle(getActionBarTitle());
+        // Set the subtitle.
+        String actionBarSubtitle = getActionBarSubTitle();
+        if (actionBarSubtitle != null && !actionBarSubtitle.equals("")) {
+            getSupportActionBar().setSubtitle(actionBarSubtitle);
+        }
     }
 
     /**
@@ -44,4 +47,12 @@ public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
      */
     protected abstract String getActionBarTitle();
 
+    /**
+     * Returns the action bar subtitle to be used by the subclass.
+     * If null or empty string, then no subtitle will be set.
+     *
+     * @return String - the action bar subtitle, or null (or empty
+     * string) if no subtitle is to be used.
+     */
+    protected abstract String getActionBarSubTitle();
 }

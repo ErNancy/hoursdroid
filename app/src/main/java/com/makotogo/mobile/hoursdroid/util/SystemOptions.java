@@ -40,7 +40,7 @@ public class SystemOptions {
     private Boolean mShowInactiveJobs;
 
     public boolean showInactiveJobs() {
-        boolean defaultValue = false;
+        boolean defaultValue = true;
         if (mShowInactiveJobs == null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
             mShowInactiveJobs = sharedPreferences.getBoolean(PREFS_KEY_SHOW_INACTIVE_JOBS, defaultValue);

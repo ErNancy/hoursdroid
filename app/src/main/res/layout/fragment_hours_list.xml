@@ -3,12 +3,12 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="#181818">
+              android:background="#606060">
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/job_list_view"
+        android:id="@+id/hours_list_view"
         />
 
 </LinearLayout>

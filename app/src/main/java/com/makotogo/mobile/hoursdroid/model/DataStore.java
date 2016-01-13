@@ -3,10 +3,8 @@ package com.makotogo.mobile.hoursdroid.model;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.makotogo.mobile.hoursdroid.util.HoursDbHelper;
 import com.makotogo.mobile.hoursdroid.util.SystemOptions;
@@ -29,11 +27,6 @@ public class DataStore {
     private static final String TAG = DataStore.class.getSimpleName();
 
     private static final boolean TEST_MODE = false;
-
-    /**
-     * List of Job objects.
-     */
-    List<Job> mJobs;
 
     /**
      * The Singleton
@@ -65,37 +58,83 @@ public class DataStore {
     }
 
     /**
+     * Cleanup method. Called when the application thinks
+     * it might be destroyed, so we do not leak a DB
+     * reference.
+     */
+    public void close() {
+        // Make sure we do not leak anything
+        if (mDatabase != null && mDatabase.isOpen()) {
+            Log.d(TAG, "Closing DataStore...");
+            mDatabase.close();
+        }
+        mDatabase = null;
+        // Ensure the Singleton will be recreated if necessary
+        mDataStore = null;
+    }
+
+    /**
+     * Constructor - private. This is a Singleton, so we do not want anybody
+     * to be able to call the constructor but the class itself.
+     *
+     * @param context The Context of the first caller to retrieve the Singleton.
+     */
+    private DataStore(Context context) {
+        mContext = context.getApplicationContext();
+        // Initialize the DB
+        getDatabase();
+    }
+
+    /**
+     * Private getter for Database attribute. Performs lazy initialiation.
+     *
+     * @return SQLiteDatabase - a Writeable SQLiteDatabase instance.
+     */
+    private SQLiteDatabase getDatabase() {
+        if (mDatabase == null || !mDatabase.isOpen()) {
+            Log.d(TAG, "Creating/Opening DataStore...");
+            mDatabase = new HoursDbHelper(mContext).getWritableDatabase();
+            Log.d(TAG, "Done.");
+        }
+        return mDatabase;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                              J    O    B                                    //
+    /////////////////////////////////////////////////////////////////////////////////
+    /**
+     * List of Job objects.
+     */
+    List<Job> mJobs = new ArrayList<>();
+
+    /**
      * Returns a list of Job objects from the DB.
      *
      * @return List<Job> a list of Job objects, fresh from the DB.
      */
     public List<Job> getJobs() {
-        if (mJobs == null) {
-            mJobs = new ArrayList<>();
-        } else {
-            mJobs.clear();
-            // TODO: Reload from DB on background thread! DO NOT RUN THIS ON THE UI THREAD!
-            // TODO: Use AsyncTask for this!
-            String orderByClause = HoursDbSchema.JobTable.Column.ACTIVE + " desc, " + HoursDbSchema.JobTable.Column.NAME;
-            String whereClause = computeGetJobsWhereClause();
-            Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
-                    null,// select *
-                    whereClause,// computed
-                    null,// no WHERE args either
-                    null,// no GROUP BY
-                    null,// no HAVING either
-                    orderByClause// no ORDER BY
-            );
-            JobCursorWrapper cursorWrapper = new JobCursorWrapper(cursor);
-            try {
-                cursorWrapper.moveToFirst();
-                while (!cursorWrapper.isAfterLast()) {
-                    mJobs.add(cursorWrapper.getJob());
-                    cursorWrapper.moveToNext();
-                }
-            } finally {
-                cursorWrapper.close();
+        mJobs.clear();
+        // TODO: Reload from DB on background thread! DO NOT RUN THIS ON THE UI THREAD!
+        // TODO: Use AsyncTask for this!
+        String orderByClause = HoursDbSchema.JobTable.Column.ACTIVE + " desc, " + HoursDbSchema.JobTable.Column.NAME;
+        String whereClause = computeGetJobsWhereClause();
+        Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
+                null,// select *
+                whereClause,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                orderByClause// no ORDER BY
+        );
+        JobCursorWrapper cursorWrapper = new JobCursorWrapper(cursor);
+        try {
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                mJobs.add(cursorWrapper.getJob());
+                cursorWrapper.moveToNext();
             }
+        } finally {
+            cursorWrapper.close();
         }
         return mJobs;
     }
@@ -112,6 +151,7 @@ public class DataStore {
         ContentValues contentValues = getContentValues(job);
         // Do the INSERT
         getDatabase().insert(HoursDbSchema.JobTable.NAME, null, contentValues);
+        // TODO: Create the "default" project record for this job
     }
 
     /**
@@ -139,52 +179,6 @@ public class DataStore {
         /// TODO: all we can do is mark it deactivated.
         getDatabase().delete(HoursDbSchema.JobTable.NAME, whereClause, null);
         Log.d(TAG, "DELETE: row ID = " + job.getId());
-    }
-
-    /**
-     * Cleanup method. Called when the application thinks
-     * it might be destroyed, so we do not leak a DB
-     * reference.
-     */
-    public void close() {
-        // Make sure we do not leak anything
-        if (mDatabase != null && mDatabase.isOpen()) {
-            Log.d(TAG, "Closing DataStore...");
-            mDatabase.close();
-        }
-        mDatabase = null;
-        // Ensure the Singleton will be recreated if necessary
-        mDataStore = null;
-    }
-
-    /**
-     * Constructor - private. This is a Singleton, so we do not want anybody
-     * to be able to call the constructor but the class itself.
-     *
-     * @param context The Context of the first caller to retrieve the Singleton.
-     */
-    private DataStore(Context context) {
-        mContext = context.getApplicationContext();
-        if (TEST_MODE) {
-            mJobs = createTestData();
-        } else {
-            // Initialize the DB
-            getDatabase();
-        }
-    }
-
-    /**
-     * Private getter for Database attribute. Performs lazy initialiation.
-     *
-     * @return SQLiteDatabase - a Writeable SQLiteDatabase instance.
-     */
-    private SQLiteDatabase getDatabase() {
-        if (mDatabase == null || !mDatabase.isOpen()) {
-            Log.d(TAG, "Creating/Opening DataStore...");
-            mDatabase = new HoursDbHelper(mContext).getWritableDatabase();
-            Log.d(TAG, "Done.");
-        }
-        return mDatabase;
     }
 
     /**
@@ -217,18 +211,50 @@ public class DataStore {
         return ret;
     }
 
-    /**
-     * Creates a bunch of fake data for testing.
-     *
-     * @return
-     */
-    private List<Job> createTestData() {
-        List<Job> ret = new ArrayList<>();
-        for (int aa = 0; aa < 100; aa++) {
-            Job job = new Job();
-            job.setName("Job Name #" + aa);
-            ret.add(job);
-        }
+    /////////////////////////////////////////////////////////////////////////////////
+    //                  P     R     O     J     E     C    T                       //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    private List<Project> mProjects = new ArrayList<>();
+
+    public List<Project> getProjects(Job job) {
+        mProjects.clear();
+        // TODO: code up the query
+        return mProjects;
+    }
+
+    private static ContentValues getContentValues(Project project) {
+        ContentValues ret = new ContentValues();
+        ret.put(HoursDbSchema.ProjectTable.Column.ID, project.getId());
+        ret.put(HoursDbSchema.ProjectTable.Column.NAME, project.getName());
+        ret.put(HoursDbSchema.ProjectTable.Column.DESCRIPTION, project.getDescription());
+        ret.put(HoursDbSchema.ProjectTable.Column.JOB_ID, project.getJob().getId());
+        return ret;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                       H     O     U     R     S                             //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    private List<Hours> mHours = new ArrayList<>();
+
+    public List<Hours> getHours(Job job) {
+        mHours.clear();
+        // TODO: code up the query
+        return mHours;
+    }
+
+    private static ContentValues getContentValues(Hours hours) {
+        ContentValues ret = new ContentValues();
+        ret.put(HoursDbSchema.HoursTable.Column.ID, hours.getId());
+        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, hours.getBegin());
+        ret.put(HoursDbSchema.HoursTable.Column.END, hours.getEnd());
+        ret.put(HoursDbSchema.HoursTable.Column.BREAK, hours.getBreak());
+        ret.put(HoursDbSchema.HoursTable.Column.DESCRIPTION, hours.getDescription());
+        ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
+        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, hours.getWhenCreated());
+        ret.put(HoursDbSchema.HoursTable.Column.JOB_ID, hours.getJob().getId());
+        ret.put(HoursDbSchema.HoursTable.Column.PROJECT_ID, hours.getProject().getId());
         return ret;
     }
 }

@@ -20,6 +20,11 @@ public class JobDetailActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected String getActionBarTitle() {
-        return "Hours - Job Details";
+        return "Job Details";
+    }
+
+    @Override
+    protected String getActionBarSubTitle() {
+        return null;
     }
 }

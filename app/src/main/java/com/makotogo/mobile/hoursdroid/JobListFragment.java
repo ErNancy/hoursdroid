@@ -11,16 +11,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.makotogo.mobile.hoursdroid.model.Job;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
-import com.makotogo.mobile.hoursdroid.util.SystemOptions;
+import com.makotogo.mobile.hoursdroid.model.Job;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,26 +124,6 @@ public class JobListFragment extends Fragment {
         mJobAdapter.updateJobs(dataStore.getJobs());
     }
 
-    private void configureListView() {
-        // Set the Adapter property of the RecyclerView to the JobAdapter
-        mListView.setAdapter(mJobAdapter);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        // Create the OnItemLongClickListener, used to bring up the contextual
-        /// actions for the List View
-        createOnItemLongClickListener();
-        // Create the
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (!mInActionMode) {
-                    Toast.makeText(getActivity(), "Clicked item " + position, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Clicked item " + position);
-                    // TODO: start the TimeRecordList activity
-                }
-            }
-        });
-    }
-
     /**
      * I really hate stuff like this, but I don't see any better way around it. I want to be
      * able to handle short (regular) and long press on the list view. Unfortunately, both
@@ -164,12 +141,33 @@ public class JobListFragment extends Fragment {
         mInActionMode = value;
     }
 
+    private void configureListView() {
+        // Set the Adapter property of the RecyclerView to the JobAdapter
+        mListView.setAdapter(mJobAdapter);
+        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        // Create the OnItemLongClickListener, used to bring up the contextual
+        /// actions for the List View
+        createOnItemLongClickListener();
+        // Create the
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (!mInActionMode) {
+                    Log.d(TAG, "Clicked item " + position);
+                    Job job = (Job) mListView.getAdapter().getItem(position);
+                    Intent intent = new Intent(getActivity(), HoursListActivity.class);
+                    intent.putExtra(HoursListActivity.EXTRA_JOB, job);
+                    startActivity(intent);
+                }
+            }
+        });
+    }
+
     private void createOnItemLongClickListener() {
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 boolean ret = false;
-                Toast.makeText(getActivity(), "LONG Clicked item " + position, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "LONG Clicked item " + position);
                 // Long press... It will be handled first. Set the state variable (yuck).
                 setInActionMode(IN_ACTION_MODE);

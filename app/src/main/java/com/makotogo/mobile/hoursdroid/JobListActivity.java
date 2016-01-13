@@ -2,8 +2,6 @@ package com.makotogo.mobile.hoursdroid;
 
 import android.app.Fragment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 
@@ -21,7 +19,13 @@ public class JobListActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected String getActionBarTitle() {
-        return "Hours - Jobs"; //TODO: Externalize in strings.xml
+        return "Jobs"; //TODO: Externalize in strings.xml
+    }
+
+    @Override
+    protected String getActionBarSubTitle() {
+        // No subtitle for this activity
+        return null;
     }
 
     @Override

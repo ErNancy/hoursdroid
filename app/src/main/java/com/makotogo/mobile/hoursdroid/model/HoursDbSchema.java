@@ -17,12 +17,12 @@ public class HoursDbSchema {
         }
 
         public static final String CREATE_SQL = "CREATE TABLE " + NAME + "(" +
-                Column.ID + " INTEGER PRIMARY KEY AUTOINCREMENT" +
-                "," + Column.NAME + " TEXT" +
-                "," + Column.DESCRIPTION + " TEXT" +
+                Column.ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" +
+                "," + Column.NAME + " TEXT NOT NULL" +
+                "," + Column.DESCRIPTION + " TEXT NOT NULL" +
                 "," + Column.RATE + " REAL" +
-                "," + Column.ACTIVE + " INTEGER" +
-                "," + Column.WHEN_CREATED + " INTEGER" +
+                "," + Column.ACTIVE + " INTEGER NOT NULL" +
+                "," + Column.WHEN_CREATED + " INTEGER NOT NULL" +
                 ")";
     }
 
@@ -39,16 +39,16 @@ public class HoursDbSchema {
         }
 
         public static final String CREATE_SQL = "CREATE TABLE " + NAME + "(" +
-                Column.ID + " INTEGER PRIMARY KEY AUTOINCREMENT" +
-                "," + Column.NAME + " TEXT" +
-                "," + Column.DESCRIPTION + " TEXT" +
-                "," + Column.JOB_ID + " INTEGER" +
+                Column.ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" +
+                "," + Column.NAME + " TEXT NOT NULL" +
+                "," + Column.DESCRIPTION + " TEXT NOT NULL" +
+                "," + Column.JOB_ID + " INTEGER  NOT NULL" +
                 "," + computeForeignKey(Column.JOB_ID, JobTable.NAME, JobTable.Column.ID) +
                 ")";
     }
 
-    public static final class TimeRecordTable {
-        public static final String NAME = "time_record";
+    public static final class HoursTable {
+        public static final String NAME = "hours";
 
         public static final class Column {
             public static final String ID = "_id";
