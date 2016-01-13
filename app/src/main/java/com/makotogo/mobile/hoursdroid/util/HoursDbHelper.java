@@ -14,7 +14,7 @@ public class HoursDbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = HoursDbHelper.class.getSimpleName();
 
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 1;
 
     private static final String DB_NAME = "hoursdroid.db";
 
@@ -24,8 +24,11 @@ public class HoursDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "Creating table - " + HoursDbSchema.JobTable.NAME + "...");
         db.execSQL(HoursDbSchema.JobTable.CREATE_SQL);
+        Log.d(TAG, "Creating table - " + HoursDbSchema.ProjectTable.NAME + "...");
         db.execSQL(HoursDbSchema.ProjectTable.CREATE_SQL);
+        Log.d(TAG, "Creating table - " + HoursDbSchema.HoursTable.NAME + "...");
         db.execSQL(HoursDbSchema.HoursTable.CREATE_SQL);
     }
 
@@ -39,6 +42,10 @@ public class HoursDbHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE " + HoursDbSchema.ProjectTable.NAME);
             Log.d(TAG, "Dropping table - time_record...");
             db.execSQL("DROP TABLE time_record");
+            Log.d(TAG, "Creating table - " + HoursDbSchema.JobTable.NAME + "...");
+            db.execSQL(HoursDbSchema.JobTable.CREATE_SQL);
+            Log.d(TAG, "Creating table - " + HoursDbSchema.ProjectTable.NAME + "...");
+            db.execSQL(HoursDbSchema.ProjectTable.CREATE_SQL);
             Log.d(TAG, "Creating table - " + HoursDbSchema.HoursTable.NAME + "...");
             db.execSQL(HoursDbSchema.HoursTable.CREATE_SQL);
         }

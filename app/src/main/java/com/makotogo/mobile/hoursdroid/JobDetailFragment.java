@@ -100,12 +100,19 @@ public class JobDetailFragment extends Fragment {
                 // Save this object using the DataStore
                 DataStore dataStore = DataStore.instance(getActivity());
                 if (mJob.getId() == null) {
-                    dataStore.addJob(mJob);
+                    Job newlyCreatedJobObject = dataStore.create(mJob);
+                    if (newlyCreatedJobObject == null) {
+                        Toast.makeText(getActivity(), "Cannot save this job (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
+                    } else if (SystemOptions.instance(getActivity()).showNotifications()) {
+                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    dataStore.updateJob(mJob);
-                }
-                if (SystemOptions.instance(getActivity()).showNotifications()) {
-                    Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                    int numRowsUpdated = dataStore.update(mJob);
+                    if (numRowsUpdated == 0) {
+                        Toast.makeText(getActivity(), "Cannot save your changes (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
+                    } else if (SystemOptions.instance(getActivity()).showNotifications()) {
+                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });

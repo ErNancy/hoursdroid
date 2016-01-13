@@ -3,6 +3,7 @@ package com.makotogo.mobile.hoursdroid.model;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -144,14 +145,22 @@ public class DataStore {
      *
      * @param job
      */
-    public void addJob(Job job) {
+    public Job create(Job job) {
+        Job ret = null;
         if (job.getWhenCreated() == null) {
             job.setWhenCreated(new Date());
         }
         ContentValues contentValues = getContentValues(job);
         // Do the INSERT
-        getDatabase().insert(HoursDbSchema.JobTable.NAME, null, contentValues);
-        // TODO: Create the "default" project record for this job
+        long rowId = getDatabase().insert(HoursDbSchema.JobTable.NAME, null, contentValues);
+        if (rowId != -1) {
+            // For completeness
+            job.setId((int) rowId);
+            Project project = createDefaultProject(job);
+            create(project);
+            ret = job;
+        }
+        return ret;
     }
 
     /**
@@ -159,12 +168,19 @@ public class DataStore {
      *
      * @param job
      */
-    public void updateJob(Job job) {
+    public int update(Job job) {
+        int numRowsUpdated = 0;
         ContentValues contentValues = getContentValues(job);
         String whereClause = HoursDbSchema.JobTable.Column.ID + " = " + Integer.toString(job.getId());
         // Do the UPDATE
-        getDatabase().update(HoursDbSchema.JobTable.NAME, contentValues, whereClause, null);
-        Log.d(TAG, "UPDATE: row ID = " + job.getId());
+        try {
+            numRowsUpdated =
+                    getDatabase().update(HoursDbSchema.JobTable.NAME, contentValues, whereClause, null);
+            Log.d(TAG, "UPDATE: row ID = " + job.getId());
+        } catch (SQLiteConstraintException e) {
+            Log.e(TAG, "Update failed: ", e);
+        }
+        return numRowsUpdated;
     }
 
     /**
@@ -221,6 +237,24 @@ public class DataStore {
         mProjects.clear();
         // TODO: code up the query
         return mProjects;
+    }
+
+    private Project createDefaultProject(Job job) {
+        Project ret = new Project();
+        ret.setJob(job);
+        ret.setName(Project.DEFAULT_PROJECT_NAME);
+        ret.setDescription(Project.DEFAULT_PROJECT_DESCRIPTION);
+        return ret;
+    }
+
+    public void create(Project project) {
+        if (project == null) {
+            throw new IllegalArgumentException("Project object cannot be null!");
+        }
+        ContentValues contentValues = getContentValues(project);
+        // Do the INSERT
+        long rowId = getDatabase().insert(HoursDbSchema.ProjectTable.NAME, null, contentValues);
+        Log.d(TAG, "Created project: " + project.getName() + " (id=" + rowId + ")");
     }
 
     private static ContentValues getContentValues(Project project) {

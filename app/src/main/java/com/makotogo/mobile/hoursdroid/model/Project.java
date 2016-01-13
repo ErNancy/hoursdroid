@@ -4,6 +4,10 @@ package com.makotogo.mobile.hoursdroid.model;
  * Created by sperry on 1/12/16.
  */
 public class Project {
+
+    public static final String DEFAULT_PROJECT_NAME = "Default";
+    public static final String DEFAULT_PROJECT_DESCRIPTION = "The Default Project";
+
     private Integer mId;
     private String mName;
     private String mDescription;

@@ -23,6 +23,7 @@ public class HoursDbSchema {
                 "," + Column.RATE + " REAL" +
                 "," + Column.ACTIVE + " INTEGER NOT NULL" +
                 "," + Column.WHEN_CREATED + " INTEGER NOT NULL" +
+                "," + "UNIQUE(" + Column.NAME + ")" +
                 ")";
     }
 
@@ -44,6 +45,7 @@ public class HoursDbSchema {
                 "," + Column.DESCRIPTION + " TEXT NOT NULL" +
                 "," + Column.JOB_ID + " INTEGER  NOT NULL" +
                 "," + computeForeignKey(Column.JOB_ID, JobTable.NAME, JobTable.Column.ID) +
+                "," + "UNIQUE(" + Column.JOB_ID + "," + Column.NAME + ")" +
                 ")";
     }
 
