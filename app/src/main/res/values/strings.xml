@@ -29,4 +29,6 @@
     <string name="hours_break">Break</string>
     <string name="hours_comments">Comments</string>
     <string name="hours_description">Description</string>
+    <string name="hours_total">Total</string>
+    <string name="minutes">Minutes</string>
 </resources>
