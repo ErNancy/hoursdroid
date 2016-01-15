@@ -184,7 +184,7 @@ public class DataStore {
     }
 
     /**
-     * D is for Delete (soft delete in this case).
+     * D is for Delete
      *
      * @param job
      */
@@ -281,14 +281,70 @@ public class DataStore {
     private static ContentValues getContentValues(Hours hours) {
         ContentValues ret = new ContentValues();
         ret.put(HoursDbSchema.HoursTable.Column.ID, hours.getId());
-        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, hours.getBegin());
-        ret.put(HoursDbSchema.HoursTable.Column.END, hours.getEnd());
+        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, hours.getBegin().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.END, hours.getEnd().getTime());
         ret.put(HoursDbSchema.HoursTable.Column.BREAK, hours.getBreak());
         ret.put(HoursDbSchema.HoursTable.Column.DESCRIPTION, hours.getDescription());
         ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
-        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, hours.getWhenCreated());
+        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, hours.getWhenCreated().getTime());
         ret.put(HoursDbSchema.HoursTable.Column.JOB_ID, hours.getJob().getId());
         ret.put(HoursDbSchema.HoursTable.Column.PROJECT_ID, hours.getProject().getId());
         return ret;
     }
+
+    /**
+     * C is for Create.
+     *
+     * @param hours
+     */
+    public Hours create(Hours hours) {
+        Hours ret = null;
+        if (hours.getWhenCreated() == null) {
+            hours.setWhenCreated(new Date());
+        }
+        ContentValues contentValues = getContentValues(hours);
+        // Do the INSERT
+        long rowId = getDatabase().insert(HoursDbSchema.HoursTable.NAME, null, contentValues);
+        if (rowId != -1) {
+            // For completeness
+            hours.setId((int) rowId);
+            ret = hours;
+        }
+        return ret;
+    }
+
+    /**
+     * U is for Update.
+     *
+     * @param hours
+     */
+    public int update(Hours hours) {
+        int numRowsUpdated = 0;
+        ContentValues contentValues = getContentValues(hours);
+        String whereClause = HoursDbSchema.JobTable.Column.ID + " = " + Integer.toString(hours.getId());
+        // Do the UPDATE
+        try {
+            numRowsUpdated =
+                    getDatabase().update(HoursDbSchema.HoursTable.NAME, contentValues, whereClause, null);
+            Log.d(TAG, "UPDATE: row ID = " + hours.getId());
+        } catch (SQLiteConstraintException e) {
+            Log.e(TAG, "Update failed: ", e);
+        }
+        return numRowsUpdated;
+    }
+
+    /**
+     * D is for Delete
+     *
+     * @param hours
+     */
+    public void delete(Hours hours) {
+        String whereClause = HoursDbSchema.HoursTable.Column.ID + " = " + Integer.toString(hours.getId());
+        // Do the DELETE
+        // TODO: check to see if the Job has TimeRecords associated with it. If so, then
+        /// TODO: all we can do is mark it deactivated.
+        getDatabase().delete(HoursDbSchema.JobTable.NAME, whereClause, null);
+        Log.d(TAG, "DELETE: row ID = " + hours.getId());
+    }
+
 }

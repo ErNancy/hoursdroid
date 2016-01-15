@@ -1,17 +1,20 @@
 package com.makotogo.mobile.hoursdroid.model;
 
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * Created by sperry on 1/12/16.
  */
-public class Hours {
+public class Hours implements Serializable {
     // TODO: add fields and junk
     private Integer mId;
-    private Long mBegin;
-    private Long mEnd;
+    private Date mBegin;
+    private Date mEnd;
     private Long mBreak;
     private String mDescription;
     private Boolean mDeleted;
-    private Long mWhenCreated;
+    private Date mWhenCreated;
     private Job mJob;
     private Project mProject;
 
@@ -23,19 +26,19 @@ public class Hours {
         mId = id;
     }
 
-    public Long getBegin() {
+    public Date getBegin() {
         return mBegin;
     }
 
-    public void setBegin(Long begin) {
+    public void setBegin(Date begin) {
         mBegin = begin;
     }
 
-    public Long getEnd() {
+    public Date getEnd() {
         return mEnd;
     }
 
-    public void setEnd(Long end) {
+    public void setEnd(Date end) {
         mEnd = end;
     }
 
@@ -63,11 +66,11 @@ public class Hours {
         mDeleted = deleted;
     }
 
-    public Long getWhenCreated() {
+    public Date getWhenCreated() {
         return mWhenCreated;
     }
 
-    public void setWhenCreated(Long whenCreated) {
+    public void setWhenCreated(Date whenCreated) {
         mWhenCreated = whenCreated;
     }
 
