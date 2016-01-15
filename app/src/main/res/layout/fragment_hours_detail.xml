@@ -2,58 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:paddingLeft="5sp"
+              android:paddingStart="5sp"
+              android:paddingEnd="5sp"
+              android:paddingRight="5sp"
+              android:paddingTop="5sp"
+              android:paddingBottom="5sp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_job_name"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:text="@string/hours_project_name"/>
 
         <Spinner
-            android:id="@+id/spinner_job"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/hours_project_name"
-            android:layout_weight="1"/>
-
-        <Spinner
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:id="@+id/spinner_project"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="5"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_begin_date"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="@string/hours_begin_date"/>
 
         <TextView
             android:id="@+id/hours_begin_date"
@@ -65,15 +53,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_begin_time"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="@string/hours_begin_time"/>
 
         <TextView
             android:id="@+id/hours_begin_time"
@@ -85,15 +73,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_end_date"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="@string/hours_end_date"/>
 
         <TextView
             android:id="@+id/hours_end_date"
@@ -105,15 +93,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_end_time"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="@string/hours_end_time"/>
 
         <TextView
             android:id="@+id/hours_end_time"
@@ -125,15 +113,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_break"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="@string/hours_break"/>
 
         <TextView
             android:id="@+id/hours_break"
@@ -145,23 +133,42 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="2">
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hours_description"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="@string/hours_description"/>
 
         <EditText
             android:id="@+id/hours_description"
-            android:inputType="textMultiLine"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="6"/>
+            android:layout_weight="6"
+            android:inputType="textMultiLine"/>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/hours_job_name"/>
+
+        <Spinner
+            android:id="@+id/spinner_job"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"/>
     </LinearLayout>
 
 </LinearLayout>
