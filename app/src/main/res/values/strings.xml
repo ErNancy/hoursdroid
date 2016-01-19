@@ -31,4 +31,12 @@
     <string name="hours_description">Description</string>
     <string name="hours_total">Total</string>
     <string name="minutes">Minutes</string>
+    <string name="hours_begin">Begin</string>
+    <string name="date">Date</string>
+    <string name="begin">Begin</string>
+    <string name="time">Time</string>
+    <string name="end">End</string>
+    <string name="total">Total</string>
+    <string name="hours_list">Hours List</string>
+    <string name="hours_detail">Hours Detail</string>
 </resources>

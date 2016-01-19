@@ -29,11 +29,11 @@ public class JobListActivity extends AbstractSingleFragmentActivity {
     }
 
     @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause()...");
+    public void onPause() {
+        final String METHOD = "onPause(): ";
+        Log.d(TAG, METHOD + "Closing DataStore...");
         super.onPause();
         // Make sure and tidy this up or we could leak a DB connection
         DataStore.instance(this).close();
-        Log.d(TAG, "Done.");
     }
 }

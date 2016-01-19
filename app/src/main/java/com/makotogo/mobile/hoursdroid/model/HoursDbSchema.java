@@ -84,4 +84,5 @@ public class HoursDbSchema {
                 "REFERENCES " + referencesTable + "(" + referencesColumn + ")"
                 ;
     }
+
 }

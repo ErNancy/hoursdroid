@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Job;
@@ -153,11 +154,17 @@ public class JobListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!mInActionMode) {
-                    Log.d(TAG, "Clicked item " + position);
                     Job job = (Job) mListView.getAdapter().getItem(position);
-                    Intent intent = new Intent(getActivity(), HoursListActivity.class);
-                    intent.putExtra(HoursListActivity.EXTRA_JOB, job);
-                    startActivity(intent);
+                    if (job.isActive()) {
+                        Intent intent = new Intent(getActivity(), HoursListActivity.class);
+                        intent.putExtra(HoursListActivity.EXTRA_JOB, job);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getActivity(),
+                                "Hours cannot be added for inactive Jobs.",
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
                 }
             }
         });
@@ -168,7 +175,6 @@ public class JobListFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 boolean ret = false;
-                Log.d(TAG, "LONG Clicked item " + position);
                 // Long press... It will be handled first. Set the state variable (yuck).
                 setInActionMode(IN_ACTION_MODE);
                 getActivity().startActionMode(new ActionMode.Callback() {
@@ -212,13 +218,15 @@ public class JobListFragment extends Fragment {
 
                     @Override
                     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        Log.d(TAG, "Preparing Action Mode...");
+                        final String METHOD = "onPrepareActionMode(" + mode + ", " + menu + "): ";
+                        Log.d(TAG, METHOD + "...");
                         return false;
                     }
 
                     @Override
                     public void onDestroyActionMode(ActionMode mode) {
-                        Log.d(TAG, "Destroying Action Mode...");
+                        final String METHOD = "onDestroyActionMode(" + mode + "): ";
+                        Log.d(TAG, METHOD + "...");
                         // Through with Action Mode. The list view can go back to handling
                         /// short press.
                         setInActionMode(NOT_IN_ACTION_MODE);

@@ -1,6 +1,5 @@
 package com.makotogo.mobile.hoursdroid;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,8 +14,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
+import android.widget.TextView;
 
+import com.makotogo.mobile.AbstractFragment;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Job;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Created by sperry on 1/12/16.
  */
-public class HoursListFragment extends Fragment {
+public class HoursListFragment extends AbstractFragment {
 
     private static final String TAG = HoursListFragment.class.getSimpleName();
 
@@ -42,10 +42,13 @@ public class HoursListFragment extends Fragment {
     private boolean mInActionMode;
 
 
-    public static HoursListFragment newInstance(Job parentJob) {
+    public static HoursListFragment newInstance(Job job) {
+        if (job == null) {
+            throw new RuntimeException("Parent Job cannot be null!");
+        }
         HoursListFragment ret = new HoursListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_JOB_HOURS_LIST, parentJob);
+        args.putSerializable(ARG_JOB_HOURS_LIST, job);
         ret.setArguments(args);
         return ret;
     }
@@ -59,20 +62,25 @@ public class HoursListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final String METHOD = "onCreateView(" + inflater + ", " + container + ", " + savedInstanceState + "): ";
+        Log.d(TAG, METHOD + "...");
         // Inflate the view
         View ret = inflater.inflate(R.layout.fragment_hours_list, container, false);
         // Process Fragment arguments.
-        // 1 - Job object
+        processFragmentArguments();
+        mListView = (ListView) ret.findViewById(R.id.hours_list_view);
+        // Get a list of the Hours for this Job
+        configureUI();
+        return ret;
+    }
+
+    @Override
+    protected void processFragmentArguments() {
         Bundle arguments = getArguments();
         mJob = (Job) arguments.getSerializable(ARG_JOB_HOURS_LIST);
-        mListView = (ListView) ret.findViewById(R.id.hours_list_view);
-        if (mJob != null) {
-            // Get a list of the Hours for this Job
-            configureUI();
-        } else {
-            Log.e(TAG, "Job detail object cannot be null!");
+        if (mJob == null) {
+            throw new RuntimeException("Job fragment argument cannot be null!");
         }
-        return ret;
     }
 
     @Override
@@ -94,6 +102,10 @@ public class HoursListFragment extends Fragment {
             Intent intent = new Intent(getActivity(), HoursDetailActivity.class);
             // Create an empty Job object to be used by HoursDetailActivity
             Hours hours = new Hours();
+            hours.setJob(mJob);
+            if (mJob == null) {
+                throw new RuntimeException("Job object cannot be null!");
+            }
             intent.putExtra(HoursDetailActivity.EXTRA_HOURS, hours);
             // Start the activity
             startActivity(intent);
@@ -105,7 +117,14 @@ public class HoursListFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        final String METHOD = "onPause(): ";
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
+        final String METHOD = "onResume(): ";
         super.onResume();
         updateUI();
     }
@@ -113,7 +132,7 @@ public class HoursListFragment extends Fragment {
     /**
      * Configure the UI. 1pr stuff.
      */
-    private void configureUI() {
+    protected void configureUI() {
         // Access the Job backing store singleton
         DataStore dataStore = DataStore.instance(getActivity());
         // Create a new JobAdapter
@@ -128,7 +147,7 @@ public class HoursListFragment extends Fragment {
      * - Update the JobAdapter with the refreshed List
      * - Update the View
      */
-    private void updateUI() {
+    protected void updateUI() {
         DataStore dataStore = DataStore.instance(getActivity());
         // Now refresh the view
         mHoursAdapter.updateHours(dataStore.getHours(mJob));
@@ -177,7 +196,6 @@ public class HoursListFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 boolean ret = false;
-                Log.d(TAG, "LONG Clicked item " + position);
                 // Long press... It will be handled first. Set the state variable (yuck).
                 setInActionMode(IN_ACTION_MODE);
                 getActivity().startActionMode(new ActionMode.Callback() {
@@ -213,13 +231,15 @@ public class HoursListFragment extends Fragment {
 
                     @Override
                     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        Log.d(TAG, "Preparing Action Mode...");
+                        final String METHOD = "onPrepareActionMode(" + mode + ", " + menu + "): ";
+                        Log.d(TAG, METHOD + "...");
                         return false;
                     }
 
                     @Override
                     public void onDestroyActionMode(ActionMode mode) {
-                        Log.d(TAG, "Destroying Action Mode...");
+                        final String METHOD = "onDestroyActionMode(" + mode + "): ";
+                        Log.d(TAG, METHOD + "...");
                         // Through with Action Mode. The list view can go back to handling
                         /// short press.
                         setInActionMode(NOT_IN_ACTION_MODE);
@@ -231,8 +251,33 @@ public class HoursListFragment extends Fragment {
     }
     private class HoursViewHolder {
 
-        private Spinner mJobSpinner;
+        private TextView getBeginDate(View view) {
+            return (TextView) view.findViewById(R.id.hours_list_row_begin_date);
+        }
 
+        private TextView getBeginTime(View view) {
+            return (TextView) view.findViewById(R.id.hours_list_row_begin_time);
+        }
+
+        private TextView getEndDate(View view) {
+            return (TextView) view.findViewById(R.id.hours_list_row_end_date);
+        }
+
+        private TextView getEndTime(View view) {
+            return (TextView) view.findViewById(R.id.hours_list_row_end_time);
+        }
+
+        private TextView getBreak(View view) {
+            return (TextView) view.findViewById(R.id.hours_list_row_break);
+        }
+
+        private TextView getTotal(View view) {
+            return (TextView) view.findViewById(R.id.hours_list_row_total);
+        }
+
+        public void bindHoursData(Hours hours, View view) {
+
+        }
     }
 
     private class HoursAdapter extends ArrayAdapter<Hours> {
@@ -245,7 +290,16 @@ public class HoursListFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return super.getView(position, convertView, parent);
+            // Check to see if we need to create a view, or if it is recycled
+            if (convertView == null) {
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.hours_list_row, null);
+                HoursViewHolder jobViewHolder = new HoursViewHolder();
+                convertView.setTag(jobViewHolder);
+            }
+            Hours hours = getItem(position);
+            HoursViewHolder hoursViewHolder = (HoursViewHolder) convertView.getTag();
+            hoursViewHolder.bindHoursData(hours, convertView);
+            return convertView;
         }
 
         public void updateHours(List<Hours> hours) {

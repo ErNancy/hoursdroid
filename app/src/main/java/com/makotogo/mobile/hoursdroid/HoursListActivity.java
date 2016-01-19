@@ -1,6 +1,7 @@
 package com.makotogo.mobile.hoursdroid;
 
 import android.app.Fragment;
+import android.util.Log;
 
 import com.makotogo.mobile.hoursdroid.model.Job;
 
@@ -9,7 +10,11 @@ import com.makotogo.mobile.hoursdroid.model.Job;
  */
 public class HoursListActivity extends AbstractSingleFragmentActivity {
 
+    private static final String TAG = HoursListActivity.class.getSimpleName();
+
     public static final String EXTRA_JOB = "extra." + HoursListActivity.class.getSimpleName();
+
+    private static final String STATE_JOB = "state." + Job.class.getSimpleName();
 
     /**
      * This is the Job to which the Hours List items belong.
@@ -18,9 +23,19 @@ public class HoursListActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        mJob = (Job) getIntent().getSerializableExtra(EXTRA_JOB);
+        final String METHOD = "createFragment(): ";
+        Log.d(TAG, METHOD + "...");
+        processActivityExtras();
         HoursListFragment fragment = HoursListFragment.newInstance(mJob);
         return fragment;
+    }
+
+    @Override
+    protected void processActivityExtras() {
+        mJob = (Job) getIntent().getSerializableExtra(EXTRA_JOB);
+        if (mJob == null) {
+            throw new RuntimeException("Cannot create HoursListFragment with null Job object!");
+        }
     }
 
     @Override
@@ -33,4 +48,5 @@ public class HoursListActivity extends AbstractSingleFragmentActivity {
         // Use the Job name as the subtitle
         return "For Job " + ((mJob != null) ? mJob.getName() : "");
     }
+
 }

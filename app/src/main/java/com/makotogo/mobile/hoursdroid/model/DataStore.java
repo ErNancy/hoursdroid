@@ -45,6 +45,13 @@ public class DataStore {
      */
     private SQLiteDatabase mDatabase;
 
+    public static DataStore instance() {
+        if (mDataStore == null) {
+            throw new RuntimeException("DataStore singleton not properly initialized!");
+        }
+        return mDataStore;
+    }
+
     /**
      * Call this method to retrieve an instance of DataStore, which is a singleton.
      *
@@ -164,6 +171,34 @@ public class DataStore {
     }
 
     /**
+     * R is for Read.
+     *
+     * @param jobId The ID of the Job record to retrieve.
+     *
+     * @return Job
+     */
+    public Job getJob(int jobId) {
+        Job ret = null;
+        Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
+                null,// select *
+                HoursDbSchema.JobTable.Column.ID + "=" + jobId,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                null// no ORDER BY
+        );
+        JobCursorWrapper cursorWrapper = new JobCursorWrapper(cursor);
+        try {
+            if (cursorWrapper.moveToFirst()) {
+                ret = cursorWrapper.getJob();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+        return ret;
+    }
+
+    /**
      * U is for Update.
      *
      * @param job
@@ -247,6 +282,33 @@ public class DataStore {
         return ret;
     }
 
+    /**
+     * R is for Read.
+     *
+     * @param projectId The ID of the Project record to retrieve.
+     * @return Job
+     */
+    public Project getProject(int projectId) {
+        Project ret = null;
+        Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
+                null,// select *
+                HoursDbSchema.ProjectTable.Column.ID + "=" + projectId,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                null// no ORDER BY
+        );
+        ProjectCursorWrapper cursorWrapper = new ProjectCursorWrapper(cursor);
+        try {
+            if (cursorWrapper.moveToFirst()) {
+                ret = cursorWrapper.getProject();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+        return ret;
+    }
+
     public void create(Project project) {
         if (project == null) {
             throw new IllegalArgumentException("Project object cannot be null!");
@@ -274,7 +336,26 @@ public class DataStore {
 
     public List<Hours> getHours(Job job) {
         mHours.clear();
-        // TODO: code up the query
+        String orderByClause = HoursDbSchema.HoursTable.Column.BEGIN + " desc";
+        String whereClause = computeGetHoursWhereClause(job);
+        Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
+                null,// select *
+                whereClause,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                orderByClause// no ORDER BY
+        );
+        HoursCursorWrapper cursorWrapper = new HoursCursorWrapper(cursor);
+        try {
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                mHours.add(cursorWrapper.getHours());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
         return mHours;
     }
 
@@ -341,10 +422,15 @@ public class DataStore {
     public void delete(Hours hours) {
         String whereClause = HoursDbSchema.HoursTable.Column.ID + " = " + Integer.toString(hours.getId());
         // Do the DELETE
-        // TODO: check to see if the Job has TimeRecords associated with it. If so, then
-        /// TODO: all we can do is mark it deactivated.
         getDatabase().delete(HoursDbSchema.JobTable.NAME, whereClause, null);
         Log.d(TAG, "DELETE: row ID = " + hours.getId());
+    }
+
+    private String computeGetHoursWhereClause(Job job) {
+        String ret = null;
+        //
+        ret = HoursDbSchema.HoursTable.Column.JOB_ID + " = " + job.getId();
+        return ret;
     }
 
 }

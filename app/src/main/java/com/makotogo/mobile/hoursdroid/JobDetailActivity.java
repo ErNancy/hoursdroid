@@ -11,10 +11,21 @@ public class JobDetailActivity extends AbstractSingleFragmentActivity {
 
     public static final String EXTRA_JOB = "extra." + JobDetailActivity.class.getSimpleName();
 
+    public static final String STATE_JOB = "state." + Job.class.getSimpleName();
+
+    /**
+     * Not totally sure that Intent data is preserved if the Activity is recreated
+     * after being stop()ped or destroy()ed. So let's save it off just in case...
+     */
+    private Job mJob;
+
     @Override
     protected Fragment createFragment() {
-        Job job = (Job) getIntent().getSerializableExtra(EXTRA_JOB);
-        JobDetailFragment fragment = JobDetailFragment.newInstance(job);
+        mJob = (Job) getIntent().getSerializableExtra(EXTRA_JOB);
+        if (mJob == null) {
+            throw new RuntimeException("Job object from Intent cannot be null!");
+        }
+        JobDetailFragment fragment = JobDetailFragment.newInstance(mJob);
         return fragment;
     }
 
