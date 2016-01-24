@@ -1,10 +1,12 @@
-package com.makotogo.mobile.hoursdroid;
+package com.makotogo.mobile.framework;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+
+import com.makotogo.mobile.hoursdroid.R;
 
 public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
 

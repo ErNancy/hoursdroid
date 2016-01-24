@@ -3,157 +3,30 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:paddingLeft="5sp"
-              android:paddingStart="5sp"
-              android:paddingEnd="5sp"
-              android:paddingRight="5sp"
-              android:paddingTop="5sp"
-              android:paddingBottom="5sp"
-    >
+              android:padding="5dp"
+              android:background="@color/standard_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_weight="3"
+        android:background="@drawable/rounded_border"
+        android:orientation="horizontal"
+        android:padding="5dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textColor="#000"
             android:text="@string/hours_project_name"/>
 
         <Spinner
             android:id="@+id/spinner_project"
             android:layout_width="0dp"
+            android:textColor="#000"
             android:layout_height="wrap_content"
             android:layout_weight="5"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_begin_date"/>
-
-        <TextView
-            android:id="@+id/hours_begin_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="6"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_begin_time"/>
-
-        <TextView
-            android:id="@+id/hours_begin_time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="6"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_end_date"/>
-
-        <TextView
-            android:id="@+id/hours_end_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="6"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_end_time"/>
-
-        <TextView
-            android:id="@+id/hours_end_time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="6"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_break"/>
-
-        <TextView
-            android:id="@+id/hours_break"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="6"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/minutes"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_total"/>
-
-        <TextView
-            android:id="@+id/hours_total"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="6"/>
 
     </LinearLayout>
 
@@ -161,20 +34,38 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:orientation="horizontal">
+        android:padding="5dp">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="@drawable/rounded_border"
+        android:orientation="horizontal"
+        android:padding="5dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/hours_description"/>
+            android:layout_weight="1"
+            android:textColor="#000"
+            android:text="@string/hours_job_name"/>
 
-        <EditText
-            android:id="@+id/hours_description"
+        <Spinner
+            android:id="@+id/spinner_job"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="6"
-            android:inputType="textMultiLine"/>
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:layout_weight="5"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="5dp">
 
     </LinearLayout>
 
@@ -182,19 +73,141 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:padding="5dp">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:padding="5dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/hours_job_name"/>
+            android:layout_weight="4"
+            android:textColor="#000"
+            android:text="@string/hours_begin_date_time"/>
 
-        <Spinner
-            android:id="@+id/spinner_job"
+        <TextView
+            android:id="@+id/textview_hours_begin_date_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5"/>
+            android:layout_weight="8"
+            android:textColor="#000"
+            android:background="@drawable/rounded_border"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:textColor="#000"
+            android:text="@string/hours_end_date_time"/>
+
+        <TextView
+            android:id="@+id/textview_hours_end_date_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:textColor="#000"
+            android:background="@drawable/rounded_border"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:textColor="#000"
+            android:text="@string/hours_break"/>
+
+        <TextView
+            android:id="@+id/textview_hours_break"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:textColor="#000"
+            android:background="@drawable/rounded_border"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:textColor="#000"
+            android:text="@string/hours_total"/>
+
+        <TextView
+            android:id="@+id/textview_hours_total"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:layout_weight="8"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:textColor="#000"
+            android:text="@string/hours_description"/>
+
+        <EditText
+            android:id="@+id/edittext_hours_description"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6"
+            android:background="@drawable/rounded_border"
+            android:textColor="#000"
+            android:inputType="textMultiLine"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:padding="5dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button_hours_detail_save"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:background="@color/button_color"/>
+
     </LinearLayout>
 
 </LinearLayout>

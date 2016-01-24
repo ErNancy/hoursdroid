@@ -1,6 +1,5 @@
 package com.makotogo.mobile.hoursdroid;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,39 +11,44 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.makotogo.mobile.framework.AbstractArrayAdapter;
+import com.makotogo.mobile.framework.AbstractFragment;
+import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Job;
+import com.makotogo.mobile.hoursdroid.model.Project;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class JobListFragment extends Fragment {
+public class JobListFragment extends AbstractFragment {
 
     private static final String TAG = JobListFragment.class.getSimpleName();
 
-    private ListView mListView;
-    private JobAdapter mJobAdapter;
-
     private static final boolean IN_ACTION_MODE = true;
     private static final boolean NOT_IN_ACTION_MODE = false;
-    private boolean mInActionMode;
+    private transient boolean mInActionMode;
 
-    public static JobListFragment newInstance() {
-        return new JobListFragment();
+    @Override
+    protected void processFragmentArguments() {
+        // Nothing to do (no fragment arguments)
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        // If this Fragment is being recreated, we want to rematerialize
+        /// its state
+        if (savedInstanceState != null) {
+            restoreInstanceState(savedInstanceState);
+        }
     }
 
     @Override
@@ -53,12 +57,8 @@ public class JobListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_job_list, container, false);
 
-        // Populate ListView with Job information
-        mListView = (ListView) view.findViewById(R.id.job_list_view);
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         // Now finish configuring the UI
-        configureUI();
+        configureUI(view);
 
         return view;
     }
@@ -67,6 +67,16 @@ public class JobListFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_job_list, menu);
+    }
+
+    @Override
+    public void saveInstanceState(Bundle outState) {
+        // Nothing to do
+    }
+
+    @Override
+    public void restoreInstanceState(Bundle savedInstanceState) {
+        // Nothing to do
     }
 
     @Override
@@ -82,9 +92,7 @@ public class JobListFragment extends Fragment {
             Intent intent = new Intent(getActivity(), JobDetailActivity.class);
             // Create an empty Job object to be used by JobDetailActivity
             Job job = new Job();
-            job.setName("");
-            job.setDescription("");
-            job.setActive(Boolean.TRUE);
+            job.setActive(true);
             intent.putExtra(JobDetailActivity.EXTRA_JOB, job);
             // Start the activity
             startActivity(intent);
@@ -95,22 +103,20 @@ public class JobListFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateUI();
-    }
-
     /**
-     * Configure the UI. 1pr stuff.
+     * Configure the UI.
      */
-    private void configureUI() {
+    @Override
+    protected void configureUI(View view) {
+        final String METHOD = "configureUI(" + view + "): ";
+        // Populate ListView with Job information
+        ListView listView = (ListView) view.findViewById(R.id.job_list_view);
+        //mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
         // Access the Job backing store singleton
         DataStore dataStore = DataStore.instance(getActivity());
-        // Create a new JobAdapter
-        mJobAdapter = new JobAdapter(dataStore.getJobs());
-        configureListView();
-
+        // Configure the List View
+        configureListView(listView);
     }
 
     /**
@@ -119,10 +125,23 @@ public class JobListFragment extends Fragment {
      * - Update the JobAdapter with the refreshed List
      * - Update the View
      */
-    private void updateUI() {
+    @Override
+    protected void updateUI() {
+        final String METHOD = "updateUI(): ";
         DataStore dataStore = DataStore.instance(getActivity());
         // Now refresh the view
-        mJobAdapter.updateJobs(dataStore.getJobs());
+        List<Job> jobs = dataStore.getJobs();
+        if (getListViewAdapter() != null) {
+            getListViewAdapter().clear();
+            getListViewAdapter().addAll(jobs);
+            getListViewAdapter().notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected boolean validate(View view) {
+        // TODO: Add validation logic here
+        return true;
     }
 
     /**
@@ -142,23 +161,56 @@ public class JobListFragment extends Fragment {
         mInActionMode = value;
     }
 
-    private void configureListView() {
+    private ListView getListView() {
+        View view = getView();
+        if (view == null) {
+            throw new RuntimeException("View has not yet been configured. Cannot invoke getListView()!");
+        }
+        return (ListView) view.findViewById(R.id.job_list_view);
+    }
+
+    private AbstractArrayAdapter<Job> getListViewAdapter() {
+        AbstractArrayAdapter<Job> ret = null;
+        if (getListView() == null) {
+            throw new RuntimeException("ListView has not been configured!");
+        } else {
+            ret = (AbstractArrayAdapter<Job>) getListView().getAdapter();
+        }
+        return ret;
+    }
+
+    private void configureListView(final ListView listView) {
         // Set the Adapter property of the RecyclerView to the JobAdapter
-        mListView.setAdapter(mJobAdapter);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setAdapter(new AbstractArrayAdapter<Job>(getActivity(), R.layout.job_list_row) {
+            @Override
+            protected ViewBinder<Job> createViewBinder() {
+                return new JobViewBinder();
+            }
+        });
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         // Create the OnItemLongClickListener, used to bring up the contextual
         /// actions for the List View
-        createOnItemLongClickListener();
+        createOnItemLongClickListener(listView);
         // Create the
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!mInActionMode) {
-                    Job job = (Job) mListView.getAdapter().getItem(position);
+                    Job job = (Job) listView.getAdapter().getItem(position);
                     if (job.isActive()) {
-                        Intent intent = new Intent(getActivity(), HoursListActivity.class);
-                        intent.putExtra(HoursListActivity.EXTRA_JOB, job);
-                        startActivity(intent);
+                        // If there are multiple projects for this Job,
+                        /// then go to Select Project dialog
+                        Project defaultProject = DataStore.instance().getDefaultProject(job);
+                        if (defaultProject == null && multipleActiveProjectsForJob(job)) {
+                            // Display Select Project dialog, which forwards to
+                            /// the HoursListActivity
+                            // TODO: create the Select Project dialog
+                        } else {
+                            // Go with the default project directly to the HoursList Activity
+                            Intent intent = new Intent(getActivity(), HoursListActivity.class);
+                            intent.putExtra(HoursListActivity.EXTRA_PROJECT, defaultProject);
+                            startActivity(intent);
+                        }
                     } else {
                         Toast.makeText(getActivity(),
                                 "Hours cannot be added for inactive Jobs.",
@@ -170,8 +222,12 @@ public class JobListFragment extends Fragment {
         });
     }
 
-    private void createOnItemLongClickListener() {
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+    private boolean multipleActiveProjectsForJob(Job job) {
+        return false;
+    }
+
+    private void createOnItemLongClickListener(ListView listView) {
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 boolean ret = false;
@@ -190,7 +246,7 @@ public class JobListFragment extends Fragment {
                     @Override
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                         boolean ret;
-                        Job job = (Job) mListView.getAdapter().getItem(position);
+                        Job job = (Job) getListViewAdapter().getItem(position);
                         // Switch on the menu item ID
                         switch (item.getItemId()) {
                             case R.id.menu_item_job_edit:
@@ -242,7 +298,7 @@ public class JobListFragment extends Fragment {
      * Not so much of a Holder as a Binder. Mainly because circular
      * references are evil.
      */
-    private class JobViewHolder {
+    private class JobViewBinder implements ViewBinder<Job> {
 
         private TextView getNameTextView(View view) {
             return (TextView) view.findViewById(R.id.job_list_row_name);
@@ -252,15 +308,15 @@ public class JobListFragment extends Fragment {
             return (TextView) view.findViewById(R.id.job_list_row_description);
         }
 
-        private TextView getIdTextView(View view) {
-            return (TextView) view.findViewById(R.id.job_list_row_id);
-        }
-
+        //        private TextView getIdTextView(View view) {
+//            return (TextView) view.findViewById(R.id.job_list_row_id);
+//        }
+//
         private View getIsJobActiveView(View view) {
             return (View) view.findViewById(R.id.job_list_row_active);
         }
 
-        public void bindJobData(Job job, View view) {
+        public void bind(Job job, View view) {
             getNameTextView(view).setText(job.getName());
             getDescriptionTextView(view).setText(job.getDescription());
             if (job.isActive()) {
@@ -268,7 +324,7 @@ public class JobListFragment extends Fragment {
             } else {
                 getIsJobActiveView(view).setBackgroundColor(view.getContext().getResources().getColor(android.R.color.holo_red_light));
             }
-            getIdTextView(view).setText((job.getId() == null) ? "UNSAVED" : "ID=" + job.getId().toString());
+//            getIdTextView(view).setText((job.getId() == null) ? "UNSAVED" : "ID=" + job.getId().toString());
         }
 
     }
@@ -277,36 +333,26 @@ public class JobListFragment extends Fragment {
      * Custom implementation of ArrayAdapter<T> that provides its own
      * custom View.
      */
-    private class JobAdapter extends ArrayAdapter<Job> {
-
-        // The Job backing store
-        private List<Job> mJobs = new ArrayList<Job>();
-
-        public JobAdapter(List<Job> jobs) {
-            super(getActivity(), 0, jobs);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // Check to see if we need to create a view, or if it is recycled
-            if (convertView == null) {
-                convertView = getActivity().getLayoutInflater().inflate(R.layout.job_list_row, null);
-                JobViewHolder jobViewHolder = new JobViewHolder();
-                convertView.setTag(jobViewHolder);
-            }
-            Job job = getItem(position);
-            JobViewHolder jobViewHolder = (JobViewHolder) convertView.getTag();
-            jobViewHolder.bindJobData(job, convertView);
-            return convertView;
-        }
-
-        public void updateJobs(List<Job> jobs) {
-            if (mJobs != null) {
-                mJobs.clear();
-            }
-            mJobs.addAll(jobs);
-            notifyDataSetChanged();
-        }
-
-    }
+//    private class JobAdapter extends ArrayAdapter<Job> {
+//
+//        public JobAdapter() {
+//            super(getActivity(), 0);
+//        }
+//
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent) {
+//            final String METHOD = "getView(" + position + ", " + convertView + ", " + parent + "): ";
+//            // Check to see if we need to create a view, or if it is recycled
+//            if (convertView == null) {
+//                convertView = getActivity().getLayoutInflater().inflate(R.layout.job_list_row, null);
+//                JobViewBinder jobViewBinder = new JobViewBinder();
+//                convertView.setTag(jobViewBinder);
+//            }
+//            Job job = getItem(position);
+//            JobViewBinder jobViewBinder = (JobViewBinder) convertView.getTag();
+//            jobViewBinder.bindJobData(job, convertView);
+//            return convertView;
+//        }
+//
+//    }
 }

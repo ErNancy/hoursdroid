@@ -39,4 +39,19 @@
     <string name="total">Total</string>
     <string name="hours_list">Hours List</string>
     <string name="hours_detail">Hours Detail</string>
+    <string name="date_picker_title">Select Date</string>
+    <string name="touch_to_set">(Touch to Set)</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="hours_begin_date_time">Begin Date/Time</string>
+    <string name="hours_end_date_time">End Date/Time</string>
+    <string name="edit">Edit</string>
+    <string name="start_hours">Start Hours</string>
+    <string name="stop_hours">Stop Hours</string>
+    <string name="hours_records_for_job">Hours Records for Job</string>
+    <string name="start_work">Start Work</string>
+    <string name="stop_work">Stop Work</string>
+    <string name="project_name">Project Name</string>
 </resources>

@@ -3,6 +3,7 @@ package com.makotogo.mobile.hoursdroid;
 import android.app.Fragment;
 import android.util.Log;
 
+import com.makotogo.mobile.framework.AbstractSingleFragmentActivity;
 import com.makotogo.mobile.hoursdroid.model.Hours;
 
 /**
@@ -21,7 +22,7 @@ public class HoursDetailActivity extends AbstractSingleFragmentActivity {
         final String METHOD = "createFragment(): ";
         Log.d(TAG, METHOD + "...");
         processActivityExtras();
-        HoursDetailFragment fragment = HoursDetailFragment.newInstance(mHours);
+        HoursDetailFragment fragment = FragmentFactory.createHoursDetailFragment(mHours);
         return fragment;
     }
 

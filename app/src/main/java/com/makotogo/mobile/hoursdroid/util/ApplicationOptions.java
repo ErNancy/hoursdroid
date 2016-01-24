@@ -7,29 +7,28 @@ import android.preference.PreferenceManager;
 /**
  * Created by sperry on 1/9/16.
  */
-public class SystemOptions {
+public class ApplicationOptions {
 
     public static final String PREFS_KEY_SHOW_INACTIVE_JOBS = "PREFS_KEY_SHOW_INACTIVE_JOBS";
     public static final String PREFS_KEY_SHOW_NOTIFICATIONS = "PREFS_KEY_SHOW_NOTIFICATIONS";
 
-    private static SystemOptions mInstance;
+    private static ApplicationOptions mInstance;
     private Context mContext;
 
-    public static SystemOptions instance(Context context) {
+    public static ApplicationOptions instance(Context context) {
         if (mInstance == null) {
-            mInstance = new SystemOptions(context);
+            mInstance = new ApplicationOptions(context);
         }
         return mInstance;
     }
 
-    private SystemOptions(Context context) {
+    protected ApplicationOptions(Context context) {
         mContext = context;
     }
 
     private Boolean mShowNotifications;
 
-    public boolean showNotifications() {
-        boolean defaultValue = true;
+    public boolean showNotifications(boolean defaultValue) {
         if (mShowNotifications == null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
             mShowNotifications = sharedPreferences.getBoolean(PREFS_KEY_SHOW_NOTIFICATIONS, defaultValue);
@@ -39,8 +38,7 @@ public class SystemOptions {
 
     private Boolean mShowInactiveJobs;
 
-    public boolean showInactiveJobs() {
-        boolean defaultValue = true;
+    public boolean showInactiveJobs(boolean defaultValue) {
         if (mShowInactiveJobs == null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
             mShowInactiveJobs = sharedPreferences.getBoolean(PREFS_KEY_SHOW_INACTIVE_JOBS, defaultValue);

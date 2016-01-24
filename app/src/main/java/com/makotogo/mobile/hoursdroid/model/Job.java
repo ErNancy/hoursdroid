@@ -1,12 +1,14 @@
 package com.makotogo.mobile.hoursdroid.model;
 
+import com.makotogo.mobile.framework.ModelObject;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by sperry on 12/30/15.
  */
-public class Job implements Serializable {
+public class Job implements ModelObject, Serializable {
 
     private Integer mId;
     private String mName;
@@ -14,6 +16,7 @@ public class Job implements Serializable {
     private Float mRate;
     private Boolean mActive;
     private Date mWhenCreated;
+    private Boolean mContainsActiveHours;
 
     public Integer getId() {
         return mId;
@@ -61,5 +64,13 @@ public class Job implements Serializable {
 
     public void setWhenCreated(Date whenCreated) {
         mWhenCreated = whenCreated;
+    }
+
+    public Boolean isContainsActiveHours() {
+        return mContainsActiveHours;
+    }
+
+    public void setContainsActiveHours(Boolean value) {
+        mContainsActiveHours = value;
     }
 }

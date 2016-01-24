@@ -1,6 +1,5 @@
 package com.makotogo.mobile.hoursdroid;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -15,38 +14,29 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.makotogo.mobile.framework.AbstractFragment;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Job;
-import com.makotogo.mobile.hoursdroid.util.SystemOptions;
+import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
 
 /**
  * Created by sperry on 1/5/16.
  */
-public class JobDetailFragment extends Fragment {
+public class JobDetailFragment extends AbstractFragment {
     private static final String TAG = JobDetailFragment.class.getSimpleName();
-    /**
-     * The key to be used when storing a Job object as a Fragment argument
-     */
-    public static final String ARG_JOB_DETAIL = "arg." + JobDetailFragment.class.getSimpleName();
 
     /**
      * The Job that is edited by this Fragment
      */
     private Job mJob;
 
-    /**
-     * Create a new instance of this fragment.
-     *
-     * @param jobToBeEdited The Job object that is to be edited.
-     * @return JobDetailFragment - the newly created fragment. Complete with
-     * Fragment argument(s).
-     */
-    public static JobDetailFragment newInstance(Job jobToBeEdited) {
-        JobDetailFragment ret = new JobDetailFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_JOB_DETAIL, jobToBeEdited);
-        ret.setArguments(args);
-        return ret;
+    @Override
+    protected void processFragmentArguments() {
+        Bundle arguments = getArguments();
+        mJob = (Job) arguments.getSerializable(FragmentFactory.FRAG_ARG_JOB);
+        if (mJob == null) {
+            throw new RuntimeException("Fragment argument (Job) cannot be null!");
+        }
     }
 
     @Override
@@ -58,61 +48,93 @@ public class JobDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the view
-        View ret = inflater.inflate(R.layout.fragment_job_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_job_detail, container, false);
         // Process Fragment arguments.
-        // 1 - Job object to be edited
-        Bundle arguments = getArguments();
-        mJob = (Job) arguments.getSerializable(ARG_JOB_DETAIL);
-        if (mJob != null) {
-            // Job Name
-            createJobNameEditText(ret);
-            // Job Description
-            createJobDescriptionEditText(ret);
-            // Active Flag
-            createActiveFlagCheckBox(ret);
-            // Now for the buttons!
-            // Save
-            createSaveButton(ret);
-            // Cancel
-            //createCancelButton(ret);
-        } else {
-            Log.e(TAG, "Job detail object cannot be null!");
+        processFragmentArguments();
+        // Configure the UI
+        configureUI(view);
+        return view;
+    }
+
+    @Override
+    public void saveInstanceState(Bundle outState) {
+        // Nothing to do...
+    }
+
+    @Override
+    public void restoreInstanceState(Bundle savedInstanceState) {
+        // Nothing to do...
+    }
+
+    @Override
+    protected void configureUI(View view) {
+        // Job Name
+        createJobNameEditText(view);
+        // Job Description
+        createJobDescriptionEditText(view);
+        // Active Flag
+        createActiveFlagCheckBox(view);
+        // Now for the buttons!
+        // Save
+        createSaveButton(view);
+        // Cancel
+        //createCancelButton(ret);
+    }
+
+    @Override
+    protected void updateUI() {
+        // Nothing to do...
+    }
+
+    @Override
+    protected boolean validate(View view) {
+        boolean ret = true;
+        // Validation logic here
+        EditText jobName = (EditText) view.findViewById(R.id.edit_job_name);
+        if (jobName.getText() == null || jobName.getText().toString().isEmpty()) {
+            jobName.setError("Job Name is a required field.");
+            ret = false;
+        }
+        EditText jobDescription = (EditText) view.findViewById(R.id.edit_job_description);
+        if (jobDescription.getText() == null || jobDescription.getText().toString().isEmpty()) {
+            jobDescription.setError("Job Description is a required field.");
+            ret = false;
         }
         return ret;
     }
 
-//    private void createCancelButton(View ret) {
-//        Button cancelButton = (Button)ret.findViewById(R.id.button_job_detail_cancel);
-//        cancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Hasta la vista, baby.
-//                getActivity().finish();
-//            }
-//        });
-//    }
-
     private void createSaveButton(View ret) {
+        // TODO: Validation Logic!!
         Button saveButton = (Button) ret.findViewById(R.id.button_job_detail_save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Save this object using the DataStore
-                DataStore dataStore = DataStore.instance(getActivity());
-                if (mJob.getId() == null) {
-                    Job newlyCreatedJobObject = dataStore.create(mJob);
-                    if (newlyCreatedJobObject == null) {
-                        Toast.makeText(getActivity(), "Cannot save this job (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
-                    } else if (SystemOptions.instance(getActivity()).showNotifications()) {
-                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                final String METHOD = "onClick(" + v + "): ";
+                if (validate(JobDetailFragment.this.getView())) {
+                    // Save this object using the DataStore
+                    DataStore dataStore = DataStore.instance(getActivity());
+                    if (mJob.getId() == null) {
+                        Job newlyCreatedJobObject = dataStore.create(mJob);
+                        if (newlyCreatedJobObject == null) {
+                            Toast.makeText(getActivity(), "Cannot save this job (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
+                        } else if (ApplicationOptions.instance(getActivity()).showNotifications(true)) {
+                            Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                            getActivity().finish();
+                        }
+                    } else {
+                        int numRowsUpdated = dataStore.update(mJob);
+                        if (numRowsUpdated == 0) {
+                            Toast.makeText(getActivity(), "Cannot save your changes (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
+                        } else if (ApplicationOptions.instance(getActivity()).showNotifications(true)) {
+                            Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                            getActivity().finish();
+                        }
                     }
                 } else {
-                    int numRowsUpdated = dataStore.update(mJob);
-                    if (numRowsUpdated == 0) {
-                        Toast.makeText(getActivity(), "Cannot save your changes (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
-                    } else if (SystemOptions.instance(getActivity()).showNotifications()) {
-                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
-                    }
+                    // Validation errors
+                    String message = "Cannot save your changes because there are errors. Please correct the errors and try again.";
+                    Log.w(TAG, METHOD + message);
+                    Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
                 }
             }
         });
@@ -171,4 +193,5 @@ public class JobDetailFragment extends Fragment {
             }
         });
     }
+
 }

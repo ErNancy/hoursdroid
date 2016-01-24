@@ -1,12 +1,14 @@
 package com.makotogo.mobile.hoursdroid.model;
 
+import com.makotogo.mobile.framework.ModelObject;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by sperry on 1/12/16.
  */
-public class Hours implements Serializable {
+public class Hours implements ModelObject, Serializable {
     // TODO: add fields and junk
     private Integer mId;
     private Date mBegin;

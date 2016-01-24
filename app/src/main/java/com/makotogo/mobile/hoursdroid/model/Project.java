@@ -1,9 +1,13 @@
 package com.makotogo.mobile.hoursdroid.model;
 
+import com.makotogo.mobile.framework.ModelObject;
+
+import java.io.Serializable;
+
 /**
  * Created by sperry on 1/12/16.
  */
-public class Project {
+public class Project implements ModelObject, Serializable {
 
     public static final String DEFAULT_PROJECT_NAME = "Default";
     public static final String DEFAULT_PROJECT_DESCRIPTION = "The Default Project";
@@ -12,6 +16,7 @@ public class Project {
     private String mName;
     private String mDescription;
     private Job mJob;
+    private Boolean mDefaultForJob;
 
     public Integer getId() {
         return mId;
@@ -43,6 +48,14 @@ public class Project {
 
     public void setJob(Job job) {
         mJob = job;
+    }
+
+    public Boolean getDefaultForJob() {
+        return mDefaultForJob;
+    }
+
+    public void setDefaultForJob(Boolean defaultForJob) {
+        mDefaultForJob = defaultForJob;
     }
 
 }

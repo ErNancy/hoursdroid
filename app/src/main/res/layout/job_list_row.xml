@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <view
@@ -47,14 +47,14 @@
                 android:textSize="10sp"
                 />
 
-            <TextView
-                android:id="@+id/job_list_row_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="This is the job's ID"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textSize="7sp"
-                />
+            <!--<TextView-->
+            <!--android:id="@+id/job_list_row_id"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="This is the job's ID"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:textSize="7sp"-->
+            <!--/>-->
 
         </LinearLayout>
 

@@ -37,6 +37,7 @@ public class HoursDbSchema {
             public static final String NAME = "NAME";
             public static final String DESCRIPTION = "description";
             public static final String JOB_ID = "job_id";
+            public static final String DEFAULT_FOR_JOB = "default_for_job";
         }
 
         public static final String CREATE_SQL = "CREATE TABLE " + NAME + "(" +
@@ -44,6 +45,7 @@ public class HoursDbSchema {
                 "," + Column.NAME + " TEXT NOT NULL" +
                 "," + Column.DESCRIPTION + " TEXT NOT NULL" +
                 "," + Column.JOB_ID + " INTEGER  NOT NULL" +
+                "," + Column.DEFAULT_FOR_JOB + " INTEGER" +
                 "," + computeForeignKey(Column.JOB_ID, JobTable.NAME, JobTable.Column.ID) +
                 "," + "UNIQUE(" + Column.JOB_ID + "," + Column.NAME + ")" +
                 ")";

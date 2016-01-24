@@ -2,6 +2,7 @@ package com.makotogo.mobile.hoursdroid;
 
 import android.app.Fragment;
 
+import com.makotogo.mobile.framework.AbstractSingleFragmentActivity;
 import com.makotogo.mobile.hoursdroid.model.Job;
 
 /**
@@ -10,8 +11,6 @@ import com.makotogo.mobile.hoursdroid.model.Job;
 public class JobDetailActivity extends AbstractSingleFragmentActivity {
 
     public static final String EXTRA_JOB = "extra." + JobDetailActivity.class.getSimpleName();
-
-    public static final String STATE_JOB = "state." + Job.class.getSimpleName();
 
     /**
      * Not totally sure that Intent data is preserved if the Activity is recreated
@@ -25,7 +24,7 @@ public class JobDetailActivity extends AbstractSingleFragmentActivity {
         if (mJob == null) {
             throw new RuntimeException("Job object from Intent cannot be null!");
         }
-        JobDetailFragment fragment = JobDetailFragment.newInstance(mJob);
+        JobDetailFragment fragment = FragmentFactory.createJobDetailFragment(mJob);
         return fragment;
     }
 

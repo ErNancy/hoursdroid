@@ -3,6 +3,7 @@ package com.makotogo.mobile.hoursdroid;
 import android.app.Fragment;
 import android.util.Log;
 
+import com.makotogo.mobile.framework.AbstractSingleFragmentActivity;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 
 /**
@@ -14,7 +15,7 @@ public class JobListActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        return new JobListFragment();
+        return FragmentFactory.createJobListFragment();
     }
 
     @Override

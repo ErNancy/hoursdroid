@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
 import com.makotogo.mobile.hoursdroid.util.HoursDbHelper;
-import com.makotogo.mobile.hoursdroid.util.SystemOptions;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -254,7 +254,7 @@ public class DataStore {
     private String computeGetJobsWhereClause() {
         String ret = null;
         // TODO: check the system prefs and see if we ignore inactive jobs
-        if (SystemOptions.instance(mContext).showInactiveJobs()) {
+        if (ApplicationOptions.instance(mContext).showInactiveJobs(true)) {
             ret = null;
         } else {
             ret = HoursDbSchema.JobTable.Column.ACTIVE + " = 1";
@@ -270,7 +270,26 @@ public class DataStore {
 
     public List<Project> getProjects(Job job) {
         mProjects.clear();
-        // TODO: code up the query
+        // WHERE JOB_ID = job.getId()
+        String whereClause = HoursDbSchema.ProjectTable.Column.JOB_ID + " = " + job.getId();
+        Cursor cursor = mDatabase.query(HoursDbSchema.ProjectTable.NAME,
+                null,// select *
+                whereClause,
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                null// no ORDER BY
+        );
+        ProjectCursorWrapper cursorWrapper = new ProjectCursorWrapper(cursor);
+        try {
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                mProjects.add(cursorWrapper.getProject());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
         return mProjects;
     }
 
@@ -279,6 +298,34 @@ public class DataStore {
         ret.setJob(job);
         ret.setName(Project.DEFAULT_PROJECT_NAME);
         ret.setDescription(Project.DEFAULT_PROJECT_DESCRIPTION);
+        ret.setDefaultForJob(true);
+        return ret;
+    }
+
+    public Project getDefaultProject(Job job) {
+        Project ret = null;
+        // WHERE JOB_ID = job.getId() AND DEFAULT_FOR_JOB = 1 (true)
+        String whereClause = HoursDbSchema.ProjectTable.Column.JOB_ID + " = " + job.getId() +
+                " AND " + HoursDbSchema.ProjectTable.Column.DEFAULT_FOR_JOB + " = 1";
+        Cursor cursor = mDatabase.query(HoursDbSchema.ProjectTable.NAME,
+                null,// select *
+                whereClause,
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                null// no ORDER BY
+        );
+        ProjectCursorWrapper cursorWrapper = new ProjectCursorWrapper(cursor);
+        try {
+            if (cursorWrapper.moveToFirst()) {
+                ret = cursorWrapper.getProject();
+            } else {
+                // No default Project for the specified Job
+                Log.w(TAG, "No default project for Job '" + job.getName() + " and ID = " + job.getId() + ".");
+            }
+        } finally {
+            cursorWrapper.close();
+        }
         return ret;
     }
 
@@ -325,6 +372,7 @@ public class DataStore {
         ret.put(HoursDbSchema.ProjectTable.Column.NAME, project.getName());
         ret.put(HoursDbSchema.ProjectTable.Column.DESCRIPTION, project.getDescription());
         ret.put(HoursDbSchema.ProjectTable.Column.JOB_ID, project.getJob().getId());
+        ret.put(HoursDbSchema.ProjectTable.Column.DEFAULT_FOR_JOB, project.getDefaultForJob());
         return ret;
     }
 
