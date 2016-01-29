@@ -90,21 +90,27 @@ public class JobDetailFragment extends AbstractFragment {
     protected boolean validate(View view) {
         boolean ret = true;
         // Validation logic here
-        EditText jobName = (EditText) view.findViewById(R.id.edit_job_name);
+        EditText jobName = (EditText) view.findViewById(R.id.edittext_job_detail_job_name);
         if (jobName.getText() == null || jobName.getText().toString().isEmpty()) {
             jobName.setError("Job Name is a required field.");
             ret = false;
         }
-        EditText jobDescription = (EditText) view.findViewById(R.id.edit_job_description);
+        EditText jobDescription = (EditText) view.findViewById(R.id.edittext_job_detail_job_description);
         if (jobDescription.getText() == null || jobDescription.getText().toString().isEmpty()) {
             jobDescription.setError("Job Description is a required field.");
+            ret = false;
+        }
+        CheckBox activeCheckBox = (CheckBox) view.findViewById(R.id.checkBox_job_detail_job_active);
+        if (!activeCheckBox.isChecked() && DataStore.instance(getActivity()).hasActiveHours(mJob)) {
+            String message = "Cannot deactivate: Job has active Hours.";
+            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+            activeCheckBox.setError(message);
             ret = false;
         }
         return ret;
     }
 
     private void createSaveButton(View ret) {
-        // TODO: Validation Logic!!
         Button saveButton = (Button) ret.findViewById(R.id.button_job_detail_save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,7 +147,7 @@ public class JobDetailFragment extends AbstractFragment {
     }
 
     private void createActiveFlagCheckBox(View ret) {
-        CheckBox activeCheckBox = (CheckBox) ret.findViewById(R.id.checkBox_job_active);
+        CheckBox activeCheckBox = (CheckBox) ret.findViewById(R.id.checkBox_job_detail_job_active);
         activeCheckBox.setChecked(mJob.isActive());
         activeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -153,7 +159,7 @@ public class JobDetailFragment extends AbstractFragment {
     }
 
     private void createJobDescriptionEditText(View ret) {
-        EditText jobDescriptionEditText = (EditText) ret.findViewById(R.id.edit_job_description);
+        EditText jobDescriptionEditText = (EditText) ret.findViewById(R.id.edittext_job_detail_job_description);
         jobDescriptionEditText.setText(mJob.getDescription());
         jobDescriptionEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -174,7 +180,7 @@ public class JobDetailFragment extends AbstractFragment {
     }
 
     private void createJobNameEditText(View ret) {
-        EditText jobNameEditText = (EditText) ret.findViewById(R.id.edit_job_name);
+        EditText jobNameEditText = (EditText) ret.findViewById(R.id.edittext_job_detail_job_name);
         jobNameEditText.setText(mJob.getName());
         jobNameEditText.addTextChangedListener(new TextWatcher() {
             @Override

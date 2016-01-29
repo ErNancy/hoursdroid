@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/hours_list_row_root_layout"
+              android:id="@+id/rootlayout_hours_list_row"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
@@ -22,15 +22,18 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/begin"
+                android:text="@string/start"
                 android:layout_weight="1"
+                android:textStyle="bold"
                 />
 
             <TextView
-                android:id="@+id/hours_list_row_begin_date_time"
+                android:id="@+id/textview_hours_list_row_begin_date"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="3"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="10sp"
                 />
 
             <TextView
@@ -38,13 +41,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/end"
                 android:layout_weight="1"
+                android:textStyle="bold"
                 />
 
             <TextView
-                android:id="@+id/hours_list_row_end_date_time"
+                android:id="@+id/textview_hours_list_row_end_date"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="3"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="10sp"
                 />
 
         </LinearLayout>
@@ -59,13 +65,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/hours_break"
                 android:layout_weight="1"
+                android:textStyle="bold"
                 />
 
             <TextView
-                android:id="@+id/hours_list_row_break"
+                android:id="@+id/textview_hours_list_row_break"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="10sp"
                 />
 
             <TextView
@@ -73,13 +82,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/total"
                 android:layout_weight="1"
+                android:textStyle="bold"
                 />
 
             <TextView
-                android:id="@+id/hours_list_row_total"
+                android:id="@+id/textview_hours_list_row_total"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="3"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="10sp"
                 />
 
         </LinearLayout>
@@ -90,12 +102,12 @@
         class="android.view.View"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#000"/>
+        android:background="@color/text_color"/>
 
     <view
         class="android.view.View"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#333"/>
+        android:background="@color/dark_grey"/>
 
 </LinearLayout>

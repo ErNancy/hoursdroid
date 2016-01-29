@@ -9,8 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
-        android:background="@drawable/rounded_border"
+        android:layout_weight="4"
         android:orientation="horizontal"
         android:padding="5dp">
 
@@ -18,54 +17,40 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="#000"
-            android:text="@string/hours_project_name"/>
-
-        <Spinner
-            android:id="@+id/spinner_project"
-            android:layout_width="0dp"
-            android:textColor="#000"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:padding="5dp">
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3"
-        android:background="@drawable/rounded_border"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:text="@string/hours_job_name"/>
 
         <Spinner
-            android:id="@+id/spinner_job"
+            android:id="@+id/spinner_hours_detail_job"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
+            android:background="@drawable/rounded_border"
             android:layout_weight="5"/>
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="4"
+        android:orientation="horizontal"
         android:padding="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_color"
+            android:text="@string/hours_project_name"/>
+
+        <Spinner
+            android:id="@+id/spinner_hours_detail_project"
+            android:layout_width="0dp"
+            android:textColor="@color/text_color"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_border"
+            android:layout_weight="5"/>
 
     </LinearLayout>
 
@@ -87,15 +72,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:text="@string/hours_begin_date_time"/>
 
         <TextView
-            android:id="@+id/textview_hours_begin_date_time"
+            android:id="@+id/textview_hours_detail_begin_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:background="@drawable/rounded_border"/>
 
     </LinearLayout>
@@ -110,15 +95,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:text="@string/hours_end_date_time"/>
 
         <TextView
-            android:id="@+id/textview_hours_end_date_time"
+            android:id="@+id/textview_hours_detail_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:background="@drawable/rounded_border"/>
 
     </LinearLayout>
@@ -133,15 +118,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:text="@string/hours_break"/>
 
         <TextView
-            android:id="@+id/textview_hours_break"
+            android:id="@+id/textview_hours_detail_break"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:background="@drawable/rounded_border"/>
 
     </LinearLayout>
@@ -156,14 +141,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:text="@string/hours_total"/>
 
         <TextView
-            android:id="@+id/textview_hours_total"
+            android:id="@+id/textview_hours_detail_total"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:layout_weight="8"/>
 
     </LinearLayout>
@@ -179,34 +164,42 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:text="@string/hours_description"/>
 
         <EditText
-            android:id="@+id/edittext_hours_description"
+            android:id="@+id/edittext_hours_detail_description"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="6"
             android:background="@drawable/rounded_border"
-            android:textColor="#000"
+            android:textColor="@color/text_color"
             android:inputType="textMultiLine"/>
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
-        android:padding="5dp"
+        android:layout_weight="5"
         android:orientation="horizontal"
+        android:padding="5dp"
         android:gravity="center">
 
-        <Button
-            android:id="@+id/button_hours_detail_save"
+        <LinearLayout
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:text="@string/save"
-            android:background="@color/button_color"/>
+            android:background="@drawable/rounded_border"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/button_hours_detail_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/save"
+                android:background="@color/standard_background"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

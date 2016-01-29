@@ -19,11 +19,11 @@ public class JobCursorWrapper extends CursorWrapper {
     }
 
     public Job getJob() {
-        int id = getInt(getColumnIndex(HoursDbSchema.JobTable.Column.ID));
-        String name = getString(getColumnIndex(HoursDbSchema.JobTable.Column.NAME));
-        String description = getString(getColumnIndex(HoursDbSchema.JobTable.Column.DESCRIPTION));
-        boolean active = (getInt(getColumnIndex(HoursDbSchema.JobTable.Column.ACTIVE)) == 1) ? true : false;
-        Date whenCreated = new Date(getInt(getColumnIndex(HoursDbSchema.JobTable.Column.WHEN_CREATED)));
+        int id = getInt(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.ID));
+        String name = getString(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.NAME));
+        String description = getString(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.DESCRIPTION));
+        boolean active = (getInt(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.ACTIVE)) == 1) ? true : false;
+        Date whenCreated = new Date(getInt(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.WHEN_CREATED)));
 
         Job ret = new Job();
         ret.setId(id);

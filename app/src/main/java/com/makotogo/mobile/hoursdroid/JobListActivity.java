@@ -20,7 +20,7 @@ public class JobListActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected String getActionBarTitle() {
-        return "Jobs"; //TODO: Externalize in strings.xml
+        return getString(R.string.jobs);
     }
 
     @Override

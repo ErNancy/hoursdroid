@@ -20,7 +20,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <EditText
-            android:id="@+id/edit_job_name"
+            android:id="@+id/edittext_job_detail_job_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
@@ -42,7 +42,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <EditText
-            android:id="@+id/edit_job_description"
+            android:id="@+id/edittext_job_detail_job_description"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="textMultiLine"
@@ -59,7 +59,7 @@
         android:orientation="vertical">
 
         <CheckBox
-            android:id="@+id/checkBox_job_active"
+            android:id="@+id/checkBox_job_detail_job_active"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -83,7 +83,7 @@
 
             <Button
                 android:id="@+id/button_job_detail_save"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/save"
                 android:background="@color/standard_background"/>

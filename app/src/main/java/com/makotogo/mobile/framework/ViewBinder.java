@@ -7,7 +7,8 @@ import android.view.View;
  */
 public interface ViewBinder<T> {
 
-    void bind(T object, View view);
+    void initView(View view);
 
+    void bind(T object, View view);
 
 }

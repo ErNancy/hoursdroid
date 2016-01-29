@@ -1,6 +1,7 @@
 package com.makotogo.mobile.framework;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.ArrayAdapter;
  * Created by sperry on 1/24/16.
  */
 public abstract class AbstractArrayAdapter<T extends ModelObject> extends ArrayAdapter<ModelObject> {
+    private static final String TAG = AbstractArrayAdapter.class.getSimpleName();
 
     private Activity mActivity;
     private int mLayoutResourceId;
@@ -30,10 +32,13 @@ public abstract class AbstractArrayAdapter<T extends ModelObject> extends ArrayA
      * @param resource
      */
     public AbstractArrayAdapter(Activity activity, int resource) {
-        // Tells the superclass that we will be handling View inflation
         super(activity, 0);
+        final String METHOD = "<constructor>(" + activity + ", " + resource + "): ";
+        Log.d(TAG, METHOD + "...");
+        // Tells the superclass that we will be handling View inflation
         mActivity = activity;
         mLayoutResourceId = resource;
+        Log.d(TAG, METHOD + "...DONE");
     }
 
     /**
@@ -72,6 +77,7 @@ public abstract class AbstractArrayAdapter<T extends ModelObject> extends ArrayA
         // Fill up the View with stuff
         T object = getItem(position);
         ViewBinder<T> viewBinder = (ViewBinder<T>) convertView.getTag(getLayoutResourceId());
+        viewBinder.initView(convertView);
         viewBinder.bind(object, convertView);
         return convertView;
     }

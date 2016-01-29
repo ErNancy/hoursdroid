@@ -110,10 +110,6 @@ public class DataStore {
     /////////////////////////////////////////////////////////////////////////////////
     //                              J    O    B                                    //
     /////////////////////////////////////////////////////////////////////////////////
-    /**
-     * List of Job objects.
-     */
-    List<Job> mJobs = new ArrayList<>();
 
     /**
      * Returns a list of Job objects from the DB.
@@ -121,9 +117,9 @@ public class DataStore {
      * @return List<Job> a list of Job objects, fresh from the DB.
      */
     public List<Job> getJobs() {
-        mJobs.clear();
-        // TODO: Reload from DB on background thread! DO NOT RUN THIS ON THE UI THREAD!
-        // TODO: Use AsyncTask for this!
+        List<Job> ret = new ArrayList<>();
+        final String METHOD = "getJobs(): ";
+        Log.d(TAG, METHOD + "Beginning execution...");
         String orderByClause = HoursDbSchema.JobTable.Column.ACTIVE + " desc, " + HoursDbSchema.JobTable.Column.NAME;
         String whereClause = computeGetJobsWhereClause();
         Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
@@ -138,13 +134,14 @@ public class DataStore {
         try {
             cursorWrapper.moveToFirst();
             while (!cursorWrapper.isAfterLast()) {
-                mJobs.add(cursorWrapper.getJob());
+                ret.add(cursorWrapper.getJob());
                 cursorWrapper.moveToNext();
             }
         } finally {
             cursorWrapper.close();
         }
-        return mJobs;
+        Log.d(TAG, METHOD + "Query execution complete.");
+        return ret;
     }
 
     /**
@@ -174,7 +171,6 @@ public class DataStore {
      * R is for Read.
      *
      * @param jobId The ID of the Job record to retrieve.
-     *
      * @return Job
      */
     public Job getJob(int jobId) {
@@ -191,6 +187,30 @@ public class DataStore {
         try {
             if (cursorWrapper.moveToFirst()) {
                 ret = cursorWrapper.getJob();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+        return ret;
+    }
+
+    public List<Job> getJobs(String whereClause) {
+        List<Job> ret = new ArrayList<>();
+        Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
+                null,// select *
+                whereClause,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                null// no ORDER BY
+        );
+        JobCursorWrapper cursorWrapper = new JobCursorWrapper(cursor);
+        try {
+            if (cursorWrapper.moveToFirst()) {
+                while (!cursorWrapper.isAfterLast()) {
+                    ret.add(cursorWrapper.getJob());
+                    cursorWrapper.moveToNext();
+                }
             }
         } finally {
             cursorWrapper.close();
@@ -259,6 +279,50 @@ public class DataStore {
         } else {
             ret = HoursDbSchema.JobTable.Column.ACTIVE + " = 1";
         }
+        return ret;
+    }
+
+    /**
+     * Returns true if the specified Job has Hours records for it,
+     * false otherwise.
+     *
+     * @param job The Job to check to see if it has Hours records.
+     * @return - boolean - true if there is one or more Hours records
+     * for this Job, false otherwise.
+     */
+    public boolean hasHours(Job job) {
+        final String METHOD = "hasHours(" + job + "): ";
+        boolean ret;
+        //
+        List<Hours> hours = getHours(job);
+        ret = (hours.isEmpty()) ? false : true;
+        Log.d(TAG, METHOD + "Q: Job has hours? A: " + ret);
+        return ret;
+    }
+
+    /**
+     * Checks the DB to see if the specified Job record has an active
+     * Hours record, that is one, where there is no End specified.
+     * <p/>
+     * Returns true if there is an Active Hours record, false otherwise.
+     *
+     * @param job The Job to check if it has an Hours record with no End,
+     *            which means it is "active".
+     * @return boolean - true if there is an Active Hours record, false
+     * otherwise
+     */
+    public boolean hasActiveHours(Job job) {
+        final String METHOD = "hasActiveHours(" + job + "): ";
+        boolean ret = false;// Default: no active records
+        //
+        List<Hours> hours = getHours(job);
+        for (Hours hoursRec : hours) {
+            if (hoursRec.getEnd() == null) {
+                ret = true;
+                break;
+            }
+        }
+        Log.d(TAG, METHOD + "Q: Job has active hours? A: " + ret);
         return ret;
     }
 
@@ -337,7 +401,7 @@ public class DataStore {
      */
     public Project getProject(int projectId) {
         Project ret = null;
-        Cursor cursor = mDatabase.query(HoursDbSchema.JobTable.NAME,
+        Cursor cursor = mDatabase.query(HoursDbSchema.ProjectTable.NAME,
                 null,// select *
                 HoursDbSchema.ProjectTable.Column.ID + "=" + projectId,// computed
                 null,// no WHERE args either
@@ -380,11 +444,34 @@ public class DataStore {
     //                       H     O     U     R     S                             //
     /////////////////////////////////////////////////////////////////////////////////
 
-    private List<Hours> mHours = new ArrayList<>();
+    public List<Hours> getHours(Project project) {
+        List<Hours> ret = new ArrayList<>();
+        String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
+        String whereClause = computeGetHoursWhereClause(project);
+        Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
+                null,// select *
+                whereClause,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                orderByClause// no ORDER BY
+        );
+        HoursCursorWrapper cursorWrapper = new HoursCursorWrapper(cursor);
+        try {
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                ret.add(cursorWrapper.getHours());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+        return ret;
+    }
 
     public List<Hours> getHours(Job job) {
-        mHours.clear();
-        String orderByClause = HoursDbSchema.HoursTable.Column.BEGIN + " desc";
+        List<Hours> ret = new ArrayList<>();
+        String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
         String whereClause = computeGetHoursWhereClause(job);
         Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
                 null,// select *
@@ -398,24 +485,24 @@ public class DataStore {
         try {
             cursorWrapper.moveToFirst();
             while (!cursorWrapper.isAfterLast()) {
-                mHours.add(cursorWrapper.getHours());
+                ret.add(cursorWrapper.getHours());
                 cursorWrapper.moveToNext();
             }
         } finally {
             cursorWrapper.close();
         }
-        return mHours;
+        return ret;
     }
 
     private static ContentValues getContentValues(Hours hours) {
         ContentValues ret = new ContentValues();
         ret.put(HoursDbSchema.HoursTable.Column.ID, hours.getId());
-        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, hours.getBegin().getTime());
-        ret.put(HoursDbSchema.HoursTable.Column.END, hours.getEnd().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, (hours.getBegin() == null) ? null : hours.getBegin().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.END, (hours.getEnd() == null) ? null : hours.getEnd().getTime());
         ret.put(HoursDbSchema.HoursTable.Column.BREAK, hours.getBreak());
         ret.put(HoursDbSchema.HoursTable.Column.DESCRIPTION, hours.getDescription());
         ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
-        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, hours.getWhenCreated().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, (hours.getWhenCreated() == null) ? null : hours.getWhenCreated().getTime());
         ret.put(HoursDbSchema.HoursTable.Column.JOB_ID, hours.getJob().getId());
         ret.put(HoursDbSchema.HoursTable.Column.PROJECT_ID, hours.getProject().getId());
         return ret;
@@ -467,11 +554,25 @@ public class DataStore {
      *
      * @param hours
      */
-    public void delete(Hours hours) {
+    public int delete(Hours hours) {
+        final String METHOD = "delete(" + hours + "): ";
+        int numRowsDeleted = 0;
         String whereClause = HoursDbSchema.HoursTable.Column.ID + " = " + Integer.toString(hours.getId());
         // Do the DELETE
-        getDatabase().delete(HoursDbSchema.JobTable.NAME, whereClause, null);
-        Log.d(TAG, "DELETE: row ID = " + hours.getId());
+        numRowsDeleted = getDatabase().delete(HoursDbSchema.HoursTable.NAME, whereClause, null);
+        if (numRowsDeleted == 0) {
+            Log.d(TAG, METHOD + "Delete failed.");
+        } else {
+            Log.d(TAG, METHOD + "DELETE: row ID = " + hours.getId() + " succeeded.");
+        }
+        return numRowsDeleted;
+    }
+
+    private String computeGetHoursWhereClause(Project project) {
+        String ret = null;
+        //
+        ret = HoursDbSchema.HoursTable.Column.PROJECT_ID + " = " + project.getId();
+        return ret;
     }
 
     private String computeGetHoursWhereClause(Job job) {

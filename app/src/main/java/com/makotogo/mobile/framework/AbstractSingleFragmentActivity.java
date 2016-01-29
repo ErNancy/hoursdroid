@@ -2,6 +2,7 @@ package com.makotogo.mobile.framework;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -50,6 +51,23 @@ public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
      */
     protected void processActivityExtras() {
         // By default, there are no extras.
+    }
+
+    /**
+     * Helper method to retrieve string resources.
+     *
+     * @param resourceId
+     * @return
+     */
+    protected final String getStringResource(int resourceId) {
+        final String METHOD = "getStringResource(" + resourceId + "): ";
+        String ret = "RESOURCE " + resourceId + " NOT FOUND";
+        try {
+            getResources().getString(resourceId);
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, METHOD + e.getLocalizedMessage(), e);
+        }
+        return ret;
     }
 
     /**

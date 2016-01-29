@@ -1,7 +1,9 @@
 package com.makotogo.mobile.framework;
 
 import android.app.Fragment;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -34,5 +36,17 @@ public abstract class AbstractFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         saveInstanceState(outState);
+    }
+
+    protected final String getStringResource(int resourceId) {
+        final String METHOD = "getStringResource(" + resourceId + "): ";
+        String ret = "RESOURCE STRING NOT FOUND";
+        //
+        try {
+            ret = getActivity().getResources().getString(resourceId);
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, METHOD + e.getLocalizedMessage(), e);
+        }
+        return ret;
     }
 }

@@ -68,14 +68,14 @@ public class HoursDbSchema {
 
         public static final String CREATE_SQL = "CREATE TABLE " + NAME + "(" +
                 Column.ID + " INTEGER PRIMARY KEY AUTOINCREMENT" +
-                "," + Column.BEGIN + " INTEGER" +
+                "," + Column.BEGIN + " INTEGER NOT NULL" +
                 "," + Column.END + " INTEGER" +
                 "," + Column.BREAK + " INTEGER" +
                 "," + Column.DESCRIPTION + " TEXT" +
-                "," + Column.JOB_ID + " INTEGER" +
-                "," + Column.PROJECT_ID + " INTEGER" +
+                "," + Column.JOB_ID + " INTEGER NOT NULL" +
+                "," + Column.PROJECT_ID + " INTEGER NOT NULL" +
                 "," + Column.DELETED + " INTEGER" +
-                "," + Column.WHEN_CREATED + " INTEGER" +
+                "," + Column.WHEN_CREATED + " INTEGER NOT NULL" +
                 "," + computeForeignKey(Column.JOB_ID, JobTable.NAME, JobTable.Column.ID) +
                 "," + computeForeignKey(Column.PROJECT_ID, ProjectTable.NAME, ProjectTable.Column.ID) +
                 ")";

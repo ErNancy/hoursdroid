@@ -54,4 +54,6 @@
     <string name="start_work">Start Work</string>
     <string name="stop_work">Stop Work</string>
     <string name="project_name">Project Name</string>
+    <string name="jobs">Jobs</string>
+
 </resources>

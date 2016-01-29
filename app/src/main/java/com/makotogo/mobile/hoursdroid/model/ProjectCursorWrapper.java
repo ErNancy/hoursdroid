@@ -18,12 +18,12 @@ public class ProjectCursorWrapper extends CursorWrapper {
 
     public Project getProject() {
         Project ret = new Project();
-        int id = getInt(getColumnIndex(HoursDbSchema.ProjectTable.Column.ID));
-        String description = getString(getColumnIndex(HoursDbSchema.ProjectTable.Column.DESCRIPTION));
-        String name = getString(getColumnIndex(HoursDbSchema.ProjectTable.Column.NAME));
-        int jobId = getInt(getColumnIndex(HoursDbSchema.ProjectTable.Column.JOB_ID));
+        int id = getInt(getColumnIndexOrThrow(HoursDbSchema.ProjectTable.Column.ID));
+        String description = getString(getColumnIndexOrThrow(HoursDbSchema.ProjectTable.Column.DESCRIPTION));
+        String name = getString(getColumnIndexOrThrow(HoursDbSchema.ProjectTable.Column.NAME));
+        int jobId = getInt(getColumnIndexOrThrow(HoursDbSchema.ProjectTable.Column.JOB_ID));
         Job job = DataStore.instance().getJob(jobId);
-        boolean defaultForJob = (getInt(getColumnIndex(HoursDbSchema.ProjectTable.Column.DEFAULT_FOR_JOB)) == 1) ? true : false;
+        boolean defaultForJob = (getInt(getColumnIndexOrThrow(HoursDbSchema.ProjectTable.Column.DEFAULT_FOR_JOB)) == 1) ? true : false;
 
         ret.setId(id);
         ret.setName(name);

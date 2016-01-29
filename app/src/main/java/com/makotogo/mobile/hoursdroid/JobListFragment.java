@@ -1,6 +1,7 @@
 package com.makotogo.mobile.hoursdroid;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +35,7 @@ public class JobListFragment extends AbstractFragment {
 
     private static final boolean IN_ACTION_MODE = true;
     private static final boolean NOT_IN_ACTION_MODE = false;
+    public static final String HOURS_CANNOT_BE_ADDED_FOR_INACTIVE_JOBS = "Hours cannot be added for inactive Jobs.";
     private transient boolean mInActionMode;
 
     @Override
@@ -110,11 +113,9 @@ public class JobListFragment extends AbstractFragment {
     protected void configureUI(View view) {
         final String METHOD = "configureUI(" + view + "): ";
         // Populate ListView with Job information
-        ListView listView = (ListView) view.findViewById(R.id.job_list_view);
+        ListView listView = (ListView) view.findViewById(R.id.listview_job_list);
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        // Access the Job backing store singleton
-        DataStore dataStore = DataStore.instance(getActivity());
         // Configure the List View
         configureListView(listView);
     }
@@ -128,14 +129,30 @@ public class JobListFragment extends AbstractFragment {
     @Override
     protected void updateUI() {
         final String METHOD = "updateUI(): ";
-        DataStore dataStore = DataStore.instance(getActivity());
-        // Now refresh the view
-        List<Job> jobs = dataStore.getJobs();
-        if (getListViewAdapter() != null) {
-            getListViewAdapter().clear();
-            getListViewAdapter().addAll(jobs);
-            getListViewAdapter().notifyDataSetChanged();
-        }
+        Log.d(TAG, METHOD + "Starting AsyncTask...");
+        // Now refresh the view - use AsyncTask
+        new AsyncTask<Void, Void, List<Job>>() {
+
+            @Override
+            protected List<Job> doInBackground(Void... params) {
+                final String METHOD = "doInBackground(): ";
+                DataStore dataStore = DataStore.instance(getActivity());
+                Log.d(TAG, METHOD);
+                return dataStore.getJobs();
+            }
+
+            @Override
+            protected void onPostExecute(List<Job> jobs) {
+                final String METHOD = "onPostExecute(" + jobs + "): ";
+                Log.d(TAG, METHOD + "Adding " + jobs.size() + " to ListView adapter...");
+                if (getListViewAdapter() != null) {
+                    getListViewAdapter().clear();
+                    getListViewAdapter().addAll(jobs);
+                    getListViewAdapter().notifyDataSetChanged();
+                }
+                Log.d(TAG, METHOD + "Done.");
+            }
+        }.execute();
     }
 
     @Override
@@ -162,18 +179,17 @@ public class JobListFragment extends AbstractFragment {
     }
 
     private ListView getListView() {
+        ListView ret = null;
         View view = getView();
-        if (view == null) {
-            throw new RuntimeException("View has not yet been configured. Cannot invoke getListView()!");
+        if (view != null) {
+            ret = (ListView) view.findViewById(R.id.listview_job_list);
         }
-        return (ListView) view.findViewById(R.id.job_list_view);
+        return ret;
     }
 
     private AbstractArrayAdapter<Job> getListViewAdapter() {
         AbstractArrayAdapter<Job> ret = null;
-        if (getListView() == null) {
-            throw new RuntimeException("ListView has not been configured!");
-        } else {
+        if (getListView() != null) {
             ret = (AbstractArrayAdapter<Job>) getListView().getAdapter();
         }
         return ret;
@@ -213,7 +229,7 @@ public class JobListFragment extends AbstractFragment {
                         }
                     } else {
                         Toast.makeText(getActivity(),
-                                "Hours cannot be added for inactive Jobs.",
+                                HOURS_CANNOT_BE_ADDED_FOR_INACTIVE_JOBS,
                                 Toast.LENGTH_LONG
                         ).show();
                     }
@@ -245,6 +261,7 @@ public class JobListFragment extends AbstractFragment {
 
                     @Override
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        final String METHOD = "onActionItemClicked(ActionMode, MenuItem): ";
                         boolean ret;
                         Job job = (Job) getListViewAdapter().getItem(position);
                         // Switch on the menu item ID
@@ -258,7 +275,14 @@ public class JobListFragment extends AbstractFragment {
                                 ret = true;// handled
                                 break;
                             case R.id.menu_item_job_delete:
-                                DataStore.instance(getActivity()).delete(job);
+                                Log.d(TAG, METHOD + "Attempting to delete a Job...");
+                                DataStore dataStore = DataStore.instance(getActivity());
+                                if (dataStore.hasHours(job)) {
+                                    Toast.makeText(getActivity(), "Cannot delete a Job that has Hours.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Log.d(TAG, METHOD + "Job has no Hours objects for it... deleting...");
+                                    dataStore.delete(job);
+                                }
                                 ret = true;// handled
                                 break;
                             default:
@@ -301,19 +325,27 @@ public class JobListFragment extends AbstractFragment {
     private class JobViewBinder implements ViewBinder<Job> {
 
         private TextView getNameTextView(View view) {
-            return (TextView) view.findViewById(R.id.job_list_row_name);
+            return (TextView) view.findViewById(R.id.textview_job_list_row_name);
         }
 
         private TextView getDescriptionTextView(View view) {
-            return (TextView) view.findViewById(R.id.job_list_row_description);
+            return (TextView) view.findViewById(R.id.textview_job_list_row_description);
         }
 
-        //        private TextView getIdTextView(View view) {
-//            return (TextView) view.findViewById(R.id.job_list_row_id);
-//        }
-//
         private View getIsJobActiveView(View view) {
             return (View) view.findViewById(R.id.job_list_row_active);
+        }
+
+        private ImageView getActiveHours(View view) {
+            return (ImageView) view.findViewById(R.id.imageview_job_list_row_active_hours);
+        }
+
+        @Override
+        public void initView(View view) {
+            getNameTextView(view).setText("");
+            getDescriptionTextView(view).setText("");
+            getIsJobActiveView(view).setSelected(false);
+            getActiveHours(view).setVisibility(View.INVISIBLE);
         }
 
         public void bind(Job job, View view) {
@@ -324,35 +356,11 @@ public class JobListFragment extends AbstractFragment {
             } else {
                 getIsJobActiveView(view).setBackgroundColor(view.getContext().getResources().getColor(android.R.color.holo_red_light));
             }
-//            getIdTextView(view).setText((job.getId() == null) ? "UNSAVED" : "ID=" + job.getId().toString());
+            if (DataStore.instance(getActivity()).hasActiveHours(job)) {
+                getActiveHours(view).setVisibility(View.VISIBLE);
+            }
         }
 
     }
 
-    /**
-     * Custom implementation of ArrayAdapter<T> that provides its own
-     * custom View.
-     */
-//    private class JobAdapter extends ArrayAdapter<Job> {
-//
-//        public JobAdapter() {
-//            super(getActivity(), 0);
-//        }
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//            final String METHOD = "getView(" + position + ", " + convertView + ", " + parent + "): ";
-//            // Check to see if we need to create a view, or if it is recycled
-//            if (convertView == null) {
-//                convertView = getActivity().getLayoutInflater().inflate(R.layout.job_list_row, null);
-//                JobViewBinder jobViewBinder = new JobViewBinder();
-//                convertView.setTag(jobViewBinder);
-//            }
-//            Job job = getItem(position);
-//            JobViewBinder jobViewBinder = (JobViewBinder) convertView.getTag();
-//            jobViewBinder.bindJobData(job, convertView);
-//            return convertView;
-//        }
-//
-//    }
 }

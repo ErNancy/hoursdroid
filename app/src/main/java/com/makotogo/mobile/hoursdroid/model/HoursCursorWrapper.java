@@ -19,16 +19,19 @@ public class HoursCursorWrapper extends CursorWrapper {
     }
 
     public Hours getHours() {
-        int id = getInt(getColumnIndex(HoursDbSchema.HoursTable.Column.ID));
-        Date begin = new Date(getInt(getColumnIndex(HoursDbSchema.HoursTable.Column.BEGIN)));
-        Date end = new Date(getInt(getColumnIndex(HoursDbSchema.HoursTable.Column.END)));
-        long breakDuration = getLong(getColumnIndex(HoursDbSchema.HoursTable.Column.BREAK));
-        String description = getString(getColumnIndex(HoursDbSchema.HoursTable.Column.DESCRIPTION));
-        boolean deleted = (getInt(getColumnIndex(HoursDbSchema.HoursTable.Column.DELETED)) == 1) ? true : false;
-        Date whenCreated = new Date(getInt(getColumnIndex(HoursDbSchema.JobTable.Column.WHEN_CREATED)));
-        int jobId = getInt(getColumnIndex(HoursDbSchema.HoursTable.Column.JOB_ID));
+        int id = getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.ID));
+        long millis = getLong(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.BEGIN));
+        Date begin = (millis > 0) ? new Date(millis) : null;
+        millis = getLong(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.END));
+        Date end = (millis > 0) ? new Date(millis) : null;
+        long breakDuration = getLong(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.BREAK));
+        String description = getString(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.DESCRIPTION));
+        boolean deleted = (getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.DELETED)) == 1) ? true : false;
+        millis = getLong(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.WHEN_CREATED));
+        Date whenCreated = (millis > 0) ? new Date(millis) : null;
+        int jobId = getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.JOB_ID));
         Job job = DataStore.instance().getJob(jobId);
-        int projectId = getInt(getColumnIndex(HoursDbSchema.HoursTable.Column.PROJECT_ID));
+        int projectId = getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.PROJECT_ID));
         Project project = DataStore.instance().getProject(projectId);
 
         Hours ret = new Hours();

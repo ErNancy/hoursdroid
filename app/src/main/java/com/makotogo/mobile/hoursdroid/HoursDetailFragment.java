@@ -45,7 +45,7 @@ public class HoursDetailFragment extends AbstractFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View ret = inflater.inflate(R.layout.fragment_hours_detail_old, container, false);
+        View ret = inflater.inflate(R.layout.fragment_hours_detail, container, false);
         // Process Fragment arguments.
         processFragmentArguments();
         if (mHours == null) {
@@ -56,10 +56,12 @@ public class HoursDetailFragment extends AbstractFragment {
 
     @Override
     protected void configureUI(View view) {
+        // Job Spinner
+        // Project Spinner
         // Begin Date
         createBeginDate(view);
-        // Begin Time
-        createBeginTime(view);
+        // End Date
+        createEndDate(view);
     }
 
     @Override
@@ -96,7 +98,7 @@ public class HoursDetailFragment extends AbstractFragment {
     @Override
     protected void updateUI() {
         if (mHours.getBegin() != null) {
-            ((TextView) getView().findViewById(R.id.textview_hours_begin_date))
+            ((TextView) getView().findViewById(R.id.textview_hours_detail_begin_date))
                     .setText(DateUtils.formatDateTime(
                             getActivity(),
                             mHours.getBegin().getTime(),
@@ -111,7 +113,7 @@ public class HoursDetailFragment extends AbstractFragment {
     }
 
     private void createBeginDate(View view) {
-        TextView beginDateTextView = (TextView) view.findViewById(R.id.textview_hours_begin_date);
+        TextView beginDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_begin_date);
         beginDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,8 +135,8 @@ public class HoursDetailFragment extends AbstractFragment {
         }
     }
 
-    private void createBeginTime(View view) {
-        TextView beginTimeTextView = (TextView) view.findViewById(R.id.textview_hours_begin_time);
+    private void createEndDate(View view) {
+        TextView endDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_end_date);
         // TODO: Add OnClick listener so when View is pressed, the TimePicker fragment displays
     }
 }
