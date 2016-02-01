@@ -26,8 +26,17 @@ public abstract class AbstractFragment extends Fragment {
     protected abstract boolean validate(View view);
 
     @Override
+    public void onPause() {
+        super.onPause();
+        updateSharedPreferences();
+    }
+
+    protected void updateSharedPreferences() {
+        // Nothing to do
+    }
+
+    @Override
     public void onResume() {
-        final String METHOD = "onResume(): ";
         super.onResume();
         updateUI();
     }

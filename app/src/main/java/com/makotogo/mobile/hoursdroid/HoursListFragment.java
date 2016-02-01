@@ -26,7 +26,9 @@ import com.makotogo.mobile.framework.AbstractFragment;
 import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Hours;
+import com.makotogo.mobile.hoursdroid.model.Job;
 import com.makotogo.mobile.hoursdroid.model.Project;
+import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -48,11 +50,18 @@ public class HoursListFragment extends AbstractFragment {
     private static final int REQUEST_CODE_MANAGE_PROJECTS = 100;
     private static final boolean IN_ACTION_MODE = true;
     private static final boolean NOT_IN_ACTION_MODE = false;
+
+    /**
+     * This is the Job that sets the overall scope
+     */
+    private transient Job mJob;
+
     /**
      * This is the Project for which a new Hours record will be started if the
      * user clicks the Start button
      */
     private transient Project mProject;
+
     /**
      * This is the Hours object that is "active" meaning it has been started
      * but not yet stopped. Note: it may be paused, but if this Fragment gets
@@ -81,25 +90,74 @@ public class HoursListFragment extends AbstractFragment {
 
     @Override
     protected void processFragmentArguments() {
+        final String METHOD = "processFragmentArguments(): ";
+        Log.d(TAG, METHOD);
         Bundle arguments = getArguments();
-        mProject = (Project) arguments.getSerializable(FragmentFactory.FRAG_ARG_PROJECT);
+        mJob = (Job) arguments.getSerializable(FragmentFactory.FRAG_ARG_JOB);
         // Sanity check
-        if (mProject == null) {
+        if (mJob == null) {
             // Complain. Loudly.
-            throw new RuntimeException("Fragment (" + TAG + ") argument (" + FragmentFactory.FRAG_ARG_PROJECT + ") cannot be null!");
+            throw new RuntimeException("Fragment (" + TAG + ") argument (" + FragmentFactory.FRAG_ARG_JOB + ") cannot be null!");
         }
+        mProject = fetchProjectToUse(mJob);
+        Log.d(TAG, METHOD + "DONE.");
+    }
+
+    /**
+     * Figure out which project to use. There are two cases:
+     * 1. There is a project with active Hours. Use that.
+     * 2. ELSE There is "last used" project in Shared Preferences. Use that.
+     * 3. ELSE Use the Default Project.
+     *
+     * @param job
+     * @return
+     */
+    private Project fetchProjectToUse(Job job) {
+        final String METHOD = "fetchProjectToUse(" + job + "): ";
+        Log.d(TAG, METHOD);
+        DataStore dataStore = DataStore.instance(getActivity());
+        Project ret = dataStore.getDefaultProject(job);// Default
+        // If there is a project with active Hours use that.
+        mActiveHours = dataStore.getActiveHours(job);
+        if (mActiveHours != null) {
+            ret = mActiveHours.getProject();
+        } else {
+            int lastUsedProjectId = ApplicationOptions.instance(getActivity()).getLastUsedProjectId(job.getId());
+            if (lastUsedProjectId > 0) {
+                ret = dataStore.getProject(lastUsedProjectId);
+                Log.d(TAG, "Using Project: " + ret);
+            } else {
+                Log.d(TAG, "No active Hours. Using default project");
+            }
+        }
+        Log.d(TAG, METHOD + "DONE.");
+        return ret;
     }
 
     @Override
     public void saveInstanceState(Bundle outState) {
+        final String METHOD = "saveInstanceState(" + outState + "): ";
+        Log.d(TAG, METHOD);
         // Save the Active Hours object
         outState.putSerializable(STATE_ACTIVE_HOURS, mActiveHours);
+        updateSharedPreferences();
+        Log.d(TAG, METHOD + "DONE.");
     }
 
     @Override
     public void restoreInstanceState(Bundle savedInstanceState) {
         // Restore the Active Hours object
         mActiveHours = (Hours) savedInstanceState.getSerializable(STATE_ACTIVE_HOURS);
+    }
+
+    @Override
+    protected void updateSharedPreferences() {
+        final String METHOD = "updateSharedPreferences(ApplicationOptions): ";
+        Log.d(TAG, METHOD);
+        ApplicationOptions applicationOptions = ApplicationOptions.instance(getActivity());
+        // Save the last used project
+        applicationOptions.saveLastUsedProjectId(mJob.getId(), mProject.getId());
+        Log.d(TAG, METHOD + "DONE.");
     }
 
     /**
@@ -138,7 +196,7 @@ public class HoursListFragment extends AbstractFragment {
                 if (project == Project.MANAGE_PROJECTS) {
                     // Launch the Project List Screen
                     Intent intent = new Intent(getActivity(), ProjectListActivity.class);
-                    intent.putExtra(ProjectListActivity.EXTRA_JOB, mProject.getJob());
+                    intent.putExtra(ProjectListActivity.EXTRA_JOB, mJob);
                     //Toast.makeText(getActivity(), "Launching ProjectListActivity (eventually)...", Toast.LENGTH_LONG).show();
                     startActivityForResult(intent, REQUEST_CODE_MANAGE_PROJECTS);
                 } else {
@@ -159,11 +217,13 @@ public class HoursListFragment extends AbstractFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final String METHOD = "onActivityresult(" + requestCode + ", " + resultCode + ", " + data + "): ";
+        Log.d(TAG, METHOD);
         super.onActivityResult(requestCode, resultCode, data);
         // The resulting Intent should contain the user's choice of Project.
         /// If not, do nothing. Otherwise, set the choice, and call updateUI();
         if (requestCode == REQUEST_CODE_MANAGE_PROJECTS && resultCode == Activity.RESULT_OK) {
             if (data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT) != null) {
+                Log.d(TAG, METHOD + "Processing result...");
                 mProject = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
                 updateUI();
             }
@@ -171,6 +231,7 @@ public class HoursListFragment extends AbstractFragment {
             String message = "Cannot handle requestCode (" + requestCode + ") and/or resultCode (" + resultCode + "). User pressed the Back button, maybe?";
             Log.w(TAG, METHOD + message);
         }
+        Log.d(TAG, METHOD + "DONE.");
     }
 
     /**
@@ -191,7 +252,7 @@ public class HoursListFragment extends AbstractFragment {
             getHoursListViewAdapter().addAll(hours);
             getHoursListViewAdapter().notifyDataSetChanged();
         }
-        List<Project> projects = dataStore.getProjects(mProject.getJob());
+        List<Project> projects = dataStore.getProjects(mJob);
         projects.add(Project.MANAGE_PROJECTS);
         AbstractArrayAdapter<Project> projectListAdapter = getProjectListAdapter();
         if (projectListAdapter != null) {
@@ -199,20 +260,23 @@ public class HoursListFragment extends AbstractFragment {
             projectListAdapter.addAll(projects);
             projectListAdapter.notifyDataSetChanged();
             int selectedIndex = 0;
-            // TODO: Figure out which selection corresponds to the active project
+            // Figure out which selection corresponds to the active project
             for (int aa = 0; aa < projectListAdapter.getCount(); aa++) {
                 if (projectListAdapter.getItem(aa).equals(mProject)) {
                     selectedIndex = aa;
                     break;
                 }
             }
+            // Select the active project
             getProjectSpinner().setSelection(selectedIndex);
         }
+        // Handle the button
         if (isActive()) {
             if (getView() != null) {
                 Log.d(TAG, METHOD + "Setting Start/Stop button text...");
-                ((Button) getView().findViewById(R.id.button_hours_start_stop))
-                        .setText(getActivity().getResources().getText(R.string.stop_work));
+                Button button = (Button) getView().findViewById(R.id.button_hours_start_stop);
+                button.setText(getActivity().getResources().getText(R.string.stop_work));
+                button.setEnabled(isActiveHoursProjectSameAsCurrentProject());
             }
         }
         Log.d(TAG, "updateUI()...DONE");
@@ -302,9 +366,9 @@ public class HoursListFragment extends AbstractFragment {
                     Log.d(TAG, "Clicked item " + position);
                     Hours hours = (Hours) listView.getAdapter().getItem(position);
                     if (hours.equals(mActiveHours)) {
-                        String message = "Sorry, you cannot edit an active Hours.";
+                        String message = "Cannot edit an active Hours.";
                         Log.w(TAG, METHOD + message);
-                        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
                     } else {
                         Intent intent = new Intent(getActivity(), HoursDetailActivity.class);
                         intent.putExtra(HoursDetailActivity.EXTRA_HOURS, hours);
@@ -427,6 +491,16 @@ public class HoursListFragment extends AbstractFragment {
         return mActiveHours != null;
     }
 
+    private boolean isActiveHoursProjectSameAsCurrentProject() {
+        boolean ret = false;
+        if (mProject != null && mActiveHours != null) {
+            if (mProject.equals(mActiveHours.getProject())) {
+                ret = true;
+            }
+        }
+        return ret;
+    }
+
     private void startOrStopHours() {
         DataStore dataStore = DataStore.instance(getActivity());
         if (mActiveHours == null) {
@@ -442,6 +516,7 @@ public class HoursListFragment extends AbstractFragment {
             mActiveHours.setEnd(new Date());
             dataStore.update(mActiveHours);
             mActiveHours = null;
+            updateSharedPreferences();
         }
         // Now update the UI
         updateUI();

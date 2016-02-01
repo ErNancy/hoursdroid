@@ -46,13 +46,13 @@ public class FragmentFactory {
     /**
      * Creates the HoursListFragment.
      *
-     * @param project The Project object for which any Hours records listed.
+     * @param job The Job object for which any Hours records listed.
      * @return HoursListFragment
      */
-    public static HoursListFragment createHoursListFragment(Project project) {
+    public static HoursListFragment createHoursListFragment(Job job) {
         HoursListFragment ret = new HoursListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(FRAG_ARG_PROJECT, project);
+        args.putSerializable(FRAG_ARG_JOB, job);
         ret.setArguments(args);
         return ret;
     }

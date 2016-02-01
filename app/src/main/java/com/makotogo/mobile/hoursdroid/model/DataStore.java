@@ -556,6 +556,20 @@ public class DataStore {
         return ret;
     }
 
+    public Hours getActiveHours(Job job) {
+        Hours ret = null;
+        final String METHOD = "getActiveHours(" + job + "): ";
+        //
+        List<Hours> hours = getHours(job);
+        for (Hours h : hours) {
+            if (h.getJob().equals(job) && h.getEnd() == null) {
+                ret = h;
+                break;
+            }
+        }
+        return ret;
+    }
+
     /**
      * C is for Create.
      *

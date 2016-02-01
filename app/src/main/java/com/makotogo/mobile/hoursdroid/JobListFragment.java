@@ -22,7 +22,6 @@ import com.makotogo.mobile.framework.AbstractFragment;
 import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Job;
-import com.makotogo.mobile.hoursdroid.model.Project;
 
 import java.util.List;
 
@@ -31,11 +30,10 @@ import java.util.List;
  */
 public class JobListFragment extends AbstractFragment {
 
+    public static final String HOURS_CANNOT_BE_ADDED_FOR_INACTIVE_JOBS = "Hours cannot be added for inactive Jobs.";
     private static final String TAG = JobListFragment.class.getSimpleName();
-
     private static final boolean IN_ACTION_MODE = true;
     private static final boolean NOT_IN_ACTION_MODE = false;
-    public static final String HOURS_CANNOT_BE_ADDED_FOR_INACTIVE_JOBS = "Hours cannot be added for inactive Jobs.";
     private transient boolean mInActionMode;
 
     @Override
@@ -216,17 +214,10 @@ public class JobListFragment extends AbstractFragment {
                     if (job.isActive()) {
                         // If there are multiple projects for this Job,
                         /// then go to Select Project dialog
-                        Project defaultProject = DataStore.instance().getDefaultProject(job);
-                        if (defaultProject == null && multipleActiveProjectsForJob(job)) {
-                            // Display Select Project dialog, which forwards to
-                            /// the HoursListActivity
-                            // TODO: create the Select Project dialog
-                        } else {
-                            // Go with the default project directly to the HoursList Activity
-                            Intent intent = new Intent(getActivity(), HoursListActivity.class);
-                            intent.putExtra(HoursListActivity.EXTRA_PROJECT, defaultProject);
-                            startActivity(intent);
-                        }
+                        // Go with the default project directly to the HoursList Activity
+                        Intent intent = new Intent(getActivity(), HoursListActivity.class);
+                        intent.putExtra(HoursListActivity.EXTRA_JOB, job);
+                        startActivity(intent);
                     } else {
                         Toast.makeText(getActivity(),
                                 HOURS_CANNOT_BE_ADDED_FOR_INACTIVE_JOBS,

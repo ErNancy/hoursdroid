@@ -34,6 +34,8 @@ public class ProjectListFragment extends AbstractFragment {
 
     private static final String TAG = ProjectListFragment.class.getSimpleName();
 
+    private static final int REQUEST_CODE_PROJECT_DETAIL = 100;
+
     private static final boolean IN_ACTION_MODE = true;
     private static final boolean NOT_IN_ACTION_MODE = false;
     private transient boolean mInActionMode;
@@ -96,13 +98,33 @@ public class ProjectListFragment extends AbstractFragment {
             Intent intent = new Intent(getActivity(), ProjectDetailActivity.class);
             intent.putExtra(ProjectDetailActivity.EXTRA_PROJECT, project);
             // Start the activity
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE_PROJECT_DETAIL);
             // Handled
             Toast.makeText(getActivity(), "Create new Project (eventually)...", Toast.LENGTH_LONG).show();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final String METHOD = "onActivityResult(" + requestCode + ", " + resultCode + ", " + data + "): ";
+        Log.d(TAG, METHOD);
+        super.onActivityResult(requestCode, resultCode, data);
+        // The resulting Intent should contain the user's choice of Project.
+        /// If not, do nothing. Otherwise, set the choice, and call updateUI();
+        if (requestCode == REQUEST_CODE_PROJECT_DETAIL && resultCode == Activity.RESULT_OK) {
+            if (data.getSerializableExtra(ProjectDetailActivity.RESULT_PROJECT) != null) {
+                Log.d(TAG, METHOD + "Processing result...");
+                mProject = (Project) data.getSerializableExtra(ProjectDetailActivity.RESULT_PROJECT);
+                updateUI();
+            }
+        } else {
+            String message = "Cannot handle requestCode (" + requestCode + ") and/or resultCode (" + resultCode + "). User pressed the Back button, maybe?";
+            Log.w(TAG, METHOD + message);
+        }
+        Log.d(TAG, METHOD + "DONE.");
     }
 
     @Override
@@ -147,6 +169,16 @@ public class ProjectListFragment extends AbstractFragment {
                     getListViewAdapter().clear();
                     getListViewAdapter().addAll(projects);
                     getListViewAdapter().notifyDataSetChanged();
+                    if (mProject != null) {
+                        int selectedIndex = 0;
+                        for (int aa = 0; aa < getListViewAdapter().getCount(); aa++) {
+                            if (getListViewAdapter().getItem(aa).equals(mProject)) {
+                                selectedIndex = aa;
+                                break;
+                            }
+                        }
+                        getListView().setSelection(selectedIndex);
+                    }
                 }
                 Log.d(TAG, METHOD + "Done.");
             }
@@ -230,8 +262,6 @@ public class ProjectListFragment extends AbstractFragment {
                         Intent intent = new Intent(getActivity(), ProjectDetailActivity.class);
                         intent.putExtra(ProjectDetailActivity.EXTRA_PROJECT, project);
                         startActivity(intent);
-                        //Toast.makeText(getActivity(), "Project (" + project.getName() + ") will be edited (eventually)....", Toast.LENGTH_LONG).show();
-                        // Set the selected project
                     }
                     mProject = project;
                 }

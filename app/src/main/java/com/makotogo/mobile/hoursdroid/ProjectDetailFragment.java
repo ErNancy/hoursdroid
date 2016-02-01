@@ -1,5 +1,7 @@
 package com.makotogo.mobile.hoursdroid;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -149,6 +151,9 @@ public class ProjectDetailFragment extends AbstractFragment {
                         dataStore.update(mProject);
                     }
                     Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent();
+                    intent.putExtra(ProjectDetailActivity.RESULT_PROJECT, mProject);
+                    getActivity().setResult(Activity.RESULT_OK, intent);
                     getActivity().finish();
                 } else {
                     String message = "Cannot save your changes because there are errors. Please correct the errors and try again.";

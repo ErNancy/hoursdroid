@@ -75,22 +75,23 @@ public class Project implements ModelObject, Serializable {
 
         Project project = (Project) o;
 
-        if (!getId().equals(project.getId())) return false;
-        if (!getName().equals(project.getName())) return false;
-        if (!getDescription().equals(project.getDescription())) return false;
-        if (!getJob().equals(project.getJob())) return false;
-        if (getDefaultForJob() != null ? !getDefaultForJob().equals(project.getDefaultForJob()) : project.getDefaultForJob() != null)
+        if (getId() != null ? !getId().equals(project.getId()) : project.getId() != null)
             return false;
+        if (!getName().equals(project.getName())) return false;
+        if (getDescription() != null ? !getDescription().equals(project.getDescription()) : project.getDescription() != null)
+            return false;
+        if (getJob() != null ? !getJob().equals(project.getJob()) : project.getJob() != null)
+            return false;
+        return !(getDefaultForJob() != null ? !getDefaultForJob().equals(project.getDefaultForJob()) : project.getDefaultForJob() != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = getId().hashCode();
+        int result = getId() != null ? getId().hashCode() : 0;
         result = 31 * result + getName().hashCode();
-        result = 31 * result + getDescription().hashCode();
-        result = 31 * result + getJob().hashCode();
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
+        result = 31 * result + (getJob() != null ? getJob().hashCode() : 0);
         result = 31 * result + (getDefaultForJob() != null ? getDefaultForJob().hashCode() : 0);
         return result;
     }

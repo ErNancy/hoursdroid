@@ -12,6 +12,8 @@ public class ProjectDetailActivity extends AbstractSingleFragmentActivity {
 
     public static final String EXTRA_PROJECT = "extra." + Project.class.getName();
 
+    public static final String RESULT_PROJECT = "result." + Project.class.getName();
+
     private transient Project mProject;
 
     @Override
