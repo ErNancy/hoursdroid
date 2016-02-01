@@ -10,10 +10,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.makotogo.mobile.framework.AbstractArrayAdapter;
 import com.makotogo.mobile.framework.AbstractFragment;
+import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.Hours;
+import com.makotogo.mobile.hoursdroid.model.Project;
 
 import java.util.Date;
 
@@ -57,11 +62,21 @@ public class HoursDetailFragment extends AbstractFragment {
     @Override
     protected void configureUI(View view) {
         // Job Spinner
+        configureJobSpinner(view);
         // Project Spinner
+        configureProjectSpinner(view);
         // Begin Date
-        createBeginDate(view);
+        configureBeginDate(view);
         // End Date
-        createEndDate(view);
+        configureEndDate(view);
+        // Break Time
+        configureBreakTime(view);
+        // Total Time
+        configureTotalTime(view);
+        // Description
+        configureDescription(view);
+        // Save Button
+        configureSaveButton(view);
     }
 
     @Override
@@ -112,7 +127,41 @@ public class HoursDetailFragment extends AbstractFragment {
         return true;
     }
 
-    private void createBeginDate(View view) {
+    private Spinner getJobSpinner() {
+        Spinner ret = null;
+        View view = getView();
+        if (view != null) {
+            ret = (Spinner) view.findViewById(R.id.spinner_hours_detail_job);
+        }
+        return ret;
+    }
+
+    private void configureJobSpinner(View view) {
+        Spinner spinner = (Spinner) view.findViewById(R.id.spinner_hours_detail_job);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        spinner.setAdapter(new AbstractArrayAdapter(getActivity(), R.layout.project_list_row) {
+            @Override
+            protected ViewBinder<Project> createViewBinder() {
+                return new ProjectViewBinder();
+            }
+        });
+    }
+
+    private void configureProjectSpinner(View view) {
+
+    }
+
+    private void configureBeginDate(View view) {
         TextView beginDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_begin_date);
         beginDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,8 +184,24 @@ public class HoursDetailFragment extends AbstractFragment {
         }
     }
 
-    private void createEndDate(View view) {
+    private void configureEndDate(View view) {
         TextView endDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_end_date);
         // TODO: Add OnClick listener so when View is pressed, the TimePicker fragment displays
+    }
+
+    private void configureBreakTime(View view) {
+
+    }
+
+    private void configureTotalTime(View view) {
+
+    }
+
+    private void configureDescription(View view) {
+
+    }
+
+    private void configureSaveButton(View view) {
+
     }
 }

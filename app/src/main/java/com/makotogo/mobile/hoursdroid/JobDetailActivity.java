@@ -22,7 +22,7 @@ public class JobDetailActivity extends AbstractSingleFragmentActivity {
     protected Fragment createFragment() {
         mJob = (Job) getIntent().getSerializableExtra(EXTRA_JOB);
         if (mJob == null) {
-            throw new RuntimeException("Job object from Intent cannot be null!");
+            throw new RuntimeException("Intent extra (" + EXTRA_JOB + " cannot be null!");
         }
         JobDetailFragment fragment = FragmentFactory.createJobDetailFragment(mJob);
         return fragment;

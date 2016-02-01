@@ -55,5 +55,13 @@
     <string name="stop_work">Stop Work</string>
     <string name="project_name">Project Name</string>
     <string name="jobs">Jobs</string>
+    <string name="projects">Projects</string>
+    <string name="menu_item_title_project_edit">Edit Project</string>
+    <string name="menu_item_title_project_delete">Delete Project</string>
+    <string name="project_list">Project List</string>
+    <string name="project_detail">Project Details</string>
+    <string name="enter_project_name">Enter Project Name</string>
+    <string name="enter_project_description">Enter Project Description</string>
+    <string name="done">Done</string>
 
 </resources>

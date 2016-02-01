@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.makotogo.mobile.framework.AbstractSingleFragmentActivity">
+
+    <item
+        android:id="@+id/menu_item_job_new"
+        android:icon="@drawable/ic_menu_add"
+        android:orderInCategory="100"
+        android:title="@string/menu_item_title_job_new"
+        app:showAsAction="ifRoom|withText"/>
+
+</menu>

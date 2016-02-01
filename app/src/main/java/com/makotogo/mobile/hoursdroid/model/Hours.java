@@ -91,4 +91,42 @@ public class Hours implements ModelObject, Serializable {
     public void setProject(Project project) {
         mProject = project;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Hours hours = (Hours) o;
+
+        if (!getId().equals(hours.getId())) return false;
+        if (!getBegin().equals(hours.getBegin())) return false;
+        if (getEnd() != null ? !getEnd().equals(hours.getEnd()) : hours.getEnd() != null)
+            return false;
+        if (getBreak() != null ? !getBreak().equals(hours.getBreak()) : hours.getBreak() != null)
+            return false;
+        if (getDescription() != null ? !getDescription().equals(hours.getDescription()) : hours.getDescription() != null)
+            return false;
+        if (mDeleted != null ? !mDeleted.equals(hours.mDeleted) : hours.mDeleted != null)
+            return false;
+        if (getWhenCreated() != null ? !getWhenCreated().equals(hours.getWhenCreated()) : hours.getWhenCreated() != null)
+            return false;
+        if (!getJob().equals(hours.getJob())) return false;
+        return getProject().equals(hours.getProject());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId().hashCode();
+        result = 31 * result + getBegin().hashCode();
+        result = 31 * result + (getEnd() != null ? getEnd().hashCode() : 0);
+        result = 31 * result + (getBreak() != null ? getBreak().hashCode() : 0);
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
+        result = 31 * result + (mDeleted != null ? mDeleted.hashCode() : 0);
+        result = 31 * result + (getWhenCreated() != null ? getWhenCreated().hashCode() : 0);
+        result = 31 * result + getJob().hashCode();
+        result = 31 * result + getProject().hashCode();
+        return result;
+    }
 }

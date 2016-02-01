@@ -72,7 +72,7 @@ public class FragmentFactory {
     }
 
     /**
-     * Creates the DatePickerFragmen.
+     * Creates the DatePickerFragment.
      *
      * @param date The Date to display on the Date Picker
      * @return DateTimePickerFragment
@@ -84,4 +84,27 @@ public class FragmentFactory {
         ret.setArguments(args);
         return ret;
     }
+
+    /**
+     * Creates the ProjectListFragment
+     *
+     * @param job The Job to display Projects for.
+     * @return ProjectListFragment
+     */
+    public static ProjectListFragment createProjectListFragment(Job job) {
+        ProjectListFragment ret = new ProjectListFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(FRAG_ARG_JOB, job);
+        ret.setArguments(args);
+        return ret;
+    }
+
+    public static ProjectDetailFragment createProjectDetailFragment(Project project) {
+        ProjectDetailFragment ret = new ProjectDetailFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(FRAG_ARG_PROJECT, project);
+        ret.setArguments(args);
+        return ret;
+    }
+
 }

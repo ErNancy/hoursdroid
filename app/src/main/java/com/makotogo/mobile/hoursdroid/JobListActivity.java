@@ -1,10 +1,8 @@
 package com.makotogo.mobile.hoursdroid;
 
 import android.app.Fragment;
-import android.util.Log;
 
 import com.makotogo.mobile.framework.AbstractSingleFragmentActivity;
-import com.makotogo.mobile.hoursdroid.model.DataStore;
 
 /**
  * Created by sperry on 12/30/15.
@@ -20,7 +18,7 @@ public class JobListActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected String getActionBarTitle() {
-        return getString(R.string.jobs);
+        return getString(R.string.app_name);
     }
 
     @Override
@@ -29,12 +27,4 @@ public class JobListActivity extends AbstractSingleFragmentActivity {
         return null;
     }
 
-    @Override
-    public void onPause() {
-        final String METHOD = "onPause(): ";
-        Log.d(TAG, METHOD + "Closing DataStore...");
-        super.onPause();
-        // Make sure and tidy this up or we could leak a DB connection
-        DataStore.instance(this).close();
-    }
 }

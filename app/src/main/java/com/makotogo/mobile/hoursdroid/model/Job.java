@@ -73,4 +73,33 @@ public class Job implements ModelObject, Serializable {
     public void setContainsActiveHours(Boolean value) {
         mContainsActiveHours = value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Job job = (Job) o;
+
+        if (!getId().equals(job.getId())) return false;
+        if (!getName().equals(job.getName())) return false;
+        if (getDescription() != null ? !getDescription().equals(job.getDescription()) : job.getDescription() != null)
+            return false;
+        if (getRate() != null ? !getRate().equals(job.getRate()) : job.getRate() != null)
+            return false;
+        if (mActive != null ? !mActive.equals(job.mActive) : job.mActive != null) return false;
+        return !(getWhenCreated() != null ? !getWhenCreated().equals(job.getWhenCreated()) : job.getWhenCreated() != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId().hashCode();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
+        result = 31 * result + (getRate() != null ? getRate().hashCode() : 0);
+        result = 31 * result + (mActive != null ? mActive.hashCode() : 0);
+        result = 31 * result + (getWhenCreated() != null ? getWhenCreated().hashCode() : 0);
+        return result;
+    }
 }

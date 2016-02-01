@@ -11,10 +11,8 @@ import com.makotogo.mobile.hoursdroid.model.Project;
  */
 public class HoursListActivity extends AbstractSingleFragmentActivity {
 
-    private static final String TAG = HoursListActivity.class.getSimpleName();
-
     public static final String EXTRA_PROJECT = "extra." + Project.class.getSimpleName();
-
+    private static final String TAG = HoursListActivity.class.getSimpleName();
     /**
      * This is the Project to which the Hours List items belong.
      */
@@ -32,8 +30,10 @@ public class HoursListActivity extends AbstractSingleFragmentActivity {
     @Override
     protected void processActivityExtras() {
         mProject = (Project) getIntent().getSerializableExtra(EXTRA_PROJECT);
+        // Sanity check
         if (mProject == null) {
-            throw new RuntimeException("Cannot create HoursListFragment with null Job object!");
+            // Complain. Loudly.
+            throw new RuntimeException("Cannot create this Activity (" + TAG + ") with null Extra (" + EXTRA_PROJECT + ") object!");
         }
     }
 
@@ -45,7 +45,7 @@ public class HoursListActivity extends AbstractSingleFragmentActivity {
     @Override
     protected String getActionBarSubTitle() {
         // Use the Job name as the subtitle
-        return "For Job " + ((mProject != null) ? mProject.getJob().getName() : "");
+        return "For Job " + ((mProject != null) ? mProject.getJob().getName() : "(PROJECT MISSING - CONFIG ERROR?)");
     }
 
 }

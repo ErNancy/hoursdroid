@@ -44,6 +44,19 @@ public class DataStore {
      * Reference to the SQLiteDatabase.
      */
     private SQLiteDatabase mDatabase;
+    private List<Project> mProjects = new ArrayList<>();
+
+    /**
+     * Constructor - private. This is a Singleton, so we do not want anybody
+     * to be able to call the constructor but the class itself.
+     *
+     * @param context The Context of the first caller to retrieve the Singleton.
+     */
+    private DataStore(Context context) {
+        mContext = context.getApplicationContext();
+        // Initialize the DB
+        getDatabase();
+    }
 
     public static DataStore instance() {
         if (mDataStore == null) {
@@ -66,6 +79,53 @@ public class DataStore {
     }
 
     /**
+     * Given the specified Job object, returns a ContentValues object suitable
+     * for doing an INSERT/UPDATE to the DB.
+     *
+     * @param job The Job object to be inserted or updated in the DB.
+     * @return ContentValues - a wrapper object used by SQLite to wrangle the
+     * values into the DB.
+     */
+    private static ContentValues getContentValues(Job job) {
+        ContentValues ret = new ContentValues();
+        ret.put(HoursDbSchema.JobTable.Column.ID, job.getId());
+        ret.put(HoursDbSchema.JobTable.Column.NAME, job.getName());
+        ret.put(HoursDbSchema.JobTable.Column.DESCRIPTION, job.getDescription());
+        ret.put(HoursDbSchema.JobTable.Column.RATE, job.getRate());
+        ret.put(HoursDbSchema.JobTable.Column.ACTIVE, job.isActive());
+        ret.put(HoursDbSchema.JobTable.Column.WHEN_CREATED, job.getWhenCreated().getTime());
+        return ret;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                              J    O    B                                    //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    private static ContentValues getContentValues(Project project) {
+        ContentValues ret = new ContentValues();
+        ret.put(HoursDbSchema.ProjectTable.Column.ID, project.getId());
+        ret.put(HoursDbSchema.ProjectTable.Column.NAME, project.getName());
+        ret.put(HoursDbSchema.ProjectTable.Column.DESCRIPTION, project.getDescription());
+        ret.put(HoursDbSchema.ProjectTable.Column.JOB_ID, project.getJob().getId());
+        ret.put(HoursDbSchema.ProjectTable.Column.DEFAULT_FOR_JOB, project.getDefaultForJob());
+        return ret;
+    }
+
+    private static ContentValues getContentValues(Hours hours) {
+        ContentValues ret = new ContentValues();
+        ret.put(HoursDbSchema.HoursTable.Column.ID, hours.getId());
+        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, (hours.getBegin() == null) ? null : hours.getBegin().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.END, (hours.getEnd() == null) ? null : hours.getEnd().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.BREAK, hours.getBreak());
+        ret.put(HoursDbSchema.HoursTable.Column.DESCRIPTION, hours.getDescription());
+        ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
+        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, (hours.getWhenCreated() == null) ? null : hours.getWhenCreated().getTime());
+        ret.put(HoursDbSchema.HoursTable.Column.JOB_ID, hours.getJob().getId());
+        ret.put(HoursDbSchema.HoursTable.Column.PROJECT_ID, hours.getProject().getId());
+        return ret;
+    }
+
+    /**
      * Cleanup method. Called when the application thinks
      * it might be destroyed, so we do not leak a DB
      * reference.
@@ -82,18 +142,6 @@ public class DataStore {
     }
 
     /**
-     * Constructor - private. This is a Singleton, so we do not want anybody
-     * to be able to call the constructor but the class itself.
-     *
-     * @param context The Context of the first caller to retrieve the Singleton.
-     */
-    private DataStore(Context context) {
-        mContext = context.getApplicationContext();
-        // Initialize the DB
-        getDatabase();
-    }
-
-    /**
      * Private getter for Database attribute. Performs lazy initialiation.
      *
      * @return SQLiteDatabase - a Writeable SQLiteDatabase instance.
@@ -106,10 +154,6 @@ public class DataStore {
         }
         return mDatabase;
     }
-
-    /////////////////////////////////////////////////////////////////////////////////
-    //                              J    O    B                                    //
-    /////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Returns a list of Job objects from the DB.
@@ -252,24 +296,9 @@ public class DataStore {
         Log.d(TAG, "DELETE: row ID = " + job.getId());
     }
 
-    /**
-     * Given the specified Job object, returns a ContentValues object suitable
-     * for doing an INSERT/UPDATE to the DB.
-     *
-     * @param job The Job object to be inserted or updated in the DB.
-     * @return ContentValues - a wrapper object used by SQLite to wrangle the
-     * values into the DB.
-     */
-    private static ContentValues getContentValues(Job job) {
-        ContentValues ret = new ContentValues();
-        ret.put(HoursDbSchema.JobTable.Column.ID, job.getId());
-        ret.put(HoursDbSchema.JobTable.Column.NAME, job.getName());
-        ret.put(HoursDbSchema.JobTable.Column.DESCRIPTION, job.getDescription());
-        ret.put(HoursDbSchema.JobTable.Column.RATE, job.getRate());
-        ret.put(HoursDbSchema.JobTable.Column.ACTIVE, job.isActive());
-        ret.put(HoursDbSchema.JobTable.Column.WHEN_CREATED, job.getWhenCreated().getTime());
-        return ret;
-    }
+    /////////////////////////////////////////////////////////////////////////////////
+    //                  P     R     O     J     E     C    T                       //
+    /////////////////////////////////////////////////////////////////////////////////
 
     private String computeGetJobsWhereClause() {
         String ret = null;
@@ -325,12 +354,6 @@ public class DataStore {
         Log.d(TAG, METHOD + "Q: Job has active hours? A: " + ret);
         return ret;
     }
-
-    /////////////////////////////////////////////////////////////////////////////////
-    //                  P     R     O     J     E     C    T                       //
-    /////////////////////////////////////////////////////////////////////////////////
-
-    private List<Project> mProjects = new ArrayList<>();
 
     public List<Project> getProjects(Job job) {
         mProjects.clear();
@@ -420,6 +443,11 @@ public class DataStore {
         return ret;
     }
 
+    /**
+     * C is for Create
+     *
+     * @param project
+     */
     public void create(Project project) {
         if (project == null) {
             throw new IllegalArgumentException("Project object cannot be null!");
@@ -430,19 +458,53 @@ public class DataStore {
         Log.d(TAG, "Created project: " + project.getName() + " (id=" + rowId + ")");
     }
 
-    private static ContentValues getContentValues(Project project) {
-        ContentValues ret = new ContentValues();
-        ret.put(HoursDbSchema.ProjectTable.Column.ID, project.getId());
-        ret.put(HoursDbSchema.ProjectTable.Column.NAME, project.getName());
-        ret.put(HoursDbSchema.ProjectTable.Column.DESCRIPTION, project.getDescription());
-        ret.put(HoursDbSchema.ProjectTable.Column.JOB_ID, project.getJob().getId());
-        ret.put(HoursDbSchema.ProjectTable.Column.DEFAULT_FOR_JOB, project.getDefaultForJob());
-        return ret;
+    /**
+     * D is for Delete
+     *
+     * @param project
+     */
+    public void delete(Project project) {
+        String whereClause = HoursDbSchema.ProjectTable.Column.ID + " = " + Integer.toString(project.getId());
+        // Do the DELETE
+        // TODO: check to see if the Job has TimeRecords associated with it. If so, then
+        /// TODO: all we can do is mark it deactivated.
+        getDatabase().delete(HoursDbSchema.JobTable.NAME, whereClause, null);
+        Log.d(TAG, "DELETE: row ID = " + project.getId());
+    }
+
+    /**
+     * U is for Update.
+     *
+     * @param project
+     */
+    public int update(Project project) {
+        int numRowsUpdated = 0;
+        ContentValues contentValues = getContentValues(project);
+        String whereClause = HoursDbSchema.ProjectTable.Column.ID + " = " + Integer.toString(project.getId());
+        // Do the UPDATE
+        try {
+            numRowsUpdated =
+                    getDatabase().update(HoursDbSchema.ProjectTable.NAME, contentValues, whereClause, null);
+            Log.d(TAG, "UPDATE: row ID = " + project.getId());
+        } catch (SQLiteConstraintException e) {
+            Log.e(TAG, "Update failed: ", e);
+        }
+        return numRowsUpdated;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     //                       H     O     U     R     S                             //
     /////////////////////////////////////////////////////////////////////////////////
+
+    public boolean hasHours(Project project) {
+        final String METHOD = "hasHours(" + project + "): ";
+        boolean ret;
+        //
+        List<Hours> hours = getHours(project);
+        ret = (hours.isEmpty()) ? false : true;
+        Log.d(TAG, METHOD + "Q: Project has hours? A: " + ret);
+        return ret;
+    }
 
     public List<Hours> getHours(Project project) {
         List<Hours> ret = new ArrayList<>();
@@ -491,20 +553,6 @@ public class DataStore {
         } finally {
             cursorWrapper.close();
         }
-        return ret;
-    }
-
-    private static ContentValues getContentValues(Hours hours) {
-        ContentValues ret = new ContentValues();
-        ret.put(HoursDbSchema.HoursTable.Column.ID, hours.getId());
-        ret.put(HoursDbSchema.HoursTable.Column.BEGIN, (hours.getBegin() == null) ? null : hours.getBegin().getTime());
-        ret.put(HoursDbSchema.HoursTable.Column.END, (hours.getEnd() == null) ? null : hours.getEnd().getTime());
-        ret.put(HoursDbSchema.HoursTable.Column.BREAK, hours.getBreak());
-        ret.put(HoursDbSchema.HoursTable.Column.DESCRIPTION, hours.getDescription());
-        ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
-        ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, (hours.getWhenCreated() == null) ? null : hours.getWhenCreated().getTime());
-        ret.put(HoursDbSchema.HoursTable.Column.JOB_ID, hours.getJob().getId());
-        ret.put(HoursDbSchema.HoursTable.Column.PROJECT_ID, hours.getProject().getId());
         return ret;
     }
 

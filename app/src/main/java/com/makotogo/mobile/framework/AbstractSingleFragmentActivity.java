@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.makotogo.mobile.hoursdroid.R;
+import com.makotogo.mobile.hoursdroid.model.DataStore;
 
 public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
 
@@ -44,6 +45,16 @@ public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onPause() {
+        final String METHOD = "onPause(): ";
+        Log.d(TAG, METHOD + "Closing DataStore...");
+        super.onPause();
+        // Make sure and tidy this up or we could leak a DB connection
+        DataStore.instance(this).close();
+        Log.d(TAG, METHOD + "DONE.");
+    }
+
     /**
      * Process any Extras for this Activity. By default, there are none,
      * so if that is not the case, override this method and process the
@@ -63,7 +74,7 @@ public abstract class AbstractSingleFragmentActivity extends AppCompatActivity {
         final String METHOD = "getStringResource(" + resourceId + "): ";
         String ret = "RESOURCE " + resourceId + " NOT FOUND";
         try {
-            getResources().getString(resourceId);
+            ret = getResources().getString(resourceId);
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, METHOD + e.getLocalizedMessage(), e);
         }

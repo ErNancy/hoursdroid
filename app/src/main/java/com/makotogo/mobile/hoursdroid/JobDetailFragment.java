@@ -35,13 +35,8 @@ public class JobDetailFragment extends AbstractFragment {
         Bundle arguments = getArguments();
         mJob = (Job) arguments.getSerializable(FragmentFactory.FRAG_ARG_JOB);
         if (mJob == null) {
-            throw new RuntimeException("Fragment argument (Job) cannot be null!");
+            throw new RuntimeException("Fragment argument (" + FragmentFactory.FRAG_ARG_JOB + ") cannot be null!");
         }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -69,14 +64,14 @@ public class JobDetailFragment extends AbstractFragment {
     @Override
     protected void configureUI(View view) {
         // Job Name
-        createJobNameEditText(view);
+        configureJobNameEditText(view);
         // Job Description
-        createJobDescriptionEditText(view);
+        configureJobDescriptionEditText(view);
         // Active Flag
-        createActiveFlagCheckBox(view);
+        configureActiveFlagCheckBox(view);
         // Now for the buttons!
         // Save
-        createSaveButton(view);
+        configureSaveButton(view);
         // Cancel
         //createCancelButton(ret);
     }
@@ -110,7 +105,7 @@ public class JobDetailFragment extends AbstractFragment {
         return ret;
     }
 
-    private void createSaveButton(View ret) {
+    private void configureSaveButton(View ret) {
         Button saveButton = (Button) ret.findViewById(R.id.button_job_detail_save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,7 +141,7 @@ public class JobDetailFragment extends AbstractFragment {
         });
     }
 
-    private void createActiveFlagCheckBox(View ret) {
+    private void configureActiveFlagCheckBox(View ret) {
         CheckBox activeCheckBox = (CheckBox) ret.findViewById(R.id.checkBox_job_detail_job_active);
         activeCheckBox.setChecked(mJob.isActive());
         activeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -158,7 +153,7 @@ public class JobDetailFragment extends AbstractFragment {
         });
     }
 
-    private void createJobDescriptionEditText(View ret) {
+    private void configureJobDescriptionEditText(View ret) {
         EditText jobDescriptionEditText = (EditText) ret.findViewById(R.id.edittext_job_detail_job_description);
         jobDescriptionEditText.setText(mJob.getDescription());
         jobDescriptionEditText.addTextChangedListener(new TextWatcher() {
@@ -179,7 +174,7 @@ public class JobDetailFragment extends AbstractFragment {
         });
     }
 
-    private void createJobNameEditText(View ret) {
+    private void configureJobNameEditText(View ret) {
         EditText jobNameEditText = (EditText) ret.findViewById(R.id.edittext_job_detail_job_name);
         jobNameEditText.setText(mJob.getName());
         jobNameEditText.addTextChangedListener(new TextWatcher() {

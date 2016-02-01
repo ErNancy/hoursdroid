@@ -40,6 +40,17 @@
             android:launchMode="singleTop"
             android:parentActivityName=".HoursListActivity">
         </activity>
+        <activity
+            android:name=".ProjectListActivity"
+            android:label="@string/project_list"
+            android:launchMode="singleTop">
+        </activity>
+        <activity
+            android:name=".ProjectDetailActivity"
+            android:label="@string/project_detail"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ProjectListActivity">
+        </activity>
 
     </application>
 

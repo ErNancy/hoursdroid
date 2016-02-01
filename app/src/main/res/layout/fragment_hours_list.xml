@@ -34,14 +34,30 @@
         android:layout_height="0dp"
         android:layout_weight="12"
         android:orientation="vertical"
-
         android:padding="5dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/hours_records_for_job"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
+            android:padding="2dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="9"
+                android:text="@string/hours_records_for_job"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+            <ImageView
+                android:id="@+id/imageview_hours_list_filter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_border"
+                android:padding="1dp"
+                android:src="@drawable/ic_menu_filter"/>
+
+        </LinearLayout>
 
         <ListView
             android:id="@+id/hours_list_view"
