@@ -188,7 +188,6 @@ public class HoursListFragment extends AbstractFragment {
                 return new ProjectViewBinder();
             }
         });
-        // TODO: If the "Manage Projects" item is chose, take the user to the Project List screen flow.
         projectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@color/standard_background"
               android:orientation="vertical"
-              android:padding="5dp"
-              android:background="@color/standard_background">
+              android:padding="5dp">
 
+    <!--
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -29,6 +30,7 @@
             android:layout_weight="5"/>
 
     </LinearLayout>
+    -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,16 +43,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/text_color"
-            android:text="@string/hours_project_name"/>
+            android:text="@string/hours_project_name"
+            android:textColor="@color/text_color"/>
 
         <Spinner
             android:id="@+id/spinner_hours_detail_project"
             android:layout_width="0dp"
-            android:textColor="@color/text_color"
             android:layout_height="wrap_content"
+            android:layout_weight="5"
             android:background="@drawable/rounded_border"
-            android:layout_weight="5"/>
+            android:textColor="@color/text_color"/>
 
     </LinearLayout>
 
@@ -72,16 +74,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="@color/text_color"
-            android:text="@string/hours_begin_date_time"/>
+            android:text="@string/hours_begin_date_time"
+            android:textColor="@color/text_color"/>
 
         <TextView
             android:id="@+id/textview_hours_detail_begin_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:textColor="@color/text_color"
-            android:background="@drawable/rounded_border"/>
+            android:background="@drawable/rounded_border"
+            android:textColor="@color/text_color"/>
 
     </LinearLayout>
 
@@ -95,16 +97,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="@color/text_color"
-            android:text="@string/hours_end_date_time"/>
+            android:text="@string/hours_end_date_time"
+            android:textColor="@color/text_color"/>
 
         <TextView
             android:id="@+id/textview_hours_detail_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:textColor="@color/text_color"
-            android:background="@drawable/rounded_border"/>
+            android:background="@drawable/rounded_border"
+            android:textColor="@color/text_color"/>
 
     </LinearLayout>
 
@@ -118,16 +120,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="@color/text_color"
-            android:text="@string/hours_break"/>
+            android:text="@string/hours_break"
+            android:textColor="@color/text_color"/>
 
         <TextView
             android:id="@+id/textview_hours_detail_break"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:textColor="@color/text_color"
-            android:background="@drawable/rounded_border"/>
+            android:background="@drawable/rounded_border"
+            android:textColor="@color/text_color"/>
 
     </LinearLayout>
 
@@ -141,15 +143,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:textColor="@color/text_color"
-            android:text="@string/hours_total"/>
+            android:text="@string/hours_total"
+            android:textColor="@color/text_color"/>
 
         <TextView
             android:id="@+id/textview_hours_detail_total"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color"
-            android:layout_weight="8"/>
+            android:layout_weight="8"
+            android:textColor="@color/text_color"/>
 
     </LinearLayout>
 
@@ -164,8 +166,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:textColor="@color/text_color"
-            android:text="@string/hours_description"/>
+            android:text="@string/hours_description"
+            android:textColor="@color/text_color"/>
 
         <EditText
             android:id="@+id/edittext_hours_detail_description"
@@ -173,8 +175,8 @@
             android:layout_height="match_parent"
             android:layout_weight="6"
             android:background="@drawable/rounded_border"
-            android:textColor="@color/text_color"
-            android:inputType="textMultiLine"/>
+            android:inputType="textMultiLine"
+            android:textColor="@color/text_color"/>
 
     </LinearLayout>
 
@@ -182,9 +184,9 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="5"
+        android:gravity="center"
         android:orientation="horizontal"
-        android:padding="5dp"
-        android:gravity="center">
+        android:padding="5dp">
 
         <LinearLayout
             android:layout_width="200dp"
@@ -196,8 +198,8 @@
                 android:id="@+id/button_hours_detail_save"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/save"
-                android:background="@color/standard_background"/>
+                android:background="@color/standard_background"
+                android:text="@string/save"/>
 
         </LinearLayout>
 

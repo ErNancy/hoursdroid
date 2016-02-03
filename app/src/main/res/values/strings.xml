@@ -63,5 +63,7 @@
     <string name="enter_project_name">Enter Project Name</string>
     <string name="enter_project_description">Enter Project Description</string>
     <string name="done">Done</string>
+    <string name="please_choose">Please Choose</string>
+    <string name="date_or_time">Please Choose:</string>
 
 </resources>

@@ -10,21 +10,28 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import org.joda.time.LocalDateTime;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by sperry on 1/20/16.
  */
 public class DateTimePickerFragment extends DialogFragment {
 
-    private static final String TAG = DateTimePickerFragment.class.getSimpleName();
-
     public static final String EXTRA_DATE_TIME = "extra." + DateTimePickerFragment.class.getName();
-
+    public static final String TIME = "Time";
+    public static final String DATE = "Date";
+    private static final String TAG = DateTimePickerFragment.class.getSimpleName();
     private Date mDate;
 
     /**
@@ -45,6 +52,16 @@ public class DateTimePickerFragment extends DialogFragment {
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_date_time, null);
 
+        // Spinner to choose either Date or Time to edit
+        final Spinner dateTimeSpinner = (Spinner) view.findViewById(R.id.spinner_date_time_choice);
+        List<String> choices = new ArrayList<>();
+        choices.add(DATE);
+        choices.add(TIME);
+        dateTimeSpinner.setAdapter(
+                new ArrayAdapter<String>(
+                        getActivity(),
+                        android.R.layout.simple_list_item_1,
+                        choices));
         mDatePicker = (DatePicker) view.findViewById(R.id.date_picker);
         mTimePicker = (TimePicker) view.findViewById(R.id.time_picker);
         // Note: the OnDateChangedListener does not work in Android 5 when using the
@@ -58,9 +75,36 @@ public class DateTimePickerFragment extends DialogFragment {
         //noinspection deprecation
         mTimePicker.setCurrentMinute(minuteOfHour);
 
+        dateTimeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String choice = (String) dateTimeSpinner.getAdapter().getItem(position);
+                switch (choice) {
+                    case DATE:
+                        // Make the DatePicker visible
+                        mDatePicker.setVisibility(View.VISIBLE);
+                        mTimePicker.setVisibility(View.GONE);
+                        break;
+                    case TIME:
+                        // Make the TimePicker visible
+                        mTimePicker.setVisibility(View.VISIBLE);
+                        mDatePicker.setVisibility(View.GONE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        // Default to show Time first. Based on my experience, it's the thing
+        /// I'm most likely to want to change.
+        dateTimeSpinner.setSelection(choices.indexOf(TIME));
+        // Now show the Dialog in all its glory!
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
-                .setTitle(R.string.date_picker_title)
+                .setTitle(R.string.please_choose)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -81,7 +125,8 @@ public class DateTimePickerFragment extends DialogFragment {
                                     getTargetRequestCode(),
                                     Activity.RESULT_OK,
                                     intent);
-                            Log.d(TAG, METHOD + "Sending result back to the caller...");
+                            Log.d(TAG, METHOD + "Sending result back to the caller...:" +
+                                    new LocalDateTime(mDate.getTime()).toString("MM/dd/yyyy hh:mm a"));
                         }
                     }
                 })
@@ -97,6 +142,8 @@ public class DateTimePickerFragment extends DialogFragment {
         changedDateCalendar.set(Calendar.YEAR, year);
         changedDateCalendar.set(Calendar.MONTH, monthOfYear);
         changedDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        changedDateCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        changedDateCalendar.set(Calendar.MINUTE, minuteOfHour);
         return changedDateCalendar.getTime();
     }
 }
