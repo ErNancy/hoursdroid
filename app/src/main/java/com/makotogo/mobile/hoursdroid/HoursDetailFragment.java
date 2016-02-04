@@ -32,12 +32,23 @@ import java.util.List;
 public class HoursDetailFragment extends AbstractFragment {
 
     public static final int REQUEST_CODE_MANAGE_PROJECTS = 200;
+    // Logging
     private static final String TAG = HoursDetailFragment.class.getSimpleName();
     private static final String DIALOG_TAG_DATE_PICKER = DateTimePickerFragment.class.getName();
+    private static final String DIALOG_TAG_NUMBER_PICKER = NumberPickerFragment.class.getName();
+    // Request IDs that will be used to identify which dialog is coming back with
+    /// a result for us.
     private static final int REQUEST_BEGIN_DATE_PICKER = 100;
     private static final int REQUEST_END_DATE_PICKER = 110;
+    private static final int REQUEST_BREAK = 120;
+    // Don'tcha hate repeating yourself??
     private static final String DATE_FORMAT_PATTERN = "M/d/yyyy h:mm a";
 
+    /**
+     * The Hours object we are editing. It can easily be reconstituted from fragment
+     * arguments Bundle, so we don't need to save it, but having it here as a class
+     * variable is oh-so convenient.
+     */
     private transient Hours mHours;
 
     @Override
@@ -131,6 +142,12 @@ public class HoursDetailFragment extends AbstractFragment {
                         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
                     }
                     break;
+                case REQUEST_BREAK:
+                    Integer breakTimeInMinutes = (Integer) data.getSerializableExtra(NumberPickerFragment.EXTRA_MINUTES);
+                    Log.d(TAG, METHOD + "Break Time set to: " + breakTimeInMinutes);
+                    mHours.setBreak(renderBreakForStorage(breakTimeInMinutes));
+                    updateUI();
+                    break;
                 case REQUEST_CODE_MANAGE_PROJECTS:
                     Project project = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
                     Log.d(TAG, METHOD + "Project set to " + project);
@@ -154,6 +171,10 @@ public class HoursDetailFragment extends AbstractFragment {
             LocalDateTime endDateTime = new LocalDateTime(mHours.getEnd().getTime());
             ((TextView) getView().findViewById(R.id.textview_hours_detail_end_date))
                     .setText(endDateTime.toString(DATE_FORMAT_PATTERN));
+        }
+        if (mHours.getBreak() != null) {
+            ((TextView) getView().findViewById(R.id.textview_hours_detail_break))
+                    .setText(renderBreakForDisplay(mHours.getBreak()));
         }
         DataStore dataStore = DataStore.instance(getActivity());
         List<Project> projects = dataStore.getProjects(mHours.getJob());
@@ -247,7 +268,7 @@ public class HoursDetailFragment extends AbstractFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 // If there is already a Date displayed, use that.
                 Date dateToUse = (mHours.getBegin() == null) ? new Date() : mHours.getBegin();
-                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse);
+                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "Begin");
                 datePickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_BEGIN_DATE_PICKER);
                 datePickerFragment.show(fragmentManager, DIALOG_TAG_DATE_PICKER);
             }
@@ -268,7 +289,7 @@ public class HoursDetailFragment extends AbstractFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 // If there is already a Date displayed, use that.
                 Date dateToUse = (mHours.getEnd() == null) ? new Date() : mHours.getEnd();
-                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse);
+                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "End");
                 datePickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_END_DATE_PICKER);
                 datePickerFragment.show(fragmentManager, DIALOG_TAG_DATE_PICKER);
             }
@@ -280,7 +301,20 @@ public class HoursDetailFragment extends AbstractFragment {
     }
 
     private void configureBreakTime(View view) {
-
+        TextView breakTime = (TextView) view.findViewById(R.id.textview_hours_detail_break);
+        breakTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getFragmentManager();
+                Integer minutes = mHours.getBreak().intValue();
+                // Max minutes can at most be number of minutes diff between end and begin
+                Integer maxMinutes = (int) (mHours.getEnd().getTime() - mHours.getBegin().getTime()) / 60000;
+                NumberPickerFragment numberPickerFragment = FragmentFactory.createNumberPickerFragment(minutes, maxMinutes, "Break Time");
+                numberPickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_BREAK);
+                numberPickerFragment.show(fragmentManager, DIALOG_TAG_NUMBER_PICKER);
+            }
+        });
+        breakTime.setText(renderBreakForDisplay(mHours.getBreak()));
     }
 
     private void configureTotalTime(View view) {
@@ -293,5 +327,15 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private void configureSaveButton(View view) {
 
+    }
+
+    private String renderBreakForDisplay(long breakTimeInMillis) {
+        Long breakTimeInMinutes = breakTimeInMillis / 60000L;
+        return breakTimeInMinutes.toString() + " minutes";
+    }
+
+    private Long renderBreakForStorage(long breakTimeInMinutes) {
+        Long breakTimeInMillis = breakTimeInMinutes * 60000L;
+        return breakTimeInMillis;
     }
 }

@@ -13,12 +13,15 @@ import java.util.Date;
  */
 public class FragmentFactory {
 
+    public static final String FRAG_ARG_DATE_TYPE = FRAG_ARG_DATE + "Type";
     private static final String FRAG_ARG_PREFIX = "fragment.argument.";
-
     public static final String FRAG_ARG_JOB = FRAG_ARG_PREFIX + Job.class.getName();
     public static final String FRAG_ARG_PROJECT = FRAG_ARG_PREFIX + Project.class.getName();
     public static final String FRAG_ARG_HOURS = FRAG_ARG_PREFIX + Hours.class.getName();
     public static final String FRAG_ARG_DATE = FRAG_ARG_PREFIX + Date.class.getName();
+    public static final String FRAG_ARG_MINUTES = FRAG_ARG_PREFIX + "minutes";
+    public static final String FRAG_ARG_MAX_MINUTES = FRAG_ARG_PREFIX + "max.minutes";
+    public static final String FRAG_ARG_TITLE = FRAG_ARG_PREFIX + "title";
 
     /**
      * Creates the JoblistFragment.
@@ -77,10 +80,11 @@ public class FragmentFactory {
      * @param date The Date to display on the Date Picker
      * @return DateTimePickerFragment
      */
-    public static DateTimePickerFragment createDatePickerFragment(Date date) {
+    public static DateTimePickerFragment createDatePickerFragment(Date date, String dateType) {
         DateTimePickerFragment ret = new DateTimePickerFragment();
         Bundle args = new Bundle();
         args.putSerializable(FRAG_ARG_DATE, date);
+        args.putSerializable(FRAG_ARG_DATE_TYPE, dateType);
         ret.setArguments(args);
         return ret;
     }
@@ -103,6 +107,16 @@ public class FragmentFactory {
         ProjectDetailFragment ret = new ProjectDetailFragment();
         Bundle args = new Bundle();
         args.putSerializable(FRAG_ARG_PROJECT, project);
+        ret.setArguments(args);
+        return ret;
+    }
+
+    public static NumberPickerFragment createNumberPickerFragment(Integer numberOfMinutes, Integer maxMinutes, String title) {
+        NumberPickerFragment ret = new NumberPickerFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(FRAG_ARG_MINUTES, numberOfMinutes);
+        args.putSerializable(FRAG_ARG_MAX_MINUTES, maxMinutes);
+        args.putSerializable(FRAG_ARG_TITLE, title);
         ret.setArguments(args);
         return ret;
     }

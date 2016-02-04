@@ -31,14 +31,21 @@ public class DateTimePickerFragment extends DialogFragment {
     public static final String EXTRA_DATE_TIME = "extra." + DateTimePickerFragment.class.getName();
     public static final String TIME = "Time";
     public static final String DATE = "Date";
+
     private static final String TAG = DateTimePickerFragment.class.getSimpleName();
-    private Date mDate;
+
+    private transient Date mDate;
+    private transient String mDateType;
 
     /**
-     * Maintain a reference to the DatePicker to work around a bug in Android 5
+     * Maintain a reference to the DatePicker to work around a bug in Android 5.
+     * The OnWhatever() listener does not work, so whenver we need to pull the values
+     * in the Pickers, we have to reference them directly. We do not, however, need
+     * to save these in the Bundle because they can always be recreated if necessary
+     * (on device rotation, say).
      */
-    private DatePicker mDatePicker;
-    private TimePicker mTimePicker;
+    private transient DatePicker mDatePicker;
+    private transient TimePicker mTimePicker;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -50,18 +57,10 @@ public class DateTimePickerFragment extends DialogFragment {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_date_time, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_date_time, null);
 
         // Spinner to choose either Date or Time to edit
         final Spinner dateTimeSpinner = (Spinner) view.findViewById(R.id.spinner_date_time_choice);
-        List<String> choices = new ArrayList<>();
-        choices.add(DATE);
-        choices.add(TIME);
-        dateTimeSpinner.setAdapter(
-                new ArrayAdapter<String>(
-                        getActivity(),
-                        android.R.layout.simple_list_item_1,
-                        choices));
         mDatePicker = (DatePicker) view.findViewById(R.id.date_picker);
         mTimePicker = (TimePicker) view.findViewById(R.id.time_picker);
         // Note: the OnDateChangedListener does not work in Android 5 when using the
@@ -75,32 +74,7 @@ public class DateTimePickerFragment extends DialogFragment {
         //noinspection deprecation
         mTimePicker.setCurrentMinute(minuteOfHour);
 
-        dateTimeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String choice = (String) dateTimeSpinner.getAdapter().getItem(position);
-                switch (choice) {
-                    case DATE:
-                        // Make the DatePicker visible
-                        mDatePicker.setVisibility(View.VISIBLE);
-                        mTimePicker.setVisibility(View.GONE);
-                        break;
-                    case TIME:
-                        // Make the TimePicker visible
-                        mTimePicker.setVisibility(View.VISIBLE);
-                        mDatePicker.setVisibility(View.GONE);
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        // Default to show Time first. Based on my experience, it's the thing
-        /// I'm most likely to want to change.
-        dateTimeSpinner.setSelection(choices.indexOf(TIME));
+        configureDateTimeSpinner(dateTimeSpinner);
         // Now show the Dialog in all its glory!
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
@@ -133,8 +107,47 @@ public class DateTimePickerFragment extends DialogFragment {
                 .create();
     }
 
+    private void configureDateTimeSpinner(final Spinner dateTimeSpinner) {
+        List<String> choices = new ArrayList<>();
+        choices.add(computeChoice(DATE));
+        choices.add(computeChoice(TIME));
+        dateTimeSpinner.setAdapter(
+                new ArrayAdapter<String>(
+                        getActivity(),
+                        android.R.layout.simple_list_item_1,
+                        choices));
+        dateTimeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String choice = (String) dateTimeSpinner.getAdapter().getItem(position);
+                if (choice.equalsIgnoreCase(computeChoice(DATE))) {
+                    // Make the DatePicker visible
+                    mDatePicker.setVisibility(View.VISIBLE);
+                    mTimePicker.setVisibility(View.GONE);
+                } else {
+                    // Make the TimePicker visible
+                    mTimePicker.setVisibility(View.VISIBLE);
+                    mDatePicker.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        // Default to show Time first. Based on my experience, it's the thing
+        /// I'm most likely to want to change.
+        dateTimeSpinner.setSelection(choices.indexOf(computeChoice(TIME)));
+    }
+
+    private String computeChoice(String baseChoice) {
+        return mDateType + " " + baseChoice;
+    }
+
     private void processFragmentArguments() {
         mDate = (Date) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATE);
+        mDateType = (String) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATE_TYPE);
     }
 
     private Date computeDateFromComponents(int year, int monthOfYear, int dayOfMonth, int hourOfDay, int minuteOfHour) {
