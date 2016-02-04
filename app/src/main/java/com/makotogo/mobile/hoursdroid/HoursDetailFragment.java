@@ -5,11 +5,15 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +26,9 @@ import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Project;
 
 import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.util.Date;
 import java.util.List;
@@ -43,6 +50,17 @@ public class HoursDetailFragment extends AbstractFragment {
     private static final int REQUEST_BREAK = 120;
     // Don'tcha hate repeating yourself??
     private static final String DATE_FORMAT_PATTERN = "M/d/yyyy h:mm a";
+
+    private PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+            .printZeroNever()
+            .appendDays().appendSuffix("d")
+            .appendSeparator(", ")
+            .appendHours().appendSuffix("h")
+            .appendSeparator(": ")
+            .appendMinutes().appendSuffix("m")
+            .appendSeparator(": ")
+            .appendSeconds().appendSuffix("s")
+            .toFormatter();
 
     /**
      * The Hours object we are editing. It can easily be reconstituted from fragment
@@ -162,20 +180,14 @@ public class HoursDetailFragment extends AbstractFragment {
 
     @Override
     protected void updateUI() {
-        if (mHours.getBegin() != null) {
-            LocalDateTime beginDateTime = new LocalDateTime(mHours.getBegin().getTime());
-            ((TextView) getView().findViewById(R.id.textview_hours_detail_begin_date))
-                    .setText(beginDateTime.toString(DATE_FORMAT_PATTERN));
-        }
-        if (mHours.getEnd() != null) {
-            LocalDateTime endDateTime = new LocalDateTime(mHours.getEnd().getTime());
-            ((TextView) getView().findViewById(R.id.textview_hours_detail_end_date))
-                    .setText(endDateTime.toString(DATE_FORMAT_PATTERN));
-        }
-        if (mHours.getBreak() != null) {
-            ((TextView) getView().findViewById(R.id.textview_hours_detail_break))
-                    .setText(renderBreakForDisplay(mHours.getBreak()));
-        }
+        updateBegin();
+        updateEnd();
+        updateBreak();
+        updateTotal();
+        updateProjectSpinner();
+    }
+
+    private void updateProjectSpinner() {
         DataStore dataStore = DataStore.instance(getActivity());
         List<Project> projects = dataStore.getProjects(mHours.getJob());
         projects.add(Project.MANAGE_PROJECTS);
@@ -195,6 +207,43 @@ public class HoursDetailFragment extends AbstractFragment {
             // Select the active project
             getProjectSpinner().setSelection(selectedIndex);
         }
+    }
+
+    private void updateBegin() {
+        if (mHours.getBegin() != null) {
+            LocalDateTime beginDateTime = new LocalDateTime(mHours.getBegin().getTime());
+            ((TextView) getView().findViewById(R.id.textview_hours_detail_begin_date))
+                    .setText(beginDateTime.toString(DATE_FORMAT_PATTERN));
+        }
+    }
+
+    private void updateEnd() {
+        if (mHours.getEnd() != null) {
+            LocalDateTime endDateTime = new LocalDateTime(mHours.getEnd().getTime());
+            ((TextView) getView().findViewById(R.id.textview_hours_detail_end_date))
+                    .setText(endDateTime.toString(DATE_FORMAT_PATTERN));
+        }
+    }
+
+    private void updateBreak() {
+        long breakMillis = 0L;
+        if (mHours.getBreak() != null) {
+            breakMillis = mHours.getBreak();
+        }
+        ((TextView) getView().findViewById(R.id.textview_hours_detail_break))
+                .setText(renderTimePeriodForDisplay(breakMillis));
+    }
+
+    private void updateTotal() {
+        long totalMillis = 0L;
+        if (mHours.getEnd() != null) {
+            long beginMillis = (mHours.getBegin() == null) ? 0L : mHours.getBegin().getTime();
+            long endMillis = (mHours.getEnd() == null) ? 0L : mHours.getEnd().getTime();
+            long breakMillis = (mHours.getBreak() == null) ? 0L : mHours.getBreak();
+            totalMillis = endMillis - beginMillis - breakMillis;
+        }
+        ((TextView) getView().findViewById(R.id.textview_hours_detail_total))
+                .setText(renderTimePeriodForDisplay(totalMillis));
     }
 
     @Override
@@ -314,24 +363,60 @@ public class HoursDetailFragment extends AbstractFragment {
                 numberPickerFragment.show(fragmentManager, DIALOG_TAG_NUMBER_PICKER);
             }
         });
-        breakTime.setText(renderBreakForDisplay(mHours.getBreak()));
+        breakTime.setText(renderTimePeriodForDisplay(mHours.getBreak()));
     }
 
     private void configureTotalTime(View view) {
-
+        TextView totalTime = (TextView) view.findViewById(R.id.textview_hours_detail_total);
+        long elapsedTime = mHours.getEnd().getTime() - mHours.getBegin().getTime() - mHours.getBreak();
+        Period period = new Period(elapsedTime);
+        totalTime.setText(periodFormatter.print(period));
     }
 
     private void configureDescription(View view) {
+        EditText description = (EditText) view.findViewById(R.id.edittext_hours_detail_description);
+        description.setText(mHours.getDescription());
+        description.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Nothing to do
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mHours.setDescription(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Nothing to do
+            }
+        });
     }
 
     private void configureSaveButton(View view) {
-
+        Button button = (Button) view.findViewById(R.id.button_hours_detail_save);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String METHOD = "configureSaveButton(View)->onClick(View): ";
+                // Validate and save the Hours record
+                if (validate(HoursDetailFragment.this.getView())) {
+                    DataStore dataStore = DataStore.instance(getActivity());
+                    if (dataStore.update(mHours) > 0) {
+                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                        getActivity().finish();
+                    }
+                } else {
+                    Log.w(TAG, METHOD + "Validation errors prevented saving the Hours record.");
+                }
+            }
+        });
     }
 
-    private String renderBreakForDisplay(long breakTimeInMillis) {
-        Long breakTimeInMinutes = breakTimeInMillis / 60000L;
-        return breakTimeInMinutes.toString() + " minutes";
+    private String renderTimePeriodForDisplay(long breakTimeInMillis) {
+        Period period = new Period(breakTimeInMillis);
+        return periodFormatter.print(period);
     }
 
     private Long renderBreakForStorage(long breakTimeInMinutes) {
