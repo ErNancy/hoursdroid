@@ -1,6 +1,7 @@
 package com.makotogo.mobile.hoursdroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,8 +47,14 @@ import java.util.Map;
 public class HoursListFragment extends AbstractFragment {
 
     private static final String TAG = HoursListFragment.class.getSimpleName();
+
     private static final String STATE_ACTIVE_HOURS = "state." + Hours.class.getName();
+    private static final String STATE_FILTER_BEGIN_DATE = "state.begin." + Date.class.getName();
+    private static final String STATE_FILTER_END_DATE = "state.end." + Date.class.getName();
+
     private static final int REQUEST_CODE_MANAGE_PROJECTS = 100;
+    private static final int REQUEST_CODE_FILTER_DIALOG = 200;
+
     private static final boolean IN_ACTION_MODE = true;
     private static final boolean NOT_IN_ACTION_MODE = false;
 
@@ -72,6 +79,18 @@ public class HoursListFragment extends AbstractFragment {
      * Saved to Bundle: yes
      */
     private Hours mActiveHours;
+
+    /**
+     * The filter settings. If set, we need to restore them if there is a config
+     * change (e.g., device rotation)
+     * Saved to Bundle: yes
+     */
+    private Date mFilterBeginDate;
+    private Date mFilterEndDate;
+
+    /**
+     * Allows us to ignore regular presses on the list view if we are in Action Mode
+     */
     private transient boolean mInActionMode;
 
 
@@ -140,6 +159,8 @@ public class HoursListFragment extends AbstractFragment {
         Log.d(TAG, METHOD);
         // Save the Active Hours object
         outState.putSerializable(STATE_ACTIVE_HOURS, mActiveHours);
+        outState.putSerializable(STATE_FILTER_BEGIN_DATE, mFilterBeginDate);
+        outState.putSerializable(STATE_FILTER_END_DATE, mFilterEndDate);
         updateSharedPreferences();
         Log.d(TAG, METHOD + "DONE.");
     }
@@ -148,6 +169,8 @@ public class HoursListFragment extends AbstractFragment {
     public void restoreInstanceState(Bundle savedInstanceState) {
         // Restore the Active Hours object
         mActiveHours = (Hours) savedInstanceState.getSerializable(STATE_ACTIVE_HOURS);
+        mFilterBeginDate = (Date) savedInstanceState.getSerializable(STATE_FILTER_BEGIN_DATE);
+        mFilterEndDate = (Date) savedInstanceState.getSerializable(STATE_FILTER_END_DATE);
     }
 
     @Override
@@ -169,7 +192,7 @@ public class HoursListFragment extends AbstractFragment {
         configureProjectSpinner(projectSpinner);
         ListView listView = (ListView) view.findViewById(R.id.hours_list_view);
         // Access the Job backing store singleton
-        DataStore dataStore = DataStore.instance(getActivity());
+        //DataStore dataStore = DataStore.instance(getActivity());
         configureListView(listView);
         // Create Filter listener
         ImageView filterIcon = (ImageView) view.findViewById(R.id.imageview_hours_list_filter);
@@ -215,19 +238,27 @@ public class HoursListFragment extends AbstractFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        final String METHOD = "onActivityresult(" + requestCode + ", " + resultCode + ", " + data + "): ";
+        final String METHOD = "onActivityResult(" + requestCode + ", " + resultCode + ", " + data + "): ";
         Log.d(TAG, METHOD);
-        super.onActivityResult(requestCode, resultCode, data);
-        // The resulting Intent should contain the user's choice of Project.
-        /// If not, do nothing. Otherwise, set the choice, and call updateUI();
-        if (requestCode == REQUEST_CODE_MANAGE_PROJECTS && resultCode == Activity.RESULT_OK) {
-            if (data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT) != null) {
-                Log.d(TAG, METHOD + "Processing result...");
-                mProject = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
-                updateUI();
+//        super.onActivityResult(requestCode, resultCode, data);// Not necessary
+        if (resultCode == Activity.RESULT_OK) {
+            Log.d(TAG, METHOD + "Processing result...");
+            switch (requestCode) {
+                case REQUEST_CODE_MANAGE_PROJECTS:
+                    mProject = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
+                    break;
+                case REQUEST_CODE_FILTER_DIALOG:
+                    mFilterBeginDate = (Date) data.getSerializableExtra(FilterDialogFragment.RESULT_BEGIN_DATE);
+                    mFilterEndDate = (Date) data.getSerializableExtra(FilterDialogFragment.RESULT_END_DATE);
+                    break;
+                default:
+                    String message = "Cannot handle requestCode (" + requestCode + "). User pressed the Back button, maybe?";
+                    Log.w(TAG, METHOD + message);
+                    break;
             }
+            updateUI();
         } else {
-            String message = "Cannot handle requestCode (" + requestCode + ") and/or resultCode (" + resultCode + "). User pressed the Back button, maybe?";
+            String message = "Cannot handle resultCode (" + resultCode + "). User pressed the Back button, maybe?";
             Log.w(TAG, METHOD + message);
         }
         Log.d(TAG, METHOD + "DONE.");
@@ -244,15 +275,29 @@ public class HoursListFragment extends AbstractFragment {
         Log.d(TAG, METHOD);
         DataStore dataStore = DataStore.instance(getActivity());
         // Now refresh the view
-        List<Hours> hours = dataStore.getHours(mProject);
-        if (getHoursListViewAdapter() != null) {
-            Log.d(TAG, METHOD + "Adding " + hours.size() + " Hours objects to the list...");
-            getHoursListViewAdapter().clear();
-            getHoursListViewAdapter().addAll(hours);
-            getHoursListViewAdapter().notifyDataSetChanged();
-        }
+        updateHoursListview(dataStore);
         List<Project> projects = dataStore.getProjects(mJob);
         projects.add(Project.MANAGE_PROJECTS);
+        updateProjectSpinner(projects);
+        updateSaveButtonState();
+        updateFilterBackground();
+        Log.d(TAG, "updateUI()...DONE");
+    }
+
+    private void updateSaveButtonState() {
+        String METHOD = "updateSaveButtonState(): ";
+        // Handle the button
+        if (isActive()) {
+            if (getView() != null) {
+                Log.d(TAG, METHOD + "Setting Start/Stop button text...");
+                Button button = (Button) getView().findViewById(R.id.button_hours_start_stop);
+                button.setText(getActivity().getResources().getText(R.string.stop_work));
+                button.setEnabled(isActiveHoursProjectSameAsCurrentProject());
+            }
+        }
+    }
+
+    private void updateProjectSpinner(List<Project> projects) {
         AbstractArrayAdapter<Project> projectListAdapter = getProjectListAdapter();
         if (projectListAdapter != null) {
             projectListAdapter.clear();
@@ -269,16 +314,33 @@ public class HoursListFragment extends AbstractFragment {
             // Select the active project
             getProjectSpinner().setSelection(selectedIndex);
         }
-        // Handle the button
-        if (isActive()) {
-            if (getView() != null) {
-                Log.d(TAG, METHOD + "Setting Start/Stop button text...");
-                Button button = (Button) getView().findViewById(R.id.button_hours_start_stop);
-                button.setText(getActivity().getResources().getText(R.string.stop_work));
-                button.setEnabled(isActiveHoursProjectSameAsCurrentProject());
+    }
+
+    private void updateHoursListview(DataStore dataStore) {
+        String METHOD = "updateHoursListView(DataStore): ";
+        List<Hours> hours = dataStore.getHours(mProject);
+        if (getHoursListViewAdapter() != null) {
+            Log.d(TAG, METHOD + "Adding " + hours.size() + " Hours objects to the list...");
+            getHoursListViewAdapter().clear();
+            getHoursListViewAdapter().addAll(hours);
+            getHoursListViewAdapter().notifyDataSetChanged();
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void updateFilterBackground() {
+        ImageView filterIcon = (ImageView) getFilterIcon();
+        if (filterIcon != null) {
+            if (isFilterActive()) {
+                filterIcon.setBackgroundColor(
+                        getResources().getColor(
+                                R.color.filter_active_background));
+            } else {
+                filterIcon.setBackgroundColor(
+                        getResources().getColor(
+                                R.color.standard_background));
             }
         }
-        Log.d(TAG, "updateUI()...DONE");
     }
 
     @Override
@@ -304,13 +366,29 @@ public class HoursListFragment extends AbstractFragment {
         return ret;
     }
 
-    private void configureFilterListener(ImageView filterIcon) {
+    private ImageView getFilterIcon() {
+        ImageView ret = null;
+        if (getView() != null) {
+            ret = (ImageView) getView().findViewById(R.id.imageview_hours_list_filter);
+        }
+        return ret;
+    }
+
+    private void configureFilterListener(final ImageView filterIcon) {
         filterIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
+                // TODO: Display the Date Select Dialog
+                FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
+                filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
+                filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
             }
         });
+    }
+
+    private boolean isFilterActive() {
+        return mFilterBeginDate != null && mFilterEndDate != null;
     }
 
     /**
@@ -351,7 +429,7 @@ public class HoursListFragment extends AbstractFragment {
         final String METHOD = "configureListView(ListView): ";
         Log.d(TAG, METHOD);
         // Create a new JobAdapter
-        listView.setAdapter(new HoursAdapter(R.layout.hours_list_row));
+        listView.setAdapter(new HoursAdapter(getActivity(), R.layout.hours_list_row));
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         // Create the OnItemLongClickListener, used to bring up the contextual
         /// actions for the List View
@@ -466,25 +544,6 @@ public class HoursListFragment extends AbstractFragment {
         });
     }
 
-    private void setStartStopButtonTextToStop() {
-        final String METHOD = "setStartStopButtonTextToStop(): ";
-        if (getView() != null) {
-            Button startStopButton = (Button) getView().findViewById(R.id.button_hours_start_stop);
-            startStopButton.setText(getActivity().getResources().getText(R.string.stop_work));
-        } else {
-            Log.d(TAG, METHOD + "Sadly, unable to do this...");
-        }
-    }
-
-    private void setStartStopButtonTextToStart() {
-        final String METHOD = "setStartStopButtonTextToStart(): ";
-        if (getView() != null) {
-            Button startStopButton = (Button) getView().findViewById(R.id.button_hours_start_stop);
-            startStopButton.setText(getActivity().getResources().getText(R.string.start_work));
-        } else {
-            Log.d(TAG, METHOD + "Sadly, unable to do this...");
-        }
-    }
 
     private boolean isActive() {
         return mActiveHours != null;
@@ -572,10 +631,12 @@ public class HoursListFragment extends AbstractFragment {
                 Log.d(TAG, METHOD + "Found the active hours record...");
                 // NOTE: DO NOT REFACTOR THIS CLASS OUTSIDE OF ITS CONTAINING CLASS!!
                 mActiveHours = hours;
-                setStartStopButtonTextToStop();
+                Button startStopButton = (Button) getView().findViewById(R.id.button_hours_start_stop);
+                startStopButton.setText(getActivity().getResources().getText(R.string.stop_work));
                 // Start the animation for this row
                 getActiveHours(view).setVisibility(View.VISIBLE);
             } else {
+                // TODO: Not sure this is the way to go here... too many Threads?
                 new AsyncTask<Void, Void, Map<String, String>>() {
                     String endDateTimeKey = "endDateTime";
                     String totalTimeKey = "totalTime";
@@ -586,13 +647,13 @@ public class HoursListFragment extends AbstractFragment {
                         Map<String, String> ret = new HashMap<>();
                         PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
                                 .printZeroNever()
-                                .appendDays().appendSuffix("d")
-                                .appendSeparator(", ")
+                                        //.appendDays().appendSuffix("d")
+                                        //.appendSeparator(", ")
                                 .appendHours().appendSuffix("h")
                                 .appendSeparator(": ")
                                 .appendMinutes().appendSuffix("m")
-                                .appendSeparator(": ")
-                                .appendSeconds().appendSuffix("s")
+                                        //.appendSeparator(": ")
+                                        //.appendSeconds().appendSuffix("s")
                                 .toFormatter();
                         // End Date
                         long endTime = hours.getEnd().getTime();
@@ -619,29 +680,11 @@ public class HoursListFragment extends AbstractFragment {
         }
     }
 
-    private class HoursAdapter extends AbstractArrayAdapter<Hours> {
+    private class HoursAdapter extends AbstractHoursAdapter {
 
-        public HoursAdapter(int layoutResourceId) {
+        public HoursAdapter(Context context, int layoutResourceId) {
             // This constructor indicates we will provide our own View inflation
-            super(getActivity(), layoutResourceId);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // The Layout ID to which the View will be (or is already) bound
-            // Check to see if we need to create a view, or if it is recycled
-            if (convertView == null) {
-                convertView = getActivity().getLayoutInflater().inflate(getLayoutResourceId(), null);
-                ViewBinder<Hours> hoursViewBinder = createViewBinder();
-                // The View bone connected to the Binder bone...
-                convertView.setTag(getLayoutResourceId(), hoursViewBinder);
-            }
-            Hours hours = getItem(position);
-            // The Binder bone connected to the View bone...
-            HoursViewBinder hoursViewBinder = (HoursViewBinder) convertView.getTag(getLayoutResourceId());
-            hoursViewBinder.initView(convertView);
-            hoursViewBinder.bind(hours, convertView);
-            return convertView;
+            super(context, layoutResourceId);
         }
 
         @Override
@@ -651,28 +694,4 @@ public class HoursListFragment extends AbstractFragment {
     }
 
     // A   T   T   I   C
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//        inflater.inflate(R.menu.menu_hours_list, menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        // Handle New Job
-//        if (id == R.id.menu_item_hours_new) {
-//            startHoursActivity();
-//
-//            // Handled
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-//
 }

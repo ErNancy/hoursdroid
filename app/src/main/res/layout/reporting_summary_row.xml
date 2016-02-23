@@ -2,8 +2,8 @@
 <LinearLayout
     android:id="@+id/rootlayout_hours_list_row"
     xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/standard_background"
     android:orientation="vertical">
 
@@ -13,7 +13,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/imageview_hours_list_row_active_hours"
+            android:id="@+id/imageview_reporting_summary_row_active_hours"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -43,7 +43,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/textview_hours_list_row_begin_date"
+                    android:id="@+id/textview_reporting_summary_row_begin_date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
@@ -60,7 +60,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/textview_hours_list_row_end_date"
+                    android:id="@+id/textview_reporting_summary_row_end_date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
@@ -84,7 +84,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/textview_hours_list_row_total"
+                    android:id="@+id/textview_reporting_summary_row_total"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
@@ -101,7 +101,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/textview_hours_list_row_break"
+                    android:id="@+id/textview_reporting_summary_row_break"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
@@ -114,17 +114,17 @@
         </LinearLayout>
 
     </LinearLayout>
+    <!--
+        <view
+            class="android.view.View"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/text_color"/>
 
-    <view
-        class="android.view.View"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/text_color"/>
-
-    <view
-        class="android.view.View"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/dark_grey"/>
-
+        <view
+            class="android.view.View"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/dark_grey"/>
+    -->
 </LinearLayout>

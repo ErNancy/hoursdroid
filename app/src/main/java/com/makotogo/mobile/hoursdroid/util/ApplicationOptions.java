@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.Date;
+
 /**
  * Created by sperry on 1/9/16.
  */
@@ -12,12 +14,16 @@ public class ApplicationOptions {
     public static final String PREFS_KEY_SHOW_INACTIVE_JOBS = "PREFS_KEY_SHOW_INACTIVE_JOBS";
     public static final String PREFS_KEY_SHOW_NOTIFICATIONS = "PREFS_KEY_SHOW_NOTIFICATIONS";
     public static final String PREFS_KEY_LAST_USED_PROJECT_ID = "PREFS_KEY_LAST_USED_PROJECT_ID";
+    public static final String PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE = "PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE";
+    public static final String PREFS_KEY_REPORT_SUMMARY_END_DATE = "PREFS_KEY_REPORT_SUMMARY_END_DATE";
 
     private static ApplicationOptions mInstance;
     private Context mContext;
     private Boolean mShowNotifications;
     private Boolean mShowInactiveJobs;
     private Integer mLastUsedProjectId;
+    private Date mReportSummaryBeginDate;
+    private Date mReportSummaryEndDate;
 
     protected ApplicationOptions(Context context) {
         mContext = context;
@@ -76,4 +82,58 @@ public class ApplicationOptions {
         sharedPreferencesEditor.commit();
     }
 
+    public Date getReportSummaryBeginDate() {
+        // Default: beginning of the Epoch
+        return getReportSummaryBeginDate(new Date(0));
+    }
+
+    public Date getReportSummaryBeginDate(Date defaultBeginDate) {
+        if (mReportSummaryBeginDate == null) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+            long beginDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, defaultBeginDate.getTime());
+            mReportSummaryBeginDate = new Date(beginDate);
+        }
+        return mReportSummaryBeginDate;
+    }
+
+    public Date getReportSummaryEndDate() {
+        // Default: now
+        return getReportSummaryEndDate(new Date());
+    }
+
+    public Date getReportSummaryEndDate(Date defaultEndDate) {
+        if (mReportSummaryEndDate == null) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+            long endDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, defaultEndDate.getTime());
+            mReportSummaryEndDate = new Date(endDate);
+        }
+        return mReportSummaryEndDate;
+    }
+
+    public void saveReportSummaryBeginDate(Date beginDate) {
+        // Sanity check
+        if (beginDate == null) {
+            throw new RuntimeException("Begin Date cannot be null!");
+        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+        sharedPreferencesEditor.putLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, beginDate.getTime());
+        sharedPreferencesEditor.commit();
+    }
+
+    public void saveReportSummaryEndDate(Date endDate) {
+        // Sanity check
+        if (endDate == null) {
+            throw new RuntimeException("End Date cannot be null!");
+        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+        sharedPreferencesEditor.putLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, endDate.getTime());
+        sharedPreferencesEditor.commit();
+    }
+
+    public String getDateFormatString() {
+        // TODO: externalize
+        return "MM/dd/yyyy hh:mm a";
+    }
 }

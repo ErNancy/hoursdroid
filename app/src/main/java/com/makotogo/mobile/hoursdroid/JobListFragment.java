@@ -82,26 +82,40 @@ public class JobListFragment extends AbstractFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean ret;
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         // Handle New Job
-        if (id == R.id.menu_item_job_new) {
-            // Fire off Job Edit Activity
-            Intent intent = new Intent(getActivity(), JobDetailActivity.class);
-            // Create an empty Job object to be used by JobDetailActivity
-            Job job = new Job();
-            job.setActive(true);
-            intent.putExtra(JobDetailActivity.EXTRA_JOB, job);
-            // Start the activity
-            startActivity(intent);
-            // Handled
-            return true;
+        switch (id) {
+            case R.id.menu_item_job_new: {
+                // Fire off Job Edit Activity
+                Intent intent = new Intent(getActivity(), JobDetailActivity.class);
+                // Create an empty Job object to be used by JobDetailActivity
+                Job job = new Job();
+                job.setActive(true);
+                intent.putExtra(JobDetailActivity.EXTRA_JOB, job);
+                // Start the activity
+                startActivity(intent);
+                // Handled
+                ret = true;
+                break;
+            }
+            case R.id.menu_item_job_reporting_summary: {
+                // Fire off Reporting Summary Activity
+                Intent intent = new Intent(getActivity(), ReportingSummaryActivity.class);
+                startActivity(intent);
+                ret = true;
+                break;
+            }
+            default: {
+                ret = super.onOptionsItemSelected(item);
+                break;
+            }
         }
-
-        return super.onOptionsItemSelected(item);
+        return ret;
     }
 
     /**
@@ -198,7 +212,7 @@ public class JobListFragment extends AbstractFragment {
         listView.setAdapter(new AbstractArrayAdapter<Job>(getActivity(), R.layout.job_list_row) {
             @Override
             protected ViewBinder<Job> createViewBinder() {
-                return new JobViewBinder();
+                return new JobViewBinder(JobListFragment.this);
             }
         });
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -307,13 +321,18 @@ public class JobListFragment extends AbstractFragment {
             }
         });
     }
-
     /**
      * Binds the View to the Job object displayed in the View.
      * Not so much of a Holder as a Binder. Mainly because circular
      * references are evil.
      */
     private class JobViewBinder implements ViewBinder<Job> {
+
+        private JobListFragment mJobListFragment;
+
+        public JobViewBinder(JobListFragment jobListFragment) {
+            mJobListFragment = jobListFragment;
+        }
 
         private TextView getNameTextView(View view) {
             return (TextView) view.findViewById(R.id.textview_job_list_row_name);
@@ -347,7 +366,7 @@ public class JobListFragment extends AbstractFragment {
             } else {
                 getIsJobActiveView(view).setBackgroundColor(view.getContext().getResources().getColor(android.R.color.holo_red_light));
             }
-            if (DataStore.instance(getActivity()).hasActiveHours(job)) {
+            if (DataStore.instance(mJobListFragment.getActivity()).hasActiveHours(job)) {
                 getActiveHours(view).setVisibility(View.VISIBLE);
             }
         }

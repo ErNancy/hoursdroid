@@ -3,7 +3,6 @@ package com.makotogo.mobile.hoursdroid;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +15,8 @@ import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.makotogo.mobile.framework.AbstractDialogFragment;
+
 import org.joda.time.LocalDateTime;
 
 import java.util.ArrayList;
@@ -26,16 +27,19 @@ import java.util.List;
 /**
  * Created by sperry on 1/20/16.
  */
-public class DateTimePickerFragment extends DialogFragment {
+public class DateTimePickerFragment extends AbstractDialogFragment {
 
-    public static final String EXTRA_DATE_TIME = "extra." + DateTimePickerFragment.class.getName();
+    public static final String DIALOG_TAG = DateTimePickerFragment.class.getName();
+
+    public static final String RESULT_DATE_TIME = "result." + DateTimePickerFragment.class.getName();
     public static final String TIME = "Time";
     public static final String DATE = "Date";
 
     private static final String TAG = DateTimePickerFragment.class.getSimpleName();
 
-    private transient Date mDate;
-    private transient String mDateType;
+    private Date mDate;
+    private String mDateType;
+    private String mInitialChoice;
 
     /**
      * Maintain a reference to the DatePicker to work around a bug in Android 5.
@@ -44,8 +48,8 @@ public class DateTimePickerFragment extends DialogFragment {
      * to save these in the Bundle because they can always be recreated if necessary
      * (on device rotation, say).
      */
-    private transient DatePicker mDatePicker;
-    private transient TimePicker mTimePicker;
+    private DatePicker mDatePicker;
+    private TimePicker mTimePicker;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -94,7 +98,7 @@ public class DateTimePickerFragment extends DialogFragment {
                                     mTimePicker.getCurrentHour(),
                                     mTimePicker.getCurrentMinute());
                             Intent intent = new Intent();
-                            intent.putExtra(EXTRA_DATE_TIME, mDate);
+                            intent.putExtra(RESULT_DATE_TIME, mDate);
                             getTargetFragment().onActivityResult(
                                     getTargetRequestCode(),
                                     Activity.RESULT_OK,
@@ -105,6 +109,16 @@ public class DateTimePickerFragment extends DialogFragment {
                     }
                 })
                 .create();
+    }
+
+    @Override
+    protected void restoreInstanceState(Bundle savedInstanceState) {
+        // Nothing to do
+    }
+
+    @Override
+    protected void saveInstanceState(Bundle outState) {
+        // Nothing to do
     }
 
     private void configureDateTimeSpinner(final Spinner dateTimeSpinner) {
@@ -136,18 +150,30 @@ public class DateTimePickerFragment extends DialogFragment {
 
             }
         });
-        // Default to show Time first. Based on my experience, it's the thing
-        /// I'm most likely to want to change.
-        dateTimeSpinner.setSelection(choices.indexOf(computeChoice(TIME)));
+        // Select initial choice.
+        dateTimeSpinner.setSelection(choices.indexOf(mInitialChoice));
     }
 
     private String computeChoice(String baseChoice) {
         return mDateType + " " + baseChoice;
     }
 
-    private void processFragmentArguments() {
+    @Override
+    protected void processFragmentArguments() {
         mDate = (Date) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATE);
+        // Sanity check
+        if (mDate == null) {
+            throw new RuntimeException("Fragment argument (" + FragmentFactory.FRAG_ARG_DATE + ") cannot be null!");
+        }
         mDateType = (String) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATE_TYPE);
+        // Sanity check
+        if (mDateType == null || mDateType.isEmpty()) {
+            throw new RuntimeException("Fragment argument (" + FragmentFactory.FRAG_ARG_DATE_TYPE + ") cannot be null!");
+        }
+        mInitialChoice = (String) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATETIME_PICKER_INITIAL_CHOICE);
+        if (mInitialChoice == null || mInitialChoice.isEmpty()) {
+            mInitialChoice = TIME;
+        }
     }
 
     private Date computeDateFromComponents(int year, int monthOfYear, int dayOfMonth, int hourOfDay, int minuteOfHour) {

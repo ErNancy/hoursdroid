@@ -13,8 +13,7 @@ import java.util.Date;
  */
 public class FragmentFactory {
 
-    public static final String FRAG_ARG_DATE_TYPE = FRAG_ARG_DATE + "Type";
-    private static final String FRAG_ARG_PREFIX = "fragment.argument.";
+    public static final String FRAG_ARG_PREFIX = "fragment.argument.";
     public static final String FRAG_ARG_JOB = FRAG_ARG_PREFIX + Job.class.getName();
     public static final String FRAG_ARG_PROJECT = FRAG_ARG_PREFIX + Project.class.getName();
     public static final String FRAG_ARG_HOURS = FRAG_ARG_PREFIX + Hours.class.getName();
@@ -22,6 +21,10 @@ public class FragmentFactory {
     public static final String FRAG_ARG_MINUTES = FRAG_ARG_PREFIX + "minutes";
     public static final String FRAG_ARG_MAX_MINUTES = FRAG_ARG_PREFIX + "max.minutes";
     public static final String FRAG_ARG_TITLE = FRAG_ARG_PREFIX + "title";
+    public static final String FRAG_ARG_DATE_TYPE = FRAG_ARG_DATE + "Type";
+    public static final String FRAG_ARG_FILTER_DIALOG_BEGIN_DATE = FRAG_ARG_PREFIX + "begin.date";
+    public static final String FRAG_ARG_FILTER_DIALOG_END_DATE = FRAG_ARG_PREFIX + "end.date";
+    public static final String FRAG_ARG_DATETIME_PICKER_INITIAL_CHOICE = FRAG_ARG_PREFIX + "date.picker.initial.choice";
 
     /**
      * Creates the JoblistFragment.
@@ -77,14 +80,16 @@ public class FragmentFactory {
     /**
      * Creates the DatePickerFragment.
      *
-     * @param date The Date to display on the Date Picker
+     * @param date     The Date to display on the Date Picker
+     * @param dateType The date type, used for display purposes
      * @return DateTimePickerFragment
      */
-    public static DateTimePickerFragment createDatePickerFragment(Date date, String dateType) {
+    public static DateTimePickerFragment createDatePickerFragment(Date date, String dateType, String initialChoice) {
         DateTimePickerFragment ret = new DateTimePickerFragment();
         Bundle args = new Bundle();
         args.putSerializable(FRAG_ARG_DATE, date);
         args.putSerializable(FRAG_ARG_DATE_TYPE, dateType);
+        args.putSerializable(FRAG_ARG_DATETIME_PICKER_INITIAL_CHOICE, initialChoice);
         ret.setArguments(args);
         return ret;
     }
@@ -103,6 +108,12 @@ public class FragmentFactory {
         return ret;
     }
 
+    /**
+     * Creates the ProjectDetailFragment
+     *
+     * @param project The Project to be edited
+     * @return ProjectDetailFragment
+     */
     public static ProjectDetailFragment createProjectDetailFragment(Project project) {
         ProjectDetailFragment ret = new ProjectDetailFragment();
         Bundle args = new Bundle();
@@ -111,12 +122,48 @@ public class FragmentFactory {
         return ret;
     }
 
+    /**
+     * Creates the NumberPickerFragment
+     *
+     * @param numberOfMinutes The number of minutes to initialize the display
+     * @param maxMinutes      The maximum number of minutes in the picker wheel
+     * @param title           The title to display in the picker so that different types of numbers
+     *                        can be chosen, and the dialog reused.
+     * @return NumberPickerFragment
+     */
     public static NumberPickerFragment createNumberPickerFragment(Integer numberOfMinutes, Integer maxMinutes, String title) {
         NumberPickerFragment ret = new NumberPickerFragment();
         Bundle args = new Bundle();
         args.putSerializable(FRAG_ARG_MINUTES, numberOfMinutes);
         args.putSerializable(FRAG_ARG_MAX_MINUTES, maxMinutes);
         args.putSerializable(FRAG_ARG_TITLE, title);
+        ret.setArguments(args);
+        return ret;
+    }
+
+    /**
+     * Creates the ReportingSummaryFragment
+     *
+     * @return ReportingSummaryFragment
+     */
+    public static ReportingSummaryFragment createReportingSummaryFragment() {
+        ReportingSummaryFragment ret = new ReportingSummaryFragment();
+        // No args
+        return ret;
+    }
+
+    /**
+     * Creates the FilterDialogFragment
+     *
+     * @param beginDate
+     * @param endDate
+     * @return FilterDialogFragment
+     */
+    public static FilterDialogFragment createFilterDialogFragment(Date beginDate, Date endDate) {
+        FilterDialogFragment ret = new FilterDialogFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(FRAG_ARG_FILTER_DIALOG_BEGIN_DATE, beginDate);
+        args.putSerializable(FRAG_ARG_FILTER_DIALOG_END_DATE, endDate);
         ret.setArguments(args);
         return ret;
     }

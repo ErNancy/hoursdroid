@@ -1,6 +1,6 @@
 package com.makotogo.mobile.framework;
 
-import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,27 +18,27 @@ import android.widget.ArrayAdapter;
 public abstract class AbstractArrayAdapter<T extends ModelObject> extends ArrayAdapter<ModelObject> {
     private static final String TAG = AbstractArrayAdapter.class.getSimpleName();
 
-    private Activity mActivity;
+    private Context mContext;
     private int mLayoutResourceId;
-
-    public int getLayoutResourceId() {
-        return mLayoutResourceId;
-    }
 
     /**
      * The one-and-only way to create this class.
      *
-     * @param activity
+     * @param context
      * @param resource
      */
-    public AbstractArrayAdapter(Activity activity, int resource) {
-        super(activity, 0);
-        final String METHOD = "<constructor>(" + activity + ", " + resource + "): ";
+    public AbstractArrayAdapter(Context context, int resource) {
+        super(context, 0);
+        final String METHOD = "<constructor>(" + context + ", " + resource + "): ";
         Log.d(TAG, METHOD + "...");
         // Tells the superclass that we will be handling View inflation
-        mActivity = activity;
+        mContext = context;
         mLayoutResourceId = resource;
         Log.d(TAG, METHOD + "...DONE");
+    }
+
+    public int getLayoutResourceId() {
+        return mLayoutResourceId;
     }
 
     /**
@@ -60,8 +60,8 @@ public abstract class AbstractArrayAdapter<T extends ModelObject> extends ArrayA
     }
 
     protected LayoutInflater getLayoutInflater() {
-        if (mActivity != null) {
-            return mActivity.getLayoutInflater();
+        if (mContext != null) {
+            return LayoutInflater.from(mContext);
         }
         throw new RuntimeException(AbstractArrayAdapter.class.getName() + " is misconfigured! Activity parameter cannot be null!");
     }

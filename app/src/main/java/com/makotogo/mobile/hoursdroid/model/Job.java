@@ -10,6 +10,8 @@ import java.util.Date;
  */
 public class Job implements ModelObject, Serializable {
 
+    public static final Job ALL_JOBS = new Job("All", "Selects All Jobs");
+
     private Integer mId;
     private String mName;
     private String mDescription;
@@ -17,6 +19,15 @@ public class Job implements ModelObject, Serializable {
     private Boolean mActive;
     private Date mWhenCreated;
     private Boolean mContainsActiveHours;
+
+    public Job() {
+        // Nothing to do
+    }
+
+    public Job(String name, String description) {
+        mName = name;
+        mDescription = description;
+    }
 
     public Integer getId() {
         return mId;

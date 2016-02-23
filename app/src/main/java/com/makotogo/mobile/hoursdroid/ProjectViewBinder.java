@@ -23,6 +23,8 @@ class ProjectViewBinder implements ViewBinder<Project> {
         getDescriptionTextView(view).setText(object.getDescription());
     }
 
+    // TODO: Add clock icon to active project if there is one
+
     private TextView getNameTextView(View view) {
         return (TextView) view.findViewById(R.id.textview_project_list_row_name);
     }

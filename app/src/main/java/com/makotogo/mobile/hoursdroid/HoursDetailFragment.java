@@ -41,8 +41,6 @@ public class HoursDetailFragment extends AbstractFragment {
     public static final int REQUEST_CODE_MANAGE_PROJECTS = 200;
     // Logging
     private static final String TAG = HoursDetailFragment.class.getSimpleName();
-    private static final String DIALOG_TAG_DATE_PICKER = DateTimePickerFragment.class.getName();
-    private static final String DIALOG_TAG_NUMBER_PICKER = NumberPickerFragment.class.getName();
     // Request IDs that will be used to identify which dialog is coming back with
     /// a result for us.
     private static final int REQUEST_BEGIN_DATE_PICKER = 100;
@@ -128,14 +126,14 @@ public class HoursDetailFragment extends AbstractFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final String METHOD = "onActivityResult(" + requestCode + ", " + resultCode + ", " + data + "): ";
-        Log.d(TAG, METHOD + "Howdy");
+        Log.d(TAG, METHOD + "...");
         if (resultCode == Activity.RESULT_OK) {
             // Figure out which Result code we are dealing with. This method
             /// handles the results of all dialog fragments used to set the
             /// model data.
             switch (requestCode) {
                 case REQUEST_BEGIN_DATE_PICKER:
-                    Date beginDate = (Date) data.getSerializableExtra(DateTimePickerFragment.EXTRA_DATE_TIME);
+                    Date beginDate = (Date) data.getSerializableExtra(DateTimePickerFragment.RESULT_DATE_TIME);
                     LocalDateTime ldtBeginDate = new LocalDateTime(beginDate.getTime());
                     Log.d(TAG, METHOD + "Begin Date set to: " + ldtBeginDate.toString(DATE_FORMAT_PATTERN));
                     if (ldtBeginDate.isBefore(new LocalDateTime(mHours.getEnd().getTime()))) {
@@ -148,7 +146,7 @@ public class HoursDetailFragment extends AbstractFragment {
                     }
                     break;
                 case REQUEST_END_DATE_PICKER:
-                    Date endDate = (Date) data.getSerializableExtra(DateTimePickerFragment.EXTRA_DATE_TIME);
+                    Date endDate = (Date) data.getSerializableExtra(DateTimePickerFragment.RESULT_DATE_TIME);
                     LocalDateTime ldtEndDate = new LocalDateTime(endDate.getTime());
                     Log.d(TAG, METHOD + "End Date set to: " + ldtEndDate.toString(DATE_FORMAT_PATTERN));
                     if (ldtEndDate.isAfter(new LocalDateTime(mHours.getBegin().getTime()))) {
@@ -161,7 +159,7 @@ public class HoursDetailFragment extends AbstractFragment {
                     }
                     break;
                 case REQUEST_BREAK:
-                    Integer breakTimeInMinutes = (Integer) data.getSerializableExtra(NumberPickerFragment.EXTRA_MINUTES);
+                    Integer breakTimeInMinutes = (Integer) data.getSerializableExtra(NumberPickerFragment.RESULT_MINUTES);
                     Log.d(TAG, METHOD + "Break Time set to: " + breakTimeInMinutes);
                     mHours.setBreak(renderBreakForStorage(breakTimeInMinutes));
                     updateUI();
@@ -317,9 +315,9 @@ public class HoursDetailFragment extends AbstractFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 // If there is already a Date displayed, use that.
                 Date dateToUse = (mHours.getBegin() == null) ? new Date() : mHours.getBegin();
-                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "Begin");
+                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "Begin", DateTimePickerFragment.TIME);
                 datePickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_BEGIN_DATE_PICKER);
-                datePickerFragment.show(fragmentManager, DIALOG_TAG_DATE_PICKER);
+                datePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);
             }
         });
         if (mHours.getBegin() != null) {
@@ -338,9 +336,9 @@ public class HoursDetailFragment extends AbstractFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 // If there is already a Date displayed, use that.
                 Date dateToUse = (mHours.getEnd() == null) ? new Date() : mHours.getEnd();
-                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "End");
+                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "End", DateTimePickerFragment.TIME);
                 datePickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_END_DATE_PICKER);
-                datePickerFragment.show(fragmentManager, DIALOG_TAG_DATE_PICKER);
+                datePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);
             }
         });
         if (mHours.getEnd() != null) {
@@ -360,7 +358,7 @@ public class HoursDetailFragment extends AbstractFragment {
                 Integer maxMinutes = (int) (mHours.getEnd().getTime() - mHours.getBegin().getTime()) / 60000;
                 NumberPickerFragment numberPickerFragment = FragmentFactory.createNumberPickerFragment(minutes, maxMinutes, "Break Time");
                 numberPickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_BREAK);
-                numberPickerFragment.show(fragmentManager, DIALOG_TAG_NUMBER_PICKER);
+                numberPickerFragment.show(fragmentManager, NumberPickerFragment.DIALOG_TAG);
             }
         });
         breakTime.setText(renderTimePeriodForDisplay(mHours.getBreak()));
