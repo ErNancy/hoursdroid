@@ -1,6 +1,7 @@
 package com.makotogo.mobile.hoursdroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.makotogo.mobile.framework.AbstractArrayAdapter;
 import com.makotogo.mobile.framework.AbstractFragment;
 import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
+import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Job;
 import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
 
@@ -148,7 +150,13 @@ public class ReportingSummaryFragment extends AbstractFragment {
     // TODO: Spray this pattern throughout the application!
 
     private void configureHoursListView(ListView hoursListView) {
-
+        // Create the HoursAdapter
+        HoursListViewAdapter hoursListViewAdapter =
+                new HoursListViewAdapter(getActivity(), R.layout.reporting_summary_row);
+        // Set it
+        hoursListView.setAdapter(hoursListViewAdapter);
+        // TODO: OnClickListener - Gives the user the ability to tweak the
+        /// Hours record they select. Have to work out the hierarchical navigation though.
     }
 
     private void updateHoursListView() {
@@ -234,6 +242,49 @@ public class ReportingSummaryFragment extends AbstractFragment {
         public void bind(Job job, View view) {
 
         }
+    }
+
+    private class HoursListViewAdapter extends AbstractHoursAdapter implements ViewBinder<Hours> {
+
+        public HoursListViewAdapter(Context context, int layoutResourceId) {
+            super(context, layoutResourceId);
+        }
+
+        @Override
+        protected ViewBinder<Hours> createViewBinder() {
+            return this;
+        }
+
+        @Override
+        public void initView(View view) {
+
+        }
+
+        @Override
+        public void bind(Hours object, View view) {
+
+        }
+
+        private TextView getBeginDate(View view) {
+            return (TextView) view.findViewById(R.id.textview_reporting_summary_row_begin_date);
+        }
+
+        private TextView getEndDate(View view) {
+            return (TextView) view.findViewById(R.id.textview_reporting_summary_row_end_date);
+        }
+
+        private TextView getBreak(View view) {
+            return (TextView) view.findViewById(R.id.textview_reporting_summary_row_break);
+        }
+
+        private TextView getTotal(View view) {
+            return (TextView) view.findViewById(R.id.textview_reporting_summary_row_total);
+        }
+
+        private TextView getJob(View view) {
+            return (TextView) view.findViewById(R.id.textview_reporting_summary_row_job);
+        }
+
     }
 
 }

@@ -275,7 +275,7 @@ public class HoursListFragment extends AbstractFragment {
         Log.d(TAG, METHOD);
         DataStore dataStore = DataStore.instance(getActivity());
         // Now refresh the view
-        updateHoursListview(dataStore);
+        updateHoursListView(dataStore);
         List<Project> projects = dataStore.getProjects(mJob);
         projects.add(Project.MANAGE_PROJECTS);
         updateProjectSpinner(projects);
@@ -316,7 +316,7 @@ public class HoursListFragment extends AbstractFragment {
         }
     }
 
-    private void updateHoursListview(DataStore dataStore) {
+    private void updateHoursListView(DataStore dataStore) {
         String METHOD = "updateHoursListView(DataStore): ";
         List<Hours> hours = dataStore.getHours(mProject);
         if (getHoursListViewAdapter() != null) {
