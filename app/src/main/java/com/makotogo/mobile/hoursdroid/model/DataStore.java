@@ -531,6 +531,33 @@ public class DataStore {
         return ret;
     }
 
+    public List<Hours> getHours(Job job, Date beginDate, Date endDate) {
+        final String METHOD = "getHours(" + job + ", " + beginDate + ", " + endDate + "): ";
+        List<Hours> ret = new ArrayList<>();
+        String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
+        String whereClause = computeGetHoursWhereClause(job, beginDate, endDate);
+        Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
+                null,// select *
+                whereClause,// computed
+                null,// no WHERE args either
+                null,// no GROUP BY
+                null,// no HAVING either
+                orderByClause// no ORDER BY
+        );
+        HoursCursorWrapper cursorWrapper = new HoursCursorWrapper(cursor);
+        try {
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                ret.add(cursorWrapper.getHours());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+        Log.d(TAG, METHOD + "Returning " + ret.size() + " Hours objects.");
+        return ret;
+    }
+
     public List<Hours> getHours(Job job) {
         List<Hours> ret = new ArrayList<>();
         String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
@@ -638,9 +665,33 @@ public class DataStore {
     }
 
     private String computeGetHoursWhereClause(Job job) {
-        String ret = null;
+        return computeGetHoursWhereClause(job, null, null);
+    }
+
+    private String computeGetHoursWhereClause(Job job, Date beginDate, Date endDate) {
+        final String METHOD = "computeGetHoursWhereClause(" + job + ", " + beginDate + ", " + endDate + "): ";
+        String ret = "";
         //
-        ret = HoursDbSchema.HoursTable.Column.JOB_ID + " = " + job.getId();
+        if (job != Job.ALL_JOBS) {
+            ret += HoursDbSchema.HoursTable.Column.JOB_ID + " = " + job.getId();
+            if (beginDate != null || endDate != null) {
+                ret += " AND ";
+            }
+        }
+        if (beginDate != null) {
+            ret += HoursDbSchema.HoursTable.Column.BEGIN + " < " + endDate.getTime();
+            if (endDate != null) {
+                ret += " AND ";
+            }
+        }
+        if (endDate != null) {
+            ret += HoursDbSchema.HoursTable.Column.END + " > " + beginDate.getTime();
+        }
+        if (ret.isEmpty()) {
+            // null tells the query to return all rows, empty string does ??? (who knows?)
+            ret = null;
+        }
+        Log.d(TAG, METHOD + "WHERE clause: '" + ret + "'");
         return ret;
     }
 

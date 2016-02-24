@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -63,19 +62,6 @@ public class ProjectListFragment extends AbstractFragment {
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final String METHOD = "onCreateView(" + inflater + ", " + container + ", " + savedInstanceState + "): ";
-        Log.d(TAG, METHOD + "...");
-        // Inflate the view
-        View view = inflater.inflate(R.layout.fragment_project_list, container, false);
-        // Process Fragment arguments.
-        processFragmentArguments();
-        configureUI(view);
-        return view;
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -90,7 +76,7 @@ public class ProjectListFragment extends AbstractFragment {
         int id = item.getItemId();
 
         // Handle New Job
-        if (id == R.id.menu_item_job_new) {
+        if (id == R.id.menu_item_project_new) {
             // Fire off Job Edit Activity
             // Create an empty Job object to be used by JobDetailActivity
             Project project = new Project();
@@ -100,7 +86,6 @@ public class ProjectListFragment extends AbstractFragment {
             // Start the activity
             startActivityForResult(intent, REQUEST_CODE_PROJECT_DETAIL);
             // Handled
-            Toast.makeText(getActivity(), "Create new Project (eventually)...", Toast.LENGTH_LONG).show();
             return true;
         }
 
@@ -138,12 +123,17 @@ public class ProjectListFragment extends AbstractFragment {
     }
 
     @Override
-    protected void configureUI(View view) {
-        Log.d(TAG, "configureUI()...");
+    protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        final String METHOD = "configureUI(...): ";
+        Log.d(TAG, METHOD + "BEGIN");
+        // Inflate the view
+        View view = layoutInflater.inflate(R.layout.fragment_project_list, container, false);
         ListView listView = (ListView) view.findViewById(R.id.listview_project_list);
         configureListView(listView);
         configureDoneButton(view);
-        Log.d(TAG, "configureUI()... DONE");
+
+        Log.d(TAG, METHOD + "END");
+        return view;
     }
 
     @Override

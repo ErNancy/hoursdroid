@@ -180,11 +180,11 @@ public class FilterDialogFragment extends AbstractDialogFragment {
                 DateTimePickerFragment dateTimePickerFragment;
                 if (position == 0) {
                     // Begin Date
-                    dateTimePickerFragment = FragmentFactory.createDatePickerFragment(mBeginDate, "Begin");
+                    dateTimePickerFragment = FragmentFactory.createDatePickerFragment(mBeginDate, "Begin", DateTimePickerFragment.TIME);
                     dateTimePickerFragment.setTargetFragment(FilterDialogFragment.this, BEGIN_DATE);
                 } else {
                     // End Date
-                    dateTimePickerFragment = FragmentFactory.createDatePickerFragment(mEndDate, "End");
+                    dateTimePickerFragment = FragmentFactory.createDatePickerFragment(mEndDate, "End", DateTimePickerFragment.TIME);
                     dateTimePickerFragment.setTargetFragment(FilterDialogFragment.this, END_DATE);
                 }
                 dateTimePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);

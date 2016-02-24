@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -49,15 +48,15 @@ public class HoursDetailFragment extends AbstractFragment {
     // Don'tcha hate repeating yourself??
     private static final String DATE_FORMAT_PATTERN = "M/d/yyyy h:mm a";
 
-    private PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+    private static PeriodFormatter sPeriodFormatter = new PeriodFormatterBuilder()
             .printZeroNever()
             .appendDays().appendSuffix("d")
             .appendSeparator(", ")
             .appendHours().appendSuffix("h")
             .appendSeparator(": ")
             .appendMinutes().appendSuffix("m")
-            .appendSeparator(": ")
-            .appendSeconds().appendSuffix("s")
+//            .appendSeparator(": ")
+//            .appendSeconds().appendSuffix("s")
             .toFormatter();
 
     /**
@@ -80,21 +79,19 @@ public class HoursDetailFragment extends AbstractFragment {
         super.onCreate(savedInstanceState);
     }
 
-    @Nullable
+    /**
+     * Called by the Framework as part of the View creation process.
+     *
+     * @param layoutInflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View ret = inflater.inflate(R.layout.fragment_hours_detail, container, false);
-        // Process Fragment arguments.
-        processFragmentArguments();
-        if (mHours == null) {
-            throw new RuntimeException("Fragment argument (Hours) cannot be null!");
-        }
-        configureUI(ret);
-        return ret;
-    }
-
-    @Override
-    protected void configureUI(View view) {
+    protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        final String METHOD = "configureUI(...): ";
+        Log.d(TAG, METHOD + "BEGIN");
+        View view = layoutInflater.inflate(R.layout.fragment_hours_detail, container, false);
         // Job Spinner
         configureJobSpinner(view);
         // Project Spinner
@@ -111,6 +108,9 @@ public class HoursDetailFragment extends AbstractFragment {
         configureDescription(view);
         // Save Button
         configureSaveButton(view);
+
+        Log.d(TAG, METHOD + "END");
+        return view;
     }
 
     @Override
@@ -368,7 +368,7 @@ public class HoursDetailFragment extends AbstractFragment {
         TextView totalTime = (TextView) view.findViewById(R.id.textview_hours_detail_total);
         long elapsedTime = mHours.getEnd().getTime() - mHours.getBegin().getTime() - mHours.getBreak();
         Period period = new Period(elapsedTime);
-        totalTime.setText(periodFormatter.print(period));
+        totalTime.setText(sPeriodFormatter.print(period));
     }
 
     private void configureDescription(View view) {
@@ -414,7 +414,7 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private String renderTimePeriodForDisplay(long breakTimeInMillis) {
         Period period = new Period(breakTimeInMillis);
-        return periodFormatter.print(period);
+        return sPeriodFormatter.print(period);
     }
 
     private Long renderBreakForStorage(long breakTimeInMinutes) {

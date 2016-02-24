@@ -71,5 +71,6 @@
     <string name="reporting_summary">Reporting Summary</string>
     <string name="to">to</string>
     <string name="filter_settings">Filter Settings</string>
+    <string name="menu_item_title_project_new">New Project</string>
 
 </resources>

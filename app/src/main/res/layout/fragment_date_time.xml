@@ -20,7 +20,6 @@
     <DatePicker
         android:id="@+id/date_picker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:datePickerMode="spinner"/>
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

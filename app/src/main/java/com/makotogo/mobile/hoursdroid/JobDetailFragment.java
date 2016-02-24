@@ -1,7 +1,6 @@
 package com.makotogo.mobile.hoursdroid;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,7 +25,8 @@ public class JobDetailFragment extends AbstractFragment {
     private static final String TAG = JobDetailFragment.class.getSimpleName();
 
     /**
-     * The Job that is edited by this Fragment
+     * The Job that is edited by this Fragment. Constituted from Fragment arguments.
+     * No need to save/restore from the Bundle.
      */
     private Job mJob;
 
@@ -37,18 +37,6 @@ public class JobDetailFragment extends AbstractFragment {
         if (mJob == null) {
             throw new RuntimeException("Fragment argument (" + FragmentFactory.FRAG_ARG_JOB + ") cannot be null!");
         }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the view
-        View view = inflater.inflate(R.layout.fragment_job_detail, container, false);
-        // Process Fragment arguments.
-        processFragmentArguments();
-        // Configure the UI
-        configureUI(view);
-        return view;
     }
 
     @Override
@@ -62,7 +50,11 @@ public class JobDetailFragment extends AbstractFragment {
     }
 
     @Override
-    protected void configureUI(View view) {
+    protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        final String METHOD = "configureUI(...): ";
+        // Inflate the view
+        Log.d(TAG, METHOD + "BEGIN");
+        View view = layoutInflater.inflate(R.layout.fragment_job_detail, container, false);
         // Job Name
         configureJobNameEditText(view);
         // Job Description
@@ -74,6 +66,8 @@ public class JobDetailFragment extends AbstractFragment {
         configureSaveButton(view);
         // Cancel
         //createCancelButton(ret);
+        Log.d(TAG, METHOD + "END");
+        return view;
     }
 
     @Override

@@ -82,29 +82,19 @@ public class ApplicationOptions {
         sharedPreferencesEditor.commit();
     }
 
-    public Date getReportSummaryBeginDate() {
-        // Default: beginning of the Epoch
-        return getReportSummaryBeginDate(new Date(0));
-    }
-
     public Date getReportSummaryBeginDate(Date defaultBeginDate) {
         if (mReportSummaryBeginDate == null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            long beginDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, defaultBeginDate.getTime());
+            long beginDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, (defaultBeginDate == null) ? null : defaultBeginDate.getTime());
             mReportSummaryBeginDate = new Date(beginDate);
         }
         return mReportSummaryBeginDate;
     }
 
-    public Date getReportSummaryEndDate() {
-        // Default: now
-        return getReportSummaryEndDate(new Date());
-    }
-
     public Date getReportSummaryEndDate(Date defaultEndDate) {
         if (mReportSummaryEndDate == null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            long endDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, defaultEndDate.getTime());
+            long endDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, (defaultEndDate == null) ? null : defaultEndDate.getTime());
             mReportSummaryEndDate = new Date(endDate);
         }
         return mReportSummaryEndDate;
@@ -119,6 +109,7 @@ public class ApplicationOptions {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, beginDate.getTime());
         sharedPreferencesEditor.commit();
+        mReportSummaryBeginDate = beginDate;
     }
 
     public void saveReportSummaryEndDate(Date endDate) {
@@ -130,6 +121,7 @@ public class ApplicationOptions {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, endDate.getTime());
         sharedPreferencesEditor.commit();
+        mReportSummaryEndDate = endDate;
     }
 
     public String getDateFormatString() {

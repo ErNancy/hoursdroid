@@ -53,18 +53,6 @@ public class JobListFragment extends AbstractFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_job_list, container, false);
-
-        // Now finish configuring the UI
-        configureUI(view);
-
-        return view;
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_job_list, menu);
@@ -122,14 +110,19 @@ public class JobListFragment extends AbstractFragment {
      * Configure the UI.
      */
     @Override
-    protected void configureUI(View view) {
-        final String METHOD = "configureUI(" + view + "): ";
+    protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        final String METHOD = "configureUI(...): ";
+        Log.d(TAG, METHOD + "BEGIN");
+
+        View view = layoutInflater.inflate(R.layout.fragment_job_list, container, false);
         // Populate ListView with Job information
         ListView listView = (ListView) view.findViewById(R.id.listview_job_list);
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // Configure the List View
         configureListView(listView);
+
+        Log.d(TAG, METHOD + "END");
+        return view;
     }
 
     /**

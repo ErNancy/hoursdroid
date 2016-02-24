@@ -16,7 +16,7 @@ public class Job implements ModelObject, Serializable {
     private String mName;
     private String mDescription;
     private Float mRate;
-    private Boolean mActive;
+    private Boolean mActive = Boolean.TRUE;
     private Date mWhenCreated;
     private Boolean mContainsActiveHours;
 
@@ -92,25 +92,27 @@ public class Job implements ModelObject, Serializable {
 
         Job job = (Job) o;
 
-        if (!getId().equals(job.getId())) return false;
-        if (!getName().equals(job.getName())) return false;
-        if (getDescription() != null ? !getDescription().equals(job.getDescription()) : job.getDescription() != null)
+        if (mId != null ? !mId.equals(job.mId) : job.mId != null) return false;
+        if (mName != null ? !mName.equals(job.mName) : job.mName != null) return false;
+        if (mDescription != null ? !mDescription.equals(job.mDescription) : job.mDescription != null)
             return false;
-        if (getRate() != null ? !getRate().equals(job.getRate()) : job.getRate() != null)
-            return false;
+        if (mRate != null ? !mRate.equals(job.mRate) : job.mRate != null) return false;
         if (mActive != null ? !mActive.equals(job.mActive) : job.mActive != null) return false;
-        return !(getWhenCreated() != null ? !getWhenCreated().equals(job.getWhenCreated()) : job.getWhenCreated() != null);
+        if (mWhenCreated != null ? !mWhenCreated.equals(job.mWhenCreated) : job.mWhenCreated != null)
+            return false;
+        return !(mContainsActiveHours != null ? !mContainsActiveHours.equals(job.mContainsActiveHours) : job.mContainsActiveHours != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = getId().hashCode();
-        result = 31 * result + getName().hashCode();
-        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
-        result = 31 * result + (getRate() != null ? getRate().hashCode() : 0);
+        int result = mId != null ? mId.hashCode() : 0;
+        result = 31 * result + (mName != null ? mName.hashCode() : 0);
+        result = 31 * result + (mDescription != null ? mDescription.hashCode() : 0);
+        result = 31 * result + (mRate != null ? mRate.hashCode() : 0);
         result = 31 * result + (mActive != null ? mActive.hashCode() : 0);
-        result = 31 * result + (getWhenCreated() != null ? getWhenCreated().hashCode() : 0);
+        result = 31 * result + (mWhenCreated != null ? mWhenCreated.hashCode() : 0);
+        result = 31 * result + (mContainsActiveHours != null ? mContainsActiveHours.hashCode() : 0);
         return result;
     }
 }

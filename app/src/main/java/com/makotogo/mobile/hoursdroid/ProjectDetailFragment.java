@@ -3,7 +3,6 @@ package com.makotogo.mobile.hoursdroid;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,7 +24,11 @@ public class ProjectDetailFragment extends AbstractFragment {
 
     private static final String TAG = ProjectDetailFragment.class.getSimpleName();
 
-    private transient Project mProject;
+    /**
+     * The project being edited by this Fragment. This variable is constituted
+     * from Fragment Argument, so no need to save it to the Bundle.
+     */
+    private Project mProject;
 
     @Override
     protected void processFragmentArguments() {
@@ -37,20 +40,12 @@ public class ProjectDetailFragment extends AbstractFragment {
         }
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+        final String METHOD = "configureUI(...): ";
+        Log.d(TAG, METHOD + "BEGIN");
         // Inflate the view
-        View view = inflater.inflate(R.layout.fragment_project_detail, container, false);
-        // Process Fragment arguments.
-        processFragmentArguments();
-        // Configure the UI
-        configureUI(view);
-        return view;
-    }
-
-    @Override
-    protected void configureUI(View view) {
+        View view = layoutInflater.inflate(R.layout.fragment_project_detail, container, false);
         // Project Name
         configureProjectNameEditText(view);
         // Project Description
@@ -58,6 +53,9 @@ public class ProjectDetailFragment extends AbstractFragment {
         // Now for the buttons!
         // Save
         configureSaveButton(view);
+
+        Log.d(TAG, METHOD + "END");
+        return view;
     }
 
     @Override
@@ -134,7 +132,6 @@ public class ProjectDetailFragment extends AbstractFragment {
     }
 
     private void configureSaveButton(View view) {
-        final String METHOD = "configureSaveButton(View): ";
         Button doneButton = (Button) view.findViewById(R.id.button_project_detail_save);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override

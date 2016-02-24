@@ -151,7 +151,7 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
             }
         });
         // Select initial choice.
-        dateTimeSpinner.setSelection(choices.indexOf(mInitialChoice));
+        dateTimeSpinner.setSelection(choices.indexOf(computeChoice(mInitialChoice)));
     }
 
     private String computeChoice(String baseChoice) {

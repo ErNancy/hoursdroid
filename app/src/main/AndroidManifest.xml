@@ -51,6 +51,12 @@
             android:launchMode="singleTop"
             android:parentActivityName=".ProjectListActivity">
         </activity>
+        <activity
+            android:name=".ReportingSummaryActivity"
+            android:label="@string/reporting_summary"
+            android:launchMode="singleTop"
+            android:parentActivityName=".JobListActivity">
+        </activity>
 
     </application>
 

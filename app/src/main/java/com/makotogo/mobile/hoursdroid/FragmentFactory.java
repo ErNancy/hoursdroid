@@ -78,10 +78,18 @@ public class FragmentFactory {
     }
 
     /**
-     * Creates the DatePickerFragment.
+     * Creates the DatePickerFragment. Allows the user to set the Date and/or the Time. Due
+     * to space limitations on mobile devices, only one or the other of the DatePicker or
+     * TimePicker can be displayed at one time. This method allows the caller to specify
+     * which (DatePicker or TimePicker) is displayed initially.
      *
-     * @param date     The Date to display on the Date Picker
-     * @param dateType The date type, used for display purposes
+     * @param date          The Date to display on the Date Picker
+     * @param dateType      The date type, used for display purposes
+     * @param initialChoice The initial choice to display to the user. One of:
+     *                      <ol>
+     *                      <li>{@link com.makotogo.mobile.hoursdroid.DateTimePickerFragment#DATE}</li>
+     *                      <li>{@link com.makotogo.mobile.hoursdroid.DateTimePickerFragment#TIME}</li>
+     *                      </ol>
      * @return DateTimePickerFragment
      */
     public static DateTimePickerFragment createDatePickerFragment(Date date, String dateType, String initialChoice) {
