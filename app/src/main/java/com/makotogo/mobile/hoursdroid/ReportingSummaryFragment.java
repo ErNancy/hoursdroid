@@ -131,10 +131,11 @@ public class ReportingSummaryFragment extends AbstractFragment {
         // Update the Hours ListView based on the selected Job and Interval
         List<Hours> hoursList = dataStore.getHours(mJob, mBeginDate, mEndDate);
         updateHoursListView(hoursList);
+        long totalMillisForInterval = computeTotalMillis(hoursList);
         // Update other controls
         updateBeginDateTextView();
         updateEndDateTextView();
-        updateTotalTextView();
+        updateTotalTextView(totalMillisForInterval);
         Log.d(TAG, METHOD + "END");
     }
 
@@ -253,13 +254,13 @@ public class ReportingSummaryFragment extends AbstractFragment {
         long now = System.currentTimeMillis();
         long end = endDate.getTime();
         long begin = (mBeginDate != null) ? mBeginDate.getTime() : DEFAULT_BEGIN_TIME_MILLIS;
-        if (end < now) {
-            // Sanity Check #1 - End must be after now
-            // It is not. Error message.
-            String message = "End date/time cannot be earlier than current date/time (i.e., \"now\"). Please try again.";
-            Log.e(TAG, METHOD + message);
-            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-        } else {
+//        if (end < now) {
+//            // Sanity Check #1 - End must be after now
+//            // It is not. Error message.
+//            String message = "End date/time cannot be earlier than current date/time (i.e., \"now\"). Please try again.";
+//            Log.e(TAG, METHOD + message);
+//            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+//        } else {
             if (begin <= end) {
                 // Sanity Check #2 - Begin must be before or equal to End.
                 // It is. set the end date the user chose
@@ -271,7 +272,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
                 Log.e(TAG, METHOD + message);
                 Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
             }
-        }
+//        }
     }
 
     // Configure/Update Pairs
@@ -288,12 +289,15 @@ public class ReportingSummaryFragment extends AbstractFragment {
     }
 
     private void updateHoursListView(List<Hours> hoursList) {
+        final String METHOD = "updateHoursListView(List<Hours>): ";
+        Log.d(TAG, METHOD + "BEGIN");
         // Update the ListView
         ListView hoursListView = (ListView) getView().findViewById(R.id.listview_reporting_summary_hours);
         HoursListViewAdapter hoursListViewAdapter = (HoursListViewAdapter) hoursListView.getAdapter();
         hoursListViewAdapter.clear();
         hoursListViewAdapter.addAll(hoursList);
         hoursListViewAdapter.notifyDataSetChanged();
+        Log.d(TAG, METHOD + "END");
     }
 
     private void configureBeginDateTextView(TextView beginDateTextView) {
@@ -360,13 +364,13 @@ public class ReportingSummaryFragment extends AbstractFragment {
         // Nothing to configure
     }
 
-    private void updateTotalTextView() {
+    private void updateTotalTextView(long totalMillis) {
         // Get the total from the Adapter, then convert it
         TextView totalTextView = (TextView) getView().findViewById(R.id.textview_reporting_summary_total);
         ListView hoursListView = (ListView) getView().findViewById(R.id.listview_reporting_summary_hours);
         HoursListViewAdapter hoursListViewAdapter = (HoursListViewAdapter) hoursListView.getAdapter();
-        long totalMillisForPeriod = hoursListViewAdapter.getTotalMillisForPeriod();
-        totalTextView.setText(formatPeriod(totalMillisForPeriod));
+        //long totalMillis = hoursListViewAdapter.getTotalMillisForPeriod();
+        totalTextView.setText(formatPeriod(totalMillis));
     }
 
     private void configureJobSpinner(final Spinner jobSpinner) {
@@ -422,6 +426,19 @@ public class ReportingSummaryFragment extends AbstractFragment {
         if (periodInMillis != null) {
             Period period = new Period(periodInMillis.longValue());
             ret = sPeriodFormatter.print(period);
+        }
+        return ret;
+    }
+
+    private long computeTotalMillis(List<Hours> hoursList) {
+        long ret = 0L;
+        for (Hours hours : hoursList) {
+            long now = System.currentTimeMillis();
+            long begin = hours.getBegin().getTime();
+            long end = (hours.getEnd() != null) ? hours.getEnd().getTime() : now;
+            long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
+            long total = end - begin - breakTime;
+            ret += total;
         }
         return ret;
     }
@@ -485,17 +502,8 @@ public class ReportingSummaryFragment extends AbstractFragment {
 
     private class HoursListViewAdapter extends AbstractHoursAdapter implements ViewBinder<Hours> {
 
-        /**
-         * The total number of milliseconds for all records within this Adapter
-         */
-        private long mTotalMillis;
-
         public HoursListViewAdapter(Context context, int layoutResourceId) {
             super(context, layoutResourceId);
-        }
-
-        public long getTotalMillisForPeriod() {
-            return mTotalMillis;
         }
 
         @Override
@@ -505,7 +513,6 @@ public class ReportingSummaryFragment extends AbstractFragment {
 
         @Override
         public void initView(View view) {
-            mTotalMillis = 0;
             getBeginDate(view).setText("");
             getEndDate(view).setText("");
             getBreak(view).setText("");
@@ -515,6 +522,8 @@ public class ReportingSummaryFragment extends AbstractFragment {
 
         @Override
         public void bind(Hours hours, View view) {
+            final String METHOD = "bind(" + hours + ", view): ";
+            Log.d(TAG, METHOD + "BEGIN");
             TextView beginDateTextView = getBeginDate(view);
             beginDateTextView.setText(formatDate(hours.getBegin()));
             TextView endDateTextView = getEndDate(view);
@@ -530,8 +539,10 @@ public class ReportingSummaryFragment extends AbstractFragment {
             long begin = hours.getBegin().getTime();
             long end = (hours.getEnd() != null) ? hours.getEnd().getTime() : now;
             long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
-            // Now compute the total for this Hours record and add it to the grand total
-            mTotalMillis += (end - begin - breakTime);
+            long total = end - begin - breakTime;
+            TextView totalTextView = getTotal(view);
+            totalTextView.setText(formatPeriod(total));
+            Log.d(TAG, METHOD + "END");
         }
 
         private TextView getBeginDate(View view) {
