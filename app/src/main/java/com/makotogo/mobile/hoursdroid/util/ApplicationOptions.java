@@ -19,8 +19,6 @@ public class ApplicationOptions {
 
     private static ApplicationOptions mInstance;
     private Context mContext;
-    private Boolean mShowNotifications;
-    private Boolean mShowInactiveJobs;
     private Integer mLastUsedProjectId;
     private Date mReportSummaryBeginDate;
     private Date mReportSummaryEndDate;
@@ -36,20 +34,22 @@ public class ApplicationOptions {
         return mInstance;
     }
 
+    public boolean showNotifications() {
+        return showNotifications(false);
+    }
+
     public boolean showNotifications(boolean defaultValue) {
-        if (mShowNotifications == null) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            mShowNotifications = sharedPreferences.getBoolean(PREFS_KEY_SHOW_NOTIFICATIONS, defaultValue);
-        }
-        return mShowNotifications;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return sharedPreferences.getBoolean(PREFS_KEY_SHOW_NOTIFICATIONS, defaultValue);
+    }
+
+    public boolean showInactiveJobs() {
+        return showInactiveJobs(true);
     }
 
     public boolean showInactiveJobs(boolean defaultValue) {
-        if (mShowInactiveJobs == null) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            mShowInactiveJobs = sharedPreferences.getBoolean(PREFS_KEY_SHOW_INACTIVE_JOBS, defaultValue);
-        }
-        return mShowInactiveJobs;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return sharedPreferences.getBoolean(PREFS_KEY_SHOW_INACTIVE_JOBS, defaultValue);
     }
 
     private String computeKeyForLastUsedProjectId(int jobId) {

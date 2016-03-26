@@ -55,7 +55,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
     private static final String DATE_NONE = "NONE";
 
     private static PeriodFormatter sPeriodFormatter = new PeriodFormatterBuilder()
-            .printZeroNever()
+//            .printZeroNever()
             .appendDays().appendSuffix("d")
             .appendSeparator(", ")
             .appendHours().appendSuffix("h")
@@ -435,7 +435,13 @@ public class ReportingSummaryFragment extends AbstractFragment {
         for (Hours hours : hoursList) {
             long now = System.currentTimeMillis();
             long begin = hours.getBegin().getTime();
+            if (begin < mBeginDate.getTime()) {
+                begin = mBeginDate.getTime();
+            }
             long end = (hours.getEnd() != null) ? hours.getEnd().getTime() : now;
+            if (end > mEndDate.getTime()) {
+                end = mEndDate.getTime();
+            }
             long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
             long total = end - begin - breakTime;
             ret += total;
@@ -517,6 +523,8 @@ public class ReportingSummaryFragment extends AbstractFragment {
             getEndDate(view).setText("");
             getBreak(view).setText("");
             getTotal(view).setText("");
+            getProject(view).setText("");
+            getJob(view).setText("");
             getActiveHours(view).setVisibility(View.INVISIBLE);
         }
 
@@ -533,7 +541,9 @@ public class ReportingSummaryFragment extends AbstractFragment {
             ImageView activeHoursImageView = getActiveHours(view);
             activeHoursImageView.setVisibility((hours.getEnd() == null) ? View.VISIBLE : View.INVISIBLE);
             TextView jobTextView = getJob(view);
-            jobTextView.setText(mJob.getName());
+            jobTextView.setText(hours.getJob().getName());
+            TextView projectTextView = getProject(view);
+            projectTextView.setText(hours.getProject().getName());
             // Add to Total
             long now = System.currentTimeMillis();
             long begin = hours.getBegin().getTime();
@@ -567,6 +577,10 @@ public class ReportingSummaryFragment extends AbstractFragment {
 
         private TextView getJob(View view) {
             return (TextView) view.findViewById(R.id.textview_reporting_summary_row_job);
+        }
+
+        private TextView getProject(View view) {
+            return (TextView) view.findViewById(R.id.textview_reporting_summary_row_project);
         }
 
     }

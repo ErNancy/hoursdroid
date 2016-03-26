@@ -114,16 +114,16 @@ public class JobDetailFragment extends AbstractFragment {
                             Toast.makeText(getActivity(), "Cannot save this job (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
                         } else if (ApplicationOptions.instance(getActivity()).showNotifications(true)) {
                             Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
-                            getActivity().finish();
                         }
+                        getActivity().finish();
                     } else {
                         int numRowsUpdated = dataStore.update(mJob);
                         if (numRowsUpdated == 0) {
                             Toast.makeText(getActivity(), "Cannot save your changes (job name must be unique). Please try again.", Toast.LENGTH_LONG).show();
                         } else if (ApplicationOptions.instance(getActivity()).showNotifications(true)) {
                             Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
-                            getActivity().finish();
                         }
+                        getActivity().finish();
                     }
                 } else {
                     // Validation errors

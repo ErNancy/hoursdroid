@@ -176,4 +176,10 @@ public class FragmentFactory {
         return ret;
     }
 
+    public static ApplicationOptionsFragment createApplicationOptionsFragment() {
+        ApplicationOptionsFragment ret = new ApplicationOptionsFragment();
+        // No arguments
+        return ret;
+    }
+
 }

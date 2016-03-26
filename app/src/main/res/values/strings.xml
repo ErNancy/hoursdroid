@@ -72,5 +72,15 @@
     <string name="to">to</string>
     <string name="filter_settings">Filter Settings</string>
     <string name="menu_item_title_project_new">New Project</string>
+    <string name="disclaimer">Disclaimer</string>
+    <string name="makoto_droid_icon">Makoto Consulting Group Inc</string>
+    <string name="rate_application_ramble">If you enjoy this app, please take a moment and rate it!</string>
+    <string name="rate_application_rate_button">Click to rate</string>
+    <string name="rate_application_remind_me_later">Remind me later</string>
+    <string name="rate_application_do_not_ask_again">Do not ask again</string>
+    <string name="market_uri_prefix">market://details?id=</string>
+    <string name="pref_title_showInactiveJobs">Show Inactive Jobs?</string>
+    <string name="pref_title_showNotifications">Show Toast Notifications?</string>
+    <string name="application_options">Application Options</string>
 
 </resources>

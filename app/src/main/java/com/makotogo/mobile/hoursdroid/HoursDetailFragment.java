@@ -23,6 +23,7 @@ import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Project;
+import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -402,7 +403,9 @@ public class HoursDetailFragment extends AbstractFragment {
                 if (validate(HoursDetailFragment.this.getView())) {
                     DataStore dataStore = DataStore.instance(getActivity());
                     if (dataStore.update(mHours) > 0) {
-                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                        if (ApplicationOptions.instance(getActivity()).showNotifications()) {
+                            Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_SHORT).show();
+                        }
                         getActivity().finish();
                     }
                 } else {

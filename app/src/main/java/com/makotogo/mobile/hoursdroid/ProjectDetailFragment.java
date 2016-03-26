@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.makotogo.mobile.framework.AbstractFragment;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Project;
+import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
 
 /**
  * Created by sperry on 1/31/16.
@@ -147,7 +148,9 @@ public class ProjectDetailFragment extends AbstractFragment {
                         // Update
                         dataStore.update(mProject);
                     }
-                    Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_LONG).show();
+                    if (ApplicationOptions.instance(getActivity()).showNotifications()) {
+                        Toast.makeText(getActivity(), "Your changes have been saved.", Toast.LENGTH_LONG).show();
+                    }
                     Intent intent = new Intent();
                     intent.putExtra(ProjectDetailActivity.RESULT_PROJECT, mProject);
                     getActivity().setResult(Activity.RESULT_OK, intent);

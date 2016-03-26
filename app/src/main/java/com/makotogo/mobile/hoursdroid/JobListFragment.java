@@ -22,6 +22,8 @@ import com.makotogo.mobile.framework.AbstractFragment;
 import com.makotogo.mobile.framework.ViewBinder;
 import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Job;
+import com.makotogo.mobile.hoursdroid.util.AboutDialog;
+import com.makotogo.mobile.hoursdroid.util.RateApplicationUtils;
 
 import java.util.List;
 
@@ -97,6 +99,22 @@ public class JobListFragment extends AbstractFragment {
                 startActivity(intent);
                 ret = true;
                 break;
+            }
+            case R.id.menu_item_about: {
+                // Fire off About Dialog
+                AboutDialog aboutDialog = new AboutDialog(getActivity());
+                aboutDialog.setTitle(R.string.about);
+                aboutDialog.show();
+                return true;
+            }
+            case R.id.menu_item_rate_app: {
+                RateApplicationUtils.goToPlayStoreListing(getActivity());
+                return true;
+            }
+            case R.id.menu_item_settings: {
+                Intent intent = new Intent(getActivity(), ApplicationOptionsActivity.class);
+                startActivity(intent);
+                return true;
             }
             default: {
                 ret = super.onOptionsItemSelected(item);
