@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.makotogo.mobile.hoursdroid.model.DataStore;
+import com.makotogo.mobile.hoursdroid.model.Job;
+
 import java.util.Date;
 
 /**
@@ -16,12 +19,10 @@ public class ApplicationOptions {
     public static final String PREFS_KEY_LAST_USED_PROJECT_ID = "PREFS_KEY_LAST_USED_PROJECT_ID";
     public static final String PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE = "PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE";
     public static final String PREFS_KEY_REPORT_SUMMARY_END_DATE = "PREFS_KEY_REPORT_SUMMARY_END_DATE";
+    public static final String PREFS_KEY_REPORT_SUMMARY_LAST_SELECTED_JOB_ID = "PREFS_KEY_REPORT_SUMMARY_LAST_SELECTED_JOB_ID";
 
     private static ApplicationOptions mInstance;
     private Context mContext;
-    private Integer mLastUsedProjectId;
-    private Date mReportSummaryBeginDate;
-    private Date mReportSummaryEndDate;
 
     protected ApplicationOptions(Context context) {
         mContext = context;
@@ -62,12 +63,8 @@ public class ApplicationOptions {
             // Complain. Loudly.
             throw new RuntimeException("Job ID must be greater than zero!");
         }
-        if (mLastUsedProjectId == null) {
-
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            mLastUsedProjectId = sharedPreferences.getInt(computeKeyForLastUsedProjectId(jobId), -100);
-        }
-        return mLastUsedProjectId;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return sharedPreferences.getInt(computeKeyForLastUsedProjectId(jobId), -100);
     }
 
     public void saveLastUsedProjectId(int jobId, int lastUsedProjectId) {
@@ -83,21 +80,15 @@ public class ApplicationOptions {
     }
 
     public Date getReportSummaryBeginDate(Date defaultBeginDate) {
-        if (mReportSummaryBeginDate == null) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            long beginDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, (defaultBeginDate == null) ? null : defaultBeginDate.getTime());
-            mReportSummaryBeginDate = new Date(beginDate);
-        }
-        return mReportSummaryBeginDate;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        long beginDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, (defaultBeginDate == null) ? null : defaultBeginDate.getTime());
+        return new Date(beginDate);
     }
 
     public Date getReportSummaryEndDate(Date defaultEndDate) {
-        if (mReportSummaryEndDate == null) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            long endDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, (defaultEndDate == null) ? null : defaultEndDate.getTime());
-            mReportSummaryEndDate = new Date(endDate);
-        }
-        return mReportSummaryEndDate;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        long endDate = sharedPreferences.getLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, (defaultEndDate == null) ? null : defaultEndDate.getTime());
+        return new Date(endDate);
     }
 
     public void saveReportSummaryBeginDate(Date beginDate) {
@@ -109,7 +100,6 @@ public class ApplicationOptions {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putLong(PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE, beginDate.getTime());
         sharedPreferencesEditor.commit();
-        mReportSummaryBeginDate = beginDate;
     }
 
     public void saveReportSummaryEndDate(Date endDate) {
@@ -121,7 +111,26 @@ public class ApplicationOptions {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putLong(PREFS_KEY_REPORT_SUMMARY_END_DATE, endDate.getTime());
         sharedPreferencesEditor.commit();
-        mReportSummaryEndDate = endDate;
+    }
+
+    public Job getReportSummaryLastSelectedJobId() {
+        Job ret = Job.ALL_JOBS;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+        int jobId = sharedPreferences.getInt(PREFS_KEY_REPORT_SUMMARY_LAST_SELECTED_JOB_ID, -238);
+        if (jobId != -238) {
+            ret = DataStore.instance(mContext).getJob(jobId);
+        }
+        return ret;
+    }
+
+    public void saveReportSummaryLastSelectedJobId(Job job) {
+        if (job != null && !job.equals(Job.ALL_JOBS)) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+            SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+            sharedPreferencesEditor.putInt(PREFS_KEY_REPORT_SUMMARY_LAST_SELECTED_JOB_ID, job.getId());
+            sharedPreferencesEditor.commit();
+        }
     }
 
     public String getDateFormatString() {

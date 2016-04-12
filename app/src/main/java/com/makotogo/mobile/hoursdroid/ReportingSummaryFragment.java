@@ -185,6 +185,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
         ApplicationOptions applicationOptions = ApplicationOptions.instance(getActivity());
         mBeginDate = applicationOptions.getReportSummaryBeginDate(DEFAULT_BEGIN_DATE);
         mEndDate = applicationOptions.getReportSummaryEndDate(DEFAULT_END_DATE);
+        mJob = applicationOptions.getReportSummaryLastSelectedJobId();
     }
 
     @Override
@@ -199,6 +200,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
         if (mEndDate != null) {
             applicationOptions.saveReportSummaryEndDate(mEndDate);
         }
+        applicationOptions.saveReportSummaryLastSelectedJobId(mJob);
     }
 
     @Override
