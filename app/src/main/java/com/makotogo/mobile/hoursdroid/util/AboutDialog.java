@@ -3,6 +3,7 @@ package com.makotogo.mobile.hoursdroid.util;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,7 +53,7 @@ public class AboutDialog extends Dialog {
         String packageName = getContext().getPackageName();
         PackageInfo packageInfo;
         try {
-            packageInfo = getContext().getPackageManager().getPackageInfo(packageName, 0);
+            packageInfo = getContext().getPackageManager().getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
             String appInfo = "HoursDroid";
             String versionInfo = "Version " +
                     packageInfo.versionName + " (Build " +
