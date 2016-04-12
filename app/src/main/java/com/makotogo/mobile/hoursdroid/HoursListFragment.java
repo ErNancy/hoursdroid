@@ -139,24 +139,27 @@ public class HoursListFragment extends AbstractFragment {
      * @return
      */
     private Project fetchProjectToUse(Job job) {
+        Project ret = mProject;
         final String METHOD = "fetchProjectToUse(" + job + "): ";
         Log.d(TAG, METHOD);
-        DataStore dataStore = DataStore.instance(getActivity());
-        Project ret = dataStore.getDefaultProject(job);// Default
-        // If there is a project with active Hours use that.
-        mActiveHours = dataStore.getActiveHours(job);
-        if (mActiveHours != null) {
-            ret = mActiveHours.getProject();
-        } else {
-            int lastUsedProjectId = ApplicationOptions.instance(getActivity()).getLastUsedProjectId(job.getId());
-            if (lastUsedProjectId > 0) {
-                ret = dataStore.getProject(lastUsedProjectId);
-                Log.d(TAG, "Using Project: " + ret);
+        if (mProject == null) {
+            DataStore dataStore = DataStore.instance(getActivity());
+            ret = dataStore.getDefaultProject(job);// Default
+            // If there is a project with active Hours use that.
+            mActiveHours = dataStore.getActiveHours(job);
+            if (mActiveHours != null) {
+                ret = mActiveHours.getProject();
             } else {
-                Log.d(TAG, "No active Hours. Using default project");
+                int lastUsedProjectId = ApplicationOptions.instance(getActivity()).getLastUsedProjectId(job.getId());
+                if (lastUsedProjectId > 0) {
+                    ret = dataStore.getProject(lastUsedProjectId);
+                    Log.d(TAG, "Using Project: " + ret);
+                } else {
+                    Log.d(TAG, "No active Hours. Using default project");
+                }
             }
+            Log.d(TAG, METHOD + "DONE.");
         }
-        Log.d(TAG, METHOD + "DONE.");
         return ret;
     }
 
@@ -199,7 +202,11 @@ public class HoursListFragment extends AbstractFragment {
             Log.d(TAG, METHOD + "Processing result...");
             switch (requestCode) {
                 case REQUEST_CODE_MANAGE_PROJECTS:
-                    mProject = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
+                    Project project = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
+                    if (project == null) {
+                        project = fetchProjectToUse(mJob);
+                    }
+                    mProject = project;
                     break;
                 case REQUEST_CODE_FILTER_DIALOG:
                     mFilterBeginDate = (Date) data.getSerializableExtra(FilterDialogFragment.RESULT_BEGIN_DATE);
@@ -328,7 +335,7 @@ public class HoursListFragment extends AbstractFragment {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
-                // TODO: Display the Date Select Dialog
+                // Display the Date Select Dialog
                 FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
                 filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
                 filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
@@ -376,7 +383,7 @@ public class HoursListFragment extends AbstractFragment {
 
     private void configureHoursListView(final ListView listView) {
         final String METHOD = "configureHoursListView(ListView): ";
-        Log.d(TAG, METHOD);
+//        Log.d(TAG, METHOD);
         // Create a new JobAdapter
         listView.setAdapter(new HoursAdapter(getActivity(), R.layout.hours_list_row));
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -389,21 +396,21 @@ public class HoursListFragment extends AbstractFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String METHOD = "onItemClick(): ";
                 if (!mInActionMode) {
-                    Log.d(TAG, "Clicked item " + position);
+//                    Log.d(TAG, "Clicked item " + position);
                     Hours hours = (Hours) listView.getAdapter().getItem(position);
-                    if (hours.equals(mActiveHours)) {
-                        String message = "Cannot edit an active Hours.";
-                        Log.w(TAG, METHOD + message);
-                        //Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-                    } else {
+//                    if (hours.equals(mActiveHours)) {
+//                        String message = "Cannot edit an active Hours.";
+//                        Log.w(TAG, METHOD + message);
+//                        //Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+//                    } else {
                         Intent intent = new Intent(getActivity(), HoursDetailActivity.class);
                         intent.putExtra(HoursDetailActivity.EXTRA_HOURS, hours);
                         startActivity(intent);
-                    }
+//                    }
                 }
             }
         });
-        Log.d(TAG, METHOD + "DONE.");
+//        Log.d(TAG, METHOD + "DONE.");
     }
 
     private void updateHoursListView(List<Hours> hours) {

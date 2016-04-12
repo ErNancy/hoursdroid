@@ -264,8 +264,10 @@ public class ProjectListFragment extends AbstractFragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 boolean ret = false;
+                final Project project = (Project) getListViewAdapter().getItem(position);
                 // Long press... It will be handled first. Set the state variable (yuck).
                 setInActionMode(IN_ACTION_MODE);
+                // Disable Done button
                 getActivity().startActionMode(new ActionMode.Callback() {
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -280,7 +282,6 @@ public class ProjectListFragment extends AbstractFragment {
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                         final String METHOD = "onActionItemClicked(ActionMode, MenuItem): ";
                         boolean ret;
-                        Project project = (Project) getListViewAdapter().getItem(position);
                         // Switch on the menu item ID
                         switch (item.getItemId()) {
                             case R.id.menu_item_project_edit:

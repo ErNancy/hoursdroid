@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -93,8 +94,6 @@ public class HoursDetailFragment extends AbstractFragment {
         final String METHOD = "configureUI(...): ";
         Log.d(TAG, METHOD + "BEGIN");
         View view = layoutInflater.inflate(R.layout.fragment_hours_detail, container, false);
-        // Job Spinner
-        configureJobSpinner(view);
         // Project Spinner
         configureProjectSpinner(view);
         // Begin Date
@@ -253,14 +252,14 @@ public class HoursDetailFragment extends AbstractFragment {
         return true;
     }
 
-    private void configureJobSpinner(View view) {
-        final String METHOD = "configureProjectSpinner(Spinner): ";
-        Log.d(TAG, METHOD + "...");
-        Log.d(TAG, METHOD + "DONE.");
-    }
-
     private void configureProjectSpinner(View view) {
         final Spinner projectSpinner = (Spinner) view.findViewById(R.id.spinner_hours_detail_project);
+        projectSpinner.setEnabled(isThisHoursRecordNotActive());
+        if (isThisHoursRecordActive()) {
+            projectSpinner.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
+        } else {
+            projectSpinner.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.rounded_border, null));
+        }
         projectSpinner.setAdapter(new AbstractArrayAdapter(getActivity(), R.layout.project_list_row) {
             @Override
             protected ViewBinder<Project> createViewBinder() {
@@ -300,7 +299,7 @@ public class HoursDetailFragment extends AbstractFragment {
     }
 
     private AbstractArrayAdapter<Project> getProjectListAdapter() {
-        AbstractArrayAdapter<Project> ret = null;
+        AbstractArrayAdapter<Project> ret;
         if (getProjectSpinner() == null) {
             throw new RuntimeException("Project Spinner has not been configured!");
         }
@@ -310,6 +309,12 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private void configureBeginDate(View view) {
         TextView beginDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_begin_date);
+        beginDateTextView.setEnabled(isThisHoursRecordActive() == false);
+        if (isThisHoursRecordActive()) {
+            beginDateTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
+        } else {
+            beginDateTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.rounded_border, null));
+        }
         beginDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -331,6 +336,12 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private void configureEndDate(View view) {
         TextView endDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_end_date);
+        endDateTextView.setEnabled(isThisHoursRecordActive() == false);
+        if (isThisHoursRecordActive()) {
+            endDateTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
+        } else {
+            endDateTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.rounded_border, null));
+        }
         endDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -349,8 +360,14 @@ public class HoursDetailFragment extends AbstractFragment {
     }
 
     private void configureBreakTime(View view) {
-        TextView breakTime = (TextView) view.findViewById(R.id.textview_hours_detail_break);
-        breakTime.setOnClickListener(new View.OnClickListener() {
+        TextView breakTimeTextView = (TextView) view.findViewById(R.id.textview_hours_detail_break);
+        breakTimeTextView.setEnabled(isThisHoursRecordActive() == false);
+        if (isThisHoursRecordActive()) {
+            breakTimeTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
+        } else {
+            breakTimeTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.rounded_border, null));
+        }
+        breakTimeTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getFragmentManager();
@@ -362,20 +379,22 @@ public class HoursDetailFragment extends AbstractFragment {
                 numberPickerFragment.show(fragmentManager, NumberPickerFragment.DIALOG_TAG);
             }
         });
-        breakTime.setText(renderTimePeriodForDisplay(mHours.getBreak()));
+        breakTimeTextView.setText(renderTimePeriodForDisplay(mHours.getBreak()));
     }
 
     private void configureTotalTime(View view) {
-        TextView totalTime = (TextView) view.findViewById(R.id.textview_hours_detail_total);
-        long elapsedTime = mHours.getEnd().getTime() - mHours.getBegin().getTime() - mHours.getBreak();
-        Period period = new Period(elapsedTime);
-        totalTime.setText(sPeriodFormatter.print(period));
+        TextView totalTimeTextView = (TextView) view.findViewById(R.id.textview_hours_detail_total);
+        if (isThisHoursRecordNotActive()) {
+            long elapsedTime = mHours.getEnd().getTime() - mHours.getBegin().getTime() - mHours.getBreak();
+            Period period = new Period(elapsedTime);
+            totalTimeTextView.setText(sPeriodFormatter.print(period));
+        }
     }
 
     private void configureDescription(View view) {
-        EditText description = (EditText) view.findViewById(R.id.edittext_hours_detail_description);
-        description.setText(mHours.getDescription());
-        description.addTextChangedListener(new TextWatcher() {
+        EditText descriptionEditText = (EditText) view.findViewById(R.id.edittext_hours_detail_description);
+        descriptionEditText.setText(mHours.getDescription());
+        descriptionEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // Nothing to do
@@ -394,8 +413,8 @@ public class HoursDetailFragment extends AbstractFragment {
     }
 
     private void configureSaveButton(View view) {
-        Button button = (Button) view.findViewById(R.id.button_hours_detail_save);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button saveButton = (Button) view.findViewById(R.id.button_hours_detail_save);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String METHOD = "configureSaveButton(View)->onClick(View): ";
@@ -424,4 +443,14 @@ public class HoursDetailFragment extends AbstractFragment {
         Long breakTimeInMillis = breakTimeInMinutes * 60000L;
         return breakTimeInMillis;
     }
+
+    private boolean isThisHoursRecordNotActive() {
+        return !isThisHoursRecordActive();
+    }
+
+    private boolean isThisHoursRecordActive() {
+        // If the End time is null, then this record is active.
+        return mHours.getEnd() == null;
+    }
+
 }
