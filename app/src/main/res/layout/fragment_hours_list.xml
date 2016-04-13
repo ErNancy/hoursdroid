@@ -48,6 +48,7 @@
                 android:text="@string/hours_records_for_job"
                 android:textAppearance="?android:attr/textAppearanceSmall"/>
 
+            <!--
             <ImageView
                 android:id="@+id/imageview_hours_list_filter"
                 android:layout_width="0dp"
@@ -56,6 +57,7 @@
                 android:background="@drawable/rounded_border"
                 android:padding="1dp"
                 android:src="@drawable/ic_menu_filter"/>
+                -->
 
         </LinearLayout>
 

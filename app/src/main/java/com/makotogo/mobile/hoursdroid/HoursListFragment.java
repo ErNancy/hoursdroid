@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.makotogo.mobile.framework.AbstractArrayAdapter;
 import com.makotogo.mobile.framework.AbstractFragment;
@@ -105,9 +104,9 @@ public class HoursListFragment extends AbstractFragment {
         // Access the Job backing store singleton
         //DataStore dataStore = DataStore.instance(getActivity());
         configureHoursListView(listView);
-        // Create Filter listener
-        ImageView filterIcon = (ImageView) view.findViewById(R.id.imageview_hours_list_filter);
-        configureFilterListener(filterIcon);
+        // Create Filter listener - REMOVED
+        //ImageView filterIcon = (ImageView) view.findViewById(R.id.imageview_hours_list_filter);
+        //configureFilterListener(filterIcon);
         // Create Start/Stop button
         configureStartStopButton(view);
         Log.d(TAG, METHOD + "END");
@@ -242,7 +241,8 @@ public class HoursListFragment extends AbstractFragment {
         projects.add(Project.MANAGE_PROJECTS);
         updateProjectSpinner(projects);
         updateStartStopButton();
-        updateFilterBackground();
+        // Filter REMOVED
+        //updateFilterBackground();
         Log.d(TAG, "updateUI()...DONE");
     }
 
@@ -300,52 +300,52 @@ public class HoursListFragment extends AbstractFragment {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    private void updateFilterBackground() {
-        ImageView filterIcon = (ImageView) getFilterIcon();
-        if (filterIcon != null) {
-            if (isFilterActive()) {
-                filterIcon.setBackgroundColor(
-                        getResources().getColor(
-                                R.color.filter_active_background));
-            } else {
-                filterIcon.setBackgroundColor(
-                        getResources().getColor(
-                                R.color.standard_background));
-            }
-        }
-    }
-
     @Override
     protected boolean validate(View view) {
         // TODO: Add validation logic here
         return true;
     }
 
-    private ImageView getFilterIcon() {
-        ImageView ret = null;
-        if (getView() != null) {
-            ret = (ImageView) getView().findViewById(R.id.imageview_hours_list_filter);
-        }
-        return ret;
-    }
-
-    private void configureFilterListener(final ImageView filterIcon) {
-        filterIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
-                // Display the Date Select Dialog
-                FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
-                filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
-                filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
-            }
-        });
-    }
-
-    private boolean isFilterActive() {
-        return mFilterBeginDate != null && mFilterEndDate != null;
-    }
+//    @SuppressWarnings("deprecation")
+//    private void updateFilterBackground() {
+//        ImageView filterIcon = (ImageView) getFilterIcon();
+//        if (filterIcon != null) {
+//            if (isFilterActive()) {
+//                filterIcon.setBackgroundColor(
+//                        getResources().getColor(
+//                                R.color.filter_active_background));
+//            } else {
+//                filterIcon.setBackgroundColor(
+//                        getResources().getColor(
+//                                R.color.standard_background));
+//            }
+//        }
+//    }
+//
+//    private ImageView getFilterIcon() {
+//        ImageView ret = null;
+//        if (getView() != null) {
+//            ret = (ImageView) getView().findViewById(R.id.imageview_hours_list_filter);
+//        }
+//        return ret;
+//    }
+//
+//    private void configureFilterListener(final ImageView filterIcon) {
+//        filterIcon.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
+//                // Display the Date Select Dialog
+//                FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
+//                filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
+//                filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
+//            }
+//        });
+//    }
+//
+//    private boolean isFilterActive() {
+//        return mFilterBeginDate != null && mFilterEndDate != null;
+//    }
 
     /**
      * I really hate stuff like this, but I don't see any better way around it. I want to be
