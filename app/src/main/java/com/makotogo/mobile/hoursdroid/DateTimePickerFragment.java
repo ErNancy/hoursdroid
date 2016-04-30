@@ -183,6 +183,8 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
         changedDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         changedDateCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         changedDateCalendar.set(Calendar.MINUTE, minuteOfHour);
+        changedDateCalendar.set(Calendar.SECOND, 0);
+        changedDateCalendar.set(Calendar.MILLISECOND, 0);
         return changedDateCalendar.getTime();
     }
 }

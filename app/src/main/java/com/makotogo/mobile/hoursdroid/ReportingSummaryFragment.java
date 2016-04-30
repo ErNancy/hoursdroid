@@ -39,9 +39,9 @@ public class ReportingSummaryFragment extends AbstractFragment {
 
     private static final String TAG = ReportingSummaryFragment.class.getSimpleName();
 
-    private static final long DEFAULT_BEGIN_TIME_MILLIS = new LocalDateTime(2015, 1, 1, 0, 0).toDate().getTime();// 1/1/2015
+    private static final long DEFAULT_BEGIN_TIME_MILLIS = new LocalDateTime().withMillisOfDay(0).toDate().getTime();// Today at midnight
     private static final Date DEFAULT_BEGIN_DATE = new Date(DEFAULT_BEGIN_TIME_MILLIS);
-    private static final long DEFAULT_END_TIME_MILLIS = new LocalDateTime(3000, 1, 1, 0, 0).toDate().getTime();// 1/1/3000
+    private static final long DEFAULT_END_TIME_MILLIS = new LocalDateTime().plusDays(1).withMillisOfDay(0).toDate().getTime();// Tomorrow at midnight
     private static final Date DEFAULT_END_DATE = new Date(DEFAULT_END_TIME_MILLIS);
 
     private static final String STATE_BEGIN_DATE = "state.begin" + Date.class.getName();

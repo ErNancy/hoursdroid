@@ -306,47 +306,6 @@ public class HoursListFragment extends AbstractFragment {
         return true;
     }
 
-//    @SuppressWarnings("deprecation")
-//    private void updateFilterBackground() {
-//        ImageView filterIcon = (ImageView) getFilterIcon();
-//        if (filterIcon != null) {
-//            if (isFilterActive()) {
-//                filterIcon.setBackgroundColor(
-//                        getResources().getColor(
-//                                R.color.filter_active_background));
-//            } else {
-//                filterIcon.setBackgroundColor(
-//                        getResources().getColor(
-//                                R.color.standard_background));
-//            }
-//        }
-//    }
-//
-//    private ImageView getFilterIcon() {
-//        ImageView ret = null;
-//        if (getView() != null) {
-//            ret = (ImageView) getView().findViewById(R.id.imageview_hours_list_filter);
-//        }
-//        return ret;
-//    }
-//
-//    private void configureFilterListener(final ImageView filterIcon) {
-//        filterIcon.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
-//                // Display the Date Select Dialog
-//                FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
-//                filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
-//                filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
-//            }
-//        });
-//    }
-//
-//    private boolean isFilterActive() {
-//        return mFilterBeginDate != null && mFilterEndDate != null;
-//    }
-
     /**
      * I really hate stuff like this, but I don't see any better way around it. I want to be
      * able to handle short (regular) and long press on the list view. Unfortunately, both
@@ -383,7 +342,6 @@ public class HoursListFragment extends AbstractFragment {
 
     private void configureHoursListView(final ListView listView) {
         final String METHOD = "configureHoursListView(ListView): ";
-//        Log.d(TAG, METHOD);
         // Create a new JobAdapter
         listView.setAdapter(new HoursAdapter(getActivity(), R.layout.hours_list_row));
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -396,21 +354,13 @@ public class HoursListFragment extends AbstractFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String METHOD = "onItemClick(): ";
                 if (!mInActionMode) {
-//                    Log.d(TAG, "Clicked item " + position);
                     Hours hours = (Hours) listView.getAdapter().getItem(position);
-//                    if (hours.equals(mActiveHours)) {
-//                        String message = "Cannot edit an active Hours.";
-//                        Log.w(TAG, METHOD + message);
-//                        //Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-//                    } else {
-                        Intent intent = new Intent(getActivity(), HoursDetailActivity.class);
-                        intent.putExtra(HoursDetailActivity.EXTRA_HOURS, hours);
-                        startActivity(intent);
-//                    }
+                    Intent intent = new Intent(getActivity(), HoursDetailActivity.class);
+                    intent.putExtra(HoursDetailActivity.EXTRA_HOURS, hours);
+                    startActivity(intent);
                 }
             }
         });
-//        Log.d(TAG, METHOD + "DONE.");
     }
 
     private void updateHoursListView(List<Hours> hours) {
@@ -427,7 +377,6 @@ public class HoursListFragment extends AbstractFragment {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-//                final String METHOD = "onItemLongClick(" + parent + ", " + view + ", " + position + ", " + id + "): ";
                 final String METHOD = "onItemLongClick(): ";
                 boolean ret = false;
                 // If the selected item is the active one, then do nothing (except display
@@ -542,20 +491,28 @@ public class HoursListFragment extends AbstractFragment {
         if (mActiveHours == null) {
             // No active Hours, start one
             Hours hours = new Hours();
-            hours.setBegin(new Date());
+            hours.setBegin(calculateDateWithRounding());
             hours.setProject(mProject);
             hours.setJob(mProject.getJob());
             mActiveHours = dataStore.create(hours);
             // Add mActiveHours to the List
         } else {
             // Active hours, stop it now
-            mActiveHours.setEnd(new Date());
+            mActiveHours.setEnd(calculateDateWithRounding());
             dataStore.update(mActiveHours);
             mActiveHours = null;
             updateSharedPreferences();
         }
         // Now update the UI
         updateUI();
+    }
+
+    private Date calculateDateWithRounding() {
+        final String METHOD = "calculateDateWithRounding()";
+        LocalDateTime localDateTime = new LocalDateTime().withSecondOfMinute(0).withMillisOfSecond(0);
+        Date ret = localDateTime.toDate();
+        Log.d(TAG, METHOD + "Returning new date: " + ret);
+        return ret;
     }
 
     /**
@@ -614,49 +571,30 @@ public class HoursListFragment extends AbstractFragment {
                 // Start the animation for this row
                 getActiveHours(view).setVisibility(View.VISIBLE);
             } else {
-                // TODO: Not sure this is the way to go here... too many Threads?
-//                new AsyncTask<Void, Void, Map<String, String>>() {
-                    String endDateTimeKey = "endDateTime";
-                    String totalTimeKey = "totalTime";
-                    String breakTimeKey = "breakTime";
-
-//                    @Override
-//                    protected Map<String, String> doInBackground(Void... params) {
-//                        Map<String, String> returnValues = new HashMap<>();
-                        PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
-                                .printZeroNever()
-                                        //.appendDays().appendSuffix("d")
-                                        //.appendSeparator(", ")
-                                .appendHours().appendSuffix("h")
-                                .appendSeparator(": ")
-                                .appendMinutes().appendSuffix("m")
-                                        //.appendSeparator(": ")
-                                        //.appendSeconds().appendSuffix("s")
-                                .toFormatter();
-                        // End Date
-                        long endTime = hours.getEnd().getTime();
-                        LocalDateTime endDateTime = new LocalDateTime(endTime);
-//                        returnValues.put(endDateTimeKey, endDateTime.toString(dateTimeFormatString));
+                String endDateTimeKey = "endDateTime";
+                String totalTimeKey = "totalTime";
+                String breakTimeKey = "breakTime";
+                PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+                        .printZeroNever()
+                        //.appendDays().appendSuffix("d")
+                        //.appendSeparator(", ")
+                        .appendHours().appendSuffix("h")
+                        .appendSeparator(": ")
+                        .appendMinutes().appendSuffix("m")
+                        //.appendSeparator(": ")
+                        //.appendSeconds().appendSuffix("s")
+                        .toFormatter();
+                // End Date
+                long endTime = hours.getEnd().getTime();
+                LocalDateTime endDateTime = new LocalDateTime(endTime);
                 getEndDate(view).setText(endDateTime.toString(dateTimeFormatString));
                         // Total
                         long elapsedTime = endTime - beginTime - breakTime;
                         Period period = new Period(elapsedTime);
-//                        returnValues.put(totalTimeKey, periodFormatter.print(period));
                 getTotal(view).setText(periodFormatter.print(period));
                         // Break
                         period = new Period(breakTime);
-//                        returnValues.put(breakTimeKey, periodFormatter.print(period));
                 getBreak(view).setText(periodFormatter.print(period));
-//                        return ret;
-//                    }
-//
-//                    @Override
-//                    protected void onPostExecute(Map<String, String> returnValues) {
-//                        getEndDate(view).setText(returnValues.get(endDateTimeKey));
-//                        getTotal(view).setText(returnValues.get(totalTimeKey));
-//                        getBreak(view).setText(returnValues.get(breakTimeKey));
-//                    }
-//                }.execute();
             }
         }
     }
@@ -673,6 +611,7 @@ public class HoursListFragment extends AbstractFragment {
             return new HoursViewBinder();
         }
     }
+}
 
     // A   T   T   I   C
 //    private Spinner getProjectSpinner() {
@@ -691,5 +630,43 @@ public class HoursListFragment extends AbstractFragment {
 //        ret = (AbstractArrayAdapter<Project>) getProjectSpinner().getAdapter();
 //        return ret;
 //    }
-
-}
+//    @SuppressWarnings("deprecation")
+//    private void updateFilterBackground() {
+//        ImageView filterIcon = (ImageView) getFilterIcon();
+//        if (filterIcon != null) {
+//            if (isFilterActive()) {
+//                filterIcon.setBackgroundColor(
+//                        getResources().getColor(
+//                                R.color.filter_active_background));
+//            } else {
+//                filterIcon.setBackgroundColor(
+//                        getResources().getColor(
+//                                R.color.standard_background));
+//            }
+//        }
+//    }
+//
+//    private ImageView getFilterIcon() {
+//        ImageView ret = null;
+//        if (getView() != null) {
+//            ret = (ImageView) getView().findViewById(R.id.imageview_hours_list_filter);
+//        }
+//        return ret;
+//    }
+//
+//    private void configureFilterListener(final ImageView filterIcon) {
+//        filterIcon.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
+//                // Display the Date Select Dialog
+//                FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
+//                filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
+//                filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
+//            }
+//        });
+//    }
+//
+//    private boolean isFilterActive() {
+//        return mFilterBeginDate != null && mFilterEndDate != null;
+//    }

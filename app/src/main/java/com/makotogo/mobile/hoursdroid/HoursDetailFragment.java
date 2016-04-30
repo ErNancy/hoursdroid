@@ -240,6 +240,7 @@ public class HoursDetailFragment extends AbstractFragment {
             long breakMillis = (mHours.getBreak() == null) ? 0L : mHours.getBreak();
             totalMillis = endMillis - beginMillis - breakMillis;
         }
+        Log.d(TAG, "Updating millis with value => " + totalMillis);
         ((TextView) getView().findViewById(R.id.textview_hours_detail_total))
                 .setText(renderTimePeriodForDisplay(totalMillis));
     }
