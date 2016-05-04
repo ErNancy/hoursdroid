@@ -20,10 +20,29 @@
             android:background="@drawable/ic_active_hours_hl"
             android:src="@drawable/ic_active_hours"/>
 
+        <ImageView
+            android:id="@+id/imageview_hours_list_row_billed_hours"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ic_billed_hours"
+            android:src="@drawable/ic_active_hours"/>
+
+        <!--
+        <TextView
+            android:id="@+id/textview_hours_list_billed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="unbilled"
+            android:textStyle="bold"
+            />
+        -->
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="10"
             android:background="?android:attr/activatedBackgroundIndicator"
             android:orientation="vertical"
             android:padding="5sp"
@@ -87,7 +106,7 @@
                     android:id="@+id/textview_hours_list_row_total"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="3"
+                    android:layout_weight="2"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textSize="10sp"
                     />

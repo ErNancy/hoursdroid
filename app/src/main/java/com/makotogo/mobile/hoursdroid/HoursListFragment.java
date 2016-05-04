@@ -494,6 +494,7 @@ public class HoursListFragment extends AbstractFragment {
             hours.setBegin(calculateDateWithRounding());
             hours.setProject(mProject);
             hours.setJob(mProject.getJob());
+            hours.setBilled(false);
             mActiveHours = dataStore.create(hours);
             // Add mActiveHours to the List
         } else {
@@ -542,6 +543,11 @@ public class HoursListFragment extends AbstractFragment {
         private ImageView getActiveHours(View view) {
             return (ImageView) view.findViewById(R.id.imageview_hours_list_row_active_hours);
         }
+
+        private ImageView getBilledHours(View view) {
+            return (ImageView) view.findViewById(R.id.imageview_hours_list_row_billed_hours);
+        }
+
         @Override
         public void initView(View view) {
             getBeginDate(view).setText("");
@@ -549,6 +555,7 @@ public class HoursListFragment extends AbstractFragment {
             getBreak(view).setText("");
             getTotal(view).setText("");
             getActiveHours(view).setVisibility(View.INVISIBLE);
+            getBilledHours(view).setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -596,6 +603,9 @@ public class HoursListFragment extends AbstractFragment {
                         period = new Period(breakTime);
                 getBreak(view).setText(periodFormatter.print(period));
             }
+            if (hours.isBilled()) {
+                getBilledHours(view).setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -614,59 +624,3 @@ public class HoursListFragment extends AbstractFragment {
 }
 
     // A   T   T   I   C
-//    private Spinner getProjectSpinner() {
-//        View view = getView();
-//        if (view == null) {
-//            throw new RuntimeException("View has not yet been configured. Cannot invoke getProjectSpinner()!");
-//        }
-//        return (Spinner) view.findViewById(R.id.spinner_hours_list_project);
-//    }
-//
-//    private AbstractArrayAdapter<Project> getProjectListAdapter() {
-//        AbstractArrayAdapter<Project> ret = null;
-//        if (getProjectSpinner() == null) {
-//            throw new RuntimeException("Project Spinner has not been configured!");
-//        }
-//        ret = (AbstractArrayAdapter<Project>) getProjectSpinner().getAdapter();
-//        return ret;
-//    }
-//    @SuppressWarnings("deprecation")
-//    private void updateFilterBackground() {
-//        ImageView filterIcon = (ImageView) getFilterIcon();
-//        if (filterIcon != null) {
-//            if (isFilterActive()) {
-//                filterIcon.setBackgroundColor(
-//                        getResources().getColor(
-//                                R.color.filter_active_background));
-//            } else {
-//                filterIcon.setBackgroundColor(
-//                        getResources().getColor(
-//                                R.color.standard_background));
-//            }
-//        }
-//    }
-//
-//    private ImageView getFilterIcon() {
-//        ImageView ret = null;
-//        if (getView() != null) {
-//            ret = (ImageView) getView().findViewById(R.id.imageview_hours_list_filter);
-//        }
-//        return ret;
-//    }
-//
-//    private void configureFilterListener(final ImageView filterIcon) {
-//        filterIcon.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getActivity(), "This will filter (eventually)", Toast.LENGTH_LONG).show();
-//                // Display the Date Select Dialog
-//                FilterDialogFragment filterDialogFragment = FragmentFactory.createFilterDialogFragment(mFilterBeginDate, mFilterEndDate);
-//                filterDialogFragment.setTargetFragment(HoursListFragment.this, REQUEST_CODE_FILTER_DIALOG);
-//                filterDialogFragment.show(getFragmentManager(), FilterDialogFragment.DIALOG_TAG);
-//            }
-//        });
-//    }
-//
-//    private boolean isFilterActive() {
-//        return mFilterBeginDate != null && mFilterEndDate != null;
-//    }

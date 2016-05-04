@@ -14,7 +14,7 @@ public class HoursDbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = HoursDbHelper.class.getSimpleName();
 
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 20160502;
 
     private static final String DB_NAME = "hoursdroid.db";
 
@@ -34,20 +34,11 @@ public class HoursDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion == 2) {
-            Log.d(TAG, "Upgrading DB to version " + newVersion);
-            Log.d(TAG, "Dropping table - " + HoursDbSchema.JobTable.NAME + "...");
-            db.execSQL("DROP TABLE " + HoursDbSchema.JobTable.NAME);
-            Log.d(TAG, "Dropping table - " + HoursDbSchema.ProjectTable.NAME + "...");
-            db.execSQL("DROP TABLE " + HoursDbSchema.ProjectTable.NAME);
-            Log.d(TAG, "Dropping table - time_record...");
-            db.execSQL("DROP TABLE time_record");
-            Log.d(TAG, "Creating table - " + HoursDbSchema.JobTable.NAME + "...");
-            db.execSQL(HoursDbSchema.JobTable.CREATE_SQL);
-            Log.d(TAG, "Creating table - " + HoursDbSchema.ProjectTable.NAME + "...");
-            db.execSQL(HoursDbSchema.ProjectTable.CREATE_SQL);
-            Log.d(TAG, "Creating table - " + HoursDbSchema.HoursTable.NAME + "...");
-            db.execSQL(HoursDbSchema.HoursTable.CREATE_SQL);
+        if (newVersion == 20160502) {
+            Log.i(TAG, "Upgrading DB to version " + newVersion);
+            String sql = HoursDbSchema.HoursTable.UPDATE_SQL_20160429;
+            Log.i(TAG, "Executing SQL: " + sql);
+            db.execSQL(sql);
         }
     }
 }

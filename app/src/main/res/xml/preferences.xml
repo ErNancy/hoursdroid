@@ -15,4 +15,19 @@
         android:title="@string/pref_title_showNotifications"
         />
 
+    <CheckBoxPreference
+        android:contentDescription="Shows billed Hours records if checked"
+        android:defaultValue="false"
+        android:key="PREFS_KEY_SHOW_BILLED_HOURS_RECORDS"
+        android:title="@string/pref_title_showBilledHoursRecords"
+        />
+
+    <ListPreference
+        android:defaultValue="No Rounding"
+        android:entries="@array/RoundingChoices"
+        android:entryValues="@array/RoundingChoiceValues"
+        android:key="PREFS_KEY_ROUNDING"
+        android:title="@string/pref_cat_title_rounding"
+        />
+
 </PreferenceScreen>

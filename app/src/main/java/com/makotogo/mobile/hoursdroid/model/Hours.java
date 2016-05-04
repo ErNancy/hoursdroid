@@ -9,16 +9,17 @@ import java.util.Date;
  * Created by sperry on 1/12/16.
  */
 public class Hours implements ModelObject, Serializable {
-    // TODO: add fields and junk
+
     private Integer mId;
     private Date mBegin;
     private Date mEnd;
     private Long mBreak;
     private String mDescription;
-    private Boolean mDeleted;
+    //private Boolean mDeleted;// TODO: Remove this field
     private Date mWhenCreated;
     private Job mJob;
     private Project mProject;
+    private Boolean mBilled = Boolean.FALSE;
 
     public Integer getId() {
         return mId;
@@ -60,14 +61,6 @@ public class Hours implements ModelObject, Serializable {
         mDescription = description;
     }
 
-    public Boolean isDeleted() {
-        return mDeleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        mDeleted = deleted;
-    }
-
     public Date getWhenCreated() {
         return mWhenCreated;
     }
@@ -92,6 +85,14 @@ public class Hours implements ModelObject, Serializable {
         mProject = project;
     }
 
+    public Boolean isBilled() {
+        return mBilled;
+    }
+
+    public void setBilled(Boolean billed) {
+        mBilled = billed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -99,34 +100,32 @@ public class Hours implements ModelObject, Serializable {
 
         Hours hours = (Hours) o;
 
-        if (!getId().equals(hours.getId())) return false;
-        if (!getBegin().equals(hours.getBegin())) return false;
-        if (getEnd() != null ? !getEnd().equals(hours.getEnd()) : hours.getEnd() != null)
+        if (mId != null ? !mId.equals(hours.mId) : hours.mId != null) return false;
+        if (mBegin != null ? !mBegin.equals(hours.mBegin) : hours.mBegin != null) return false;
+        if (mEnd != null ? !mEnd.equals(hours.mEnd) : hours.mEnd != null) return false;
+        if (mBreak != null ? !mBreak.equals(hours.mBreak) : hours.mBreak != null) return false;
+        if (mDescription != null ? !mDescription.equals(hours.mDescription) : hours.mDescription != null)
             return false;
-        if (getBreak() != null ? !getBreak().equals(hours.getBreak()) : hours.getBreak() != null)
+        if (mWhenCreated != null ? !mWhenCreated.equals(hours.mWhenCreated) : hours.mWhenCreated != null)
             return false;
-        if (getDescription() != null ? !getDescription().equals(hours.getDescription()) : hours.getDescription() != null)
+        if (mJob != null ? !mJob.equals(hours.mJob) : hours.mJob != null) return false;
+        if (mProject != null ? !mProject.equals(hours.mProject) : hours.mProject != null)
             return false;
-        if (mDeleted != null ? !mDeleted.equals(hours.mDeleted) : hours.mDeleted != null)
-            return false;
-        if (getWhenCreated() != null ? !getWhenCreated().equals(hours.getWhenCreated()) : hours.getWhenCreated() != null)
-            return false;
-        if (!getJob().equals(hours.getJob())) return false;
-        return getProject().equals(hours.getProject());
+        return mBilled != null ? mBilled.equals(hours.mBilled) : hours.mBilled == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = getId().hashCode();
-        result = 31 * result + getBegin().hashCode();
-        result = 31 * result + (getEnd() != null ? getEnd().hashCode() : 0);
-        result = 31 * result + (getBreak() != null ? getBreak().hashCode() : 0);
-        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
-        result = 31 * result + (mDeleted != null ? mDeleted.hashCode() : 0);
-        result = 31 * result + (getWhenCreated() != null ? getWhenCreated().hashCode() : 0);
-        result = 31 * result + getJob().hashCode();
-        result = 31 * result + getProject().hashCode();
+        int result = mId != null ? mId.hashCode() : 0;
+        result = 31 * result + (mBegin != null ? mBegin.hashCode() : 0);
+        result = 31 * result + (mEnd != null ? mEnd.hashCode() : 0);
+        result = 31 * result + (mBreak != null ? mBreak.hashCode() : 0);
+        result = 31 * result + (mDescription != null ? mDescription.hashCode() : 0);
+        result = 31 * result + (mWhenCreated != null ? mWhenCreated.hashCode() : 0);
+        result = 31 * result + (mJob != null ? mJob.hashCode() : 0);
+        result = 31 * result + (mProject != null ? mProject.hashCode() : 0);
+        result = 31 * result + (mBilled != null ? mBilled.hashCode() : 0);
         return result;
     }
 }

@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -92,7 +94,6 @@ public class HoursDetailFragment extends AbstractFragment {
     @Override
     protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         final String METHOD = "configureUI(...): ";
-        Log.d(TAG, METHOD + "BEGIN");
         View view = layoutInflater.inflate(R.layout.fragment_hours_detail, container, false);
         // Project Spinner
         configureProjectSpinner(view);
@@ -104,12 +105,13 @@ public class HoursDetailFragment extends AbstractFragment {
         configureBreakTime(view);
         // Total Time
         configureTotalTime(view);
+        // Billed
+        configureBilled(view);
         // Description
         configureDescription(view);
         // Save Button
         configureSaveButton(view);
 
-        Log.d(TAG, METHOD + "END");
         return view;
     }
 
@@ -126,7 +128,6 @@ public class HoursDetailFragment extends AbstractFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final String METHOD = "onActivityResult(" + requestCode + ", " + resultCode + ", " + data + "): ";
-        Log.d(TAG, METHOD + "...");
         if (resultCode == Activity.RESULT_OK) {
             // Figure out which Result code we are dealing with. This method
             /// handles the results of all dialog fragments used to set the
@@ -135,7 +136,6 @@ public class HoursDetailFragment extends AbstractFragment {
                 case REQUEST_BEGIN_DATE_PICKER:
                     Date beginDate = (Date) data.getSerializableExtra(DateTimePickerFragment.RESULT_DATE_TIME);
                     LocalDateTime ldtBeginDate = new LocalDateTime(beginDate.getTime());
-                    Log.d(TAG, METHOD + "Begin Date set to: " + ldtBeginDate.toString(DATE_FORMAT_PATTERN));
                     if (ldtBeginDate.isBefore(new LocalDateTime(mHours.getEnd().getTime()))) {
                         mHours.setBegin(beginDate);
                         updateUI();
@@ -148,7 +148,6 @@ public class HoursDetailFragment extends AbstractFragment {
                 case REQUEST_END_DATE_PICKER:
                     Date endDate = (Date) data.getSerializableExtra(DateTimePickerFragment.RESULT_DATE_TIME);
                     LocalDateTime ldtEndDate = new LocalDateTime(endDate.getTime());
-                    Log.d(TAG, METHOD + "End Date set to: " + ldtEndDate.toString(DATE_FORMAT_PATTERN));
                     if (ldtEndDate.isAfter(new LocalDateTime(mHours.getBegin().getTime()))) {
                         mHours.setEnd(endDate);
                         updateUI();
@@ -160,13 +159,11 @@ public class HoursDetailFragment extends AbstractFragment {
                     break;
                 case REQUEST_BREAK:
                     Integer breakTimeInMinutes = (Integer) data.getSerializableExtra(NumberPickerFragment.RESULT_MINUTES);
-                    Log.d(TAG, METHOD + "Break Time set to: " + breakTimeInMinutes);
                     mHours.setBreak(renderBreakForStorage(breakTimeInMinutes));
                     updateUI();
                     break;
                 case REQUEST_CODE_MANAGE_PROJECTS:
                     Project project = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
-                    Log.d(TAG, METHOD + "Project set to " + project);
                     mHours.setProject(project);
                     updateUI();
                     break;
@@ -182,6 +179,7 @@ public class HoursDetailFragment extends AbstractFragment {
         updateEnd();
         updateBreak();
         updateTotal();
+        updateBilled();
         updateProjectSpinner();
     }
 
@@ -245,11 +243,12 @@ public class HoursDetailFragment extends AbstractFragment {
                 .setText(renderTimePeriodForDisplay(totalMillis));
     }
 
+    private void updateBilled() {
+        // Nothing to do
+    }
+
     @Override
     protected boolean validate(View view) {
-        // TODO: Add validation logic here
-        // Begin Date must be before End Date
-        // End Date must be after Before Date
         return true;
     }
 
@@ -310,7 +309,7 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private void configureBeginDate(View view) {
         TextView beginDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_begin_date);
-        beginDateTextView.setEnabled(isThisHoursRecordActive() == false);
+        beginDateTextView.setEnabled(isThisHoursRecordNotActive());
         if (isThisHoursRecordActive()) {
             beginDateTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
         } else {
@@ -337,7 +336,7 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private void configureEndDate(View view) {
         TextView endDateTextView = (TextView) view.findViewById(R.id.textview_hours_detail_end_date);
-        endDateTextView.setEnabled(isThisHoursRecordActive() == false);
+        endDateTextView.setEnabled(isThisHoursRecordNotActive());
         if (isThisHoursRecordActive()) {
             endDateTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
         } else {
@@ -362,7 +361,7 @@ public class HoursDetailFragment extends AbstractFragment {
 
     private void configureBreakTime(View view) {
         TextView breakTimeTextView = (TextView) view.findViewById(R.id.textview_hours_detail_break);
-        breakTimeTextView.setEnabled(isThisHoursRecordActive() == false);
+        breakTimeTextView.setEnabled(isThisHoursRecordNotActive());
         if (isThisHoursRecordActive()) {
             breakTimeTextView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
         } else {
@@ -390,6 +389,23 @@ public class HoursDetailFragment extends AbstractFragment {
             Period period = new Period(elapsedTime);
             totalTimeTextView.setText(sPeriodFormatter.print(period));
         }
+    }
+
+    private void configureBilled(View view) {
+        CheckBox billedCheckBox = (CheckBox) view.findViewById(R.id.checkbox_hours_detail_billed);
+        billedCheckBox.setEnabled(isThisHoursRecordNotActive());
+        billedCheckBox.setChecked(mHours.isBilled());
+        if (isThisHoursRecordActive()) {
+            billedCheckBox.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.no_border, null));
+        } else {
+            billedCheckBox.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.rounded_border, null));
+        }
+        billedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mHours.setBilled(isChecked);
+            }
+        });
     }
 
     private void configureDescription(View view) {

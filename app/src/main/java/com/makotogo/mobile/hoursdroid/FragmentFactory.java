@@ -150,12 +150,12 @@ public class FragmentFactory {
     }
 
     /**
-     * Creates the ReportingSummaryFragment
+     * Creates the BillingSummaryFragment
      *
-     * @return ReportingSummaryFragment
+     * @return BillingSummaryFragment
      */
-    public static ReportingSummaryFragment createReportingSummaryFragment() {
-        ReportingSummaryFragment ret = new ReportingSummaryFragment();
+    public static BillingSummaryFragment createReportingSummaryFragment() {
+        BillingSummaryFragment ret = new BillingSummaryFragment();
         // No args
         return ret;
     }

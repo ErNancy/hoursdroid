@@ -95,7 +95,7 @@ public class JobListFragment extends AbstractFragment {
             }
             case R.id.menu_item_job_reporting_summary: {
                 // Fire off Reporting Summary Activity
-                Intent intent = new Intent(getActivity(), ReportingSummaryActivity.class);
+                Intent intent = new Intent(getActivity(), BillingSummaryActivity.class);
                 startActivity(intent);
                 ret = true;
                 break;

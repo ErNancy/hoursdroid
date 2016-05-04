@@ -82,5 +82,10 @@
     <string name="pref_title_showInactiveJobs">Show Inactive Jobs?</string>
     <string name="pref_title_showNotifications">Show Toast Notifications?</string>
     <string name="application_options">Application Options</string>
+    <string name="hours_billed">Billed?</string>
+    <string name="pref_title_showBilledHoursRecords">Show Billed Hours?</string>
+    <string name="billing_summary">Billing Summary</string>
+    <string name="pref_cat_title_rounding">Round to Nearest:</string>
+    <string name="rounding_none">None</string>
 
 </resources>

@@ -7,7 +7,7 @@ import com.makotogo.mobile.framework.AbstractSingleFragmentActivity;
 /**
  * Created by sperry on 2/6/16.
  */
-public class ReportingSummaryActivity extends AbstractSingleFragmentActivity {
+public class BillingSummaryActivity extends AbstractSingleFragmentActivity {
     @Override
     protected Fragment createFragment() {
         return FragmentFactory.createReportingSummaryFragment();

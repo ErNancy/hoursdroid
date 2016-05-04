@@ -118,10 +118,11 @@ public class DataStore {
         ret.put(HoursDbSchema.HoursTable.Column.END, (hours.getEnd() == null) ? null : hours.getEnd().getTime());
         ret.put(HoursDbSchema.HoursTable.Column.BREAK, hours.getBreak());
         ret.put(HoursDbSchema.HoursTable.Column.DESCRIPTION, hours.getDescription());
-        ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
+        //ret.put(HoursDbSchema.HoursTable.Column.DELETED, hours.isDeleted());
         ret.put(HoursDbSchema.HoursTable.Column.WHEN_CREATED, (hours.getWhenCreated() == null) ? null : hours.getWhenCreated().getTime());
         ret.put(HoursDbSchema.HoursTable.Column.JOB_ID, hours.getJob().getId());
         ret.put(HoursDbSchema.HoursTable.Column.PROJECT_ID, hours.getProject().getId());
+        ret.put(HoursDbSchema.HoursTable.Column.BILLED, hours.isBilled());
         return ret;
     }
 
@@ -303,7 +304,7 @@ public class DataStore {
     private String computeGetJobsWhereClause() {
         String ret = null;
         // TODO: check the system prefs and see if we ignore inactive jobs
-        if (ApplicationOptions.instance(mContext).showInactiveJobs(true)) {
+        if (ApplicationOptions.instance(mContext).showInactiveJobs()) {
             ret = null;
         } else {
             ret = HoursDbSchema.JobTable.Column.ACTIVE + " = 1";
@@ -659,8 +660,13 @@ public class DataStore {
 
     private String computeGetHoursWhereClause(Project project) {
         String ret = null;
-        //
-        ret = HoursDbSchema.HoursTable.Column.PROJECT_ID + " = " + project.getId();
+        List<String> predicateList = new ArrayList<>();
+        predicateList.add(HoursDbSchema.HoursTable.Column.PROJECT_ID + " = " + project.getId());
+        if (ApplicationOptions.instance(mContext).showBilledHoursRecords() == false) {
+            // Only show unbilled records
+            predicateList.add(HoursDbSchema.HoursTable.Column.BILLED + " = 0");
+        }
+        ret = buildWhereClauseFromPredicateList(predicateList);
         return ret;
     }
 
@@ -671,28 +677,41 @@ public class DataStore {
     private String computeGetHoursWhereClause(Job job, Date beginDate, Date endDate) {
         final String METHOD = "computeGetHoursWhereClause(" + job + ", " + beginDate + ", " + endDate + "): ";
         String ret = "";
+        List<String> predicateList = new ArrayList<>();
         //
         if (job != Job.ALL_JOBS) {
-            ret += HoursDbSchema.HoursTable.Column.JOB_ID + " = " + job.getId();
-            if (beginDate != null || endDate != null) {
-                ret += " AND ";
-            }
+            predicateList.add(HoursDbSchema.HoursTable.Column.JOB_ID + " = " + job.getId());
+        }
+        if (ApplicationOptions.instance(mContext).showBilledHoursRecords() == false) {
+            // Only show unbilled records
+            predicateList.add(HoursDbSchema.HoursTable.Column.BILLED + " = 0");
         }
         if (beginDate != null) {
-            ret += HoursDbSchema.HoursTable.Column.BEGIN + " < " + endDate.getTime();
-            if (endDate != null) {
-                ret += " AND ";
-            }
+            predicateList.add(HoursDbSchema.HoursTable.Column.BEGIN + " < " + endDate.getTime());
         }
         if (endDate != null) {
-            ret += HoursDbSchema.HoursTable.Column.END + " > " + beginDate.getTime();
+            predicateList.add(HoursDbSchema.HoursTable.Column.END + " > " + beginDate.getTime());
         }
-        if (ret.isEmpty()) {
+        if (predicateList.isEmpty()) {
             // null tells the query to return all rows, empty string does ??? (who knows?)
             ret = null;
+        } else {
+            // Build out predicates
+            ret = buildWhereClauseFromPredicateList(predicateList);
         }
         Log.d(TAG, METHOD + "WHERE clause: '" + ret + "'");
         return ret;
+    }
+
+    private String buildWhereClauseFromPredicateList(List<String> predicateList) {
+        StringBuilder sb = new StringBuilder();
+        for (int aa = 0; aa < predicateList.size(); aa++) {
+            if (aa > 0) {
+                sb.append(" AND ");
+            }
+            sb.append(predicateList.get(aa));
+        }
+        return sb.toString();
     }
 
 }

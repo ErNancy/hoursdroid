@@ -35,9 +35,9 @@ import java.util.List;
 /**
  * Created by sperry on 2/6/16.
  */
-public class ReportingSummaryFragment extends AbstractFragment {
+public class BillingSummaryFragment extends AbstractFragment {
 
-    private static final String TAG = ReportingSummaryFragment.class.getSimpleName();
+    private static final String TAG = BillingSummaryFragment.class.getSimpleName();
 
     private static final long DEFAULT_BEGIN_TIME_MILLIS = new LocalDateTime().withMillisOfDay(0).toDate().getTime();// Today at midnight
     private static final Date DEFAULT_BEGIN_DATE = new Date(DEFAULT_BEGIN_TIME_MILLIS);
@@ -95,8 +95,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
     @Override
     protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         final String METHOD = "configureUI(...): ";
-        Log.d(TAG, METHOD + "BEGIN");
-        View view = layoutInflater.inflate(R.layout.fragment_reporting_summary, container, false);
+        View view = layoutInflater.inflate(R.layout.fragment_billing_summary, container, false);
         // Job Spinner
         Spinner jobSpinner = (Spinner) view.findViewById(R.id.spinner_reporting_summary_job);
         configureJobSpinner(jobSpinner);
@@ -112,7 +111,6 @@ public class ReportingSummaryFragment extends AbstractFragment {
         // Hours ListView
         ListView hoursListView = (ListView) view.findViewById(R.id.listview_reporting_summary_hours);
         configureHoursListView(hoursListView);
-        Log.d(TAG, METHOD + "END");
         return view;
     }
 
@@ -122,7 +120,6 @@ public class ReportingSummaryFragment extends AbstractFragment {
     @Override
     protected void updateUI() {
         final String METHOD = "updateUI(): ";
-        Log.d(TAG, METHOD + "BEGIN");
         // Pull the list of jobs
         DataStore dataStore = DataStore.instance(getActivity());
         List<Job> jobList = dataStore.getJobs();
@@ -136,7 +133,6 @@ public class ReportingSummaryFragment extends AbstractFragment {
         updateBeginDateTextView();
         updateEndDateTextView();
         updateTotalTextView(totalMillisForInterval);
-        Log.d(TAG, METHOD + "END");
     }
 
     /**
@@ -150,7 +146,6 @@ public class ReportingSummaryFragment extends AbstractFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final String METHOD = "onActivityResult(" + requestCode + ", " + resultCode + ", " + data + "): ";
-        Log.d(TAG, METHOD + "BEGIN");
         // If resultCode is OK, then figure out which Fragment we spun off
         /// is reporting back
         if (resultCode == Activity.RESULT_OK) {
@@ -172,7 +167,6 @@ public class ReportingSummaryFragment extends AbstractFragment {
             String message = "Cannot handle resultCode (" + resultCode + "). User pressed the Back button, maybe?";
             Log.w(TAG, METHOD + message);
         }
-        Log.d(TAG, METHOD + "END");
     }
 
     /**
@@ -185,7 +179,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
         ApplicationOptions applicationOptions = ApplicationOptions.instance(getActivity());
         mBeginDate = applicationOptions.getReportSummaryBeginDate(DEFAULT_BEGIN_DATE);
         mEndDate = applicationOptions.getReportSummaryEndDate(DEFAULT_END_DATE);
-        mJob = applicationOptions.getReportSummaryLastSelectedJobId();
+        mJob = applicationOptions.getReportSummaryLastSelectedJob();
     }
 
     @Override
@@ -256,25 +250,17 @@ public class ReportingSummaryFragment extends AbstractFragment {
         long now = System.currentTimeMillis();
         long end = endDate.getTime();
         long begin = (mBeginDate != null) ? mBeginDate.getTime() : DEFAULT_BEGIN_TIME_MILLIS;
-//        if (end < now) {
-//            // Sanity Check #1 - End must be after now
-//            // It is not. Error message.
-//            String message = "End date/time cannot be earlier than current date/time (i.e., \"now\"). Please try again.";
-//            Log.e(TAG, METHOD + message);
-//            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-//        } else {
-            if (begin <= end) {
-                // Sanity Check #2 - Begin must be before or equal to End.
-                // It is. set the end date the user chose
-                mEndDate = endDate;
-                // Update the new filter setting
-                updateSharedPreferences();
-            } else {
-                String message = "Begin date/time cannot be later than End date/time. Please try again.";
-                Log.e(TAG, METHOD + message);
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-            }
-//        }
+        if (begin <= end) {
+            // Sanity Check #2 - Begin must be before or equal to End.
+            // It is. set the end date the user chose
+            mEndDate = endDate;
+            // Update the new filter setting
+            updateSharedPreferences();
+        } else {
+            String message = "Begin date/time cannot be later than End date/time. Please try again.";
+            Log.e(TAG, METHOD + message);
+            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     // Configure/Update Pairs
@@ -283,23 +269,19 @@ public class ReportingSummaryFragment extends AbstractFragment {
     private void configureHoursListView(ListView hoursListView) {
         // Create the HoursAdapter
         HoursListViewAdapter hoursListViewAdapter =
-                new HoursListViewAdapter(getActivity(), R.layout.reporting_summary_row);
+                new HoursListViewAdapter(getActivity(), R.layout.billing_summary_row);
         // Set it
         hoursListView.setAdapter(hoursListViewAdapter);
-        // TODO: OnClickListener - Gives the user the ability to tweak the
-        /// Hours record they select. Have to work out the hierarchical navigation though.
     }
 
     private void updateHoursListView(List<Hours> hoursList) {
         final String METHOD = "updateHoursListView(List<Hours>): ";
-        Log.d(TAG, METHOD + "BEGIN");
         // Update the ListView
         ListView hoursListView = (ListView) getView().findViewById(R.id.listview_reporting_summary_hours);
         HoursListViewAdapter hoursListViewAdapter = (HoursListViewAdapter) hoursListView.getAdapter();
         hoursListViewAdapter.clear();
         hoursListViewAdapter.addAll(hoursList);
         hoursListViewAdapter.notifyDataSetChanged();
-        Log.d(TAG, METHOD + "END");
     }
 
     private void configureBeginDateTextView(TextView beginDateTextView) {
@@ -316,7 +298,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
                                 DateTimePickerFragment.DATE// The initial choice
                         );
                 FragmentManager fragmentManager = getFragmentManager();
-                dateTimePickerFragment.setTargetFragment(ReportingSummaryFragment.this, REQUEST_BEGIN_DATE);
+                dateTimePickerFragment.setTargetFragment(BillingSummaryFragment.this, REQUEST_BEGIN_DATE);
                 dateTimePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);
             }
         });
@@ -346,7 +328,7 @@ public class ReportingSummaryFragment extends AbstractFragment {
                                 DateTimePickerFragment.DATE// The initial choice
                         );
                 FragmentManager fragmentManager = getFragmentManager();
-                dateTimePickerFragment.setTargetFragment(ReportingSummaryFragment.this, REQUEST_END_DATE);
+                dateTimePickerFragment.setTargetFragment(BillingSummaryFragment.this, REQUEST_END_DATE);
                 dateTimePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);
             }
         });
@@ -446,9 +428,33 @@ public class ReportingSummaryFragment extends AbstractFragment {
             }
             long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
             long total = end - begin - breakTime;
+            total = applyRoundingIfNecessary(total);
             ret += total;
         }
         return ret;
+    }
+
+    /**
+     * Apply any rounding to the specified total (in millis) if necessary. That is,
+     * if rounding is specified in the System Options.
+     *
+     * @param total The total to round (in millis)
+     * @return long - the rounded (if necessary) total
+     */
+    private long applyRoundingIfNecessary(long total) {
+        Log.d(TAG, "Total is " + total + " ms...");
+        int roundingBounary = ApplicationOptions.instance(getActivity()).getRounding();
+        Log.d(TAG, "Rounding to nearest " + roundingBounary + " minute...");
+        if (roundingBounary > 0) {
+            // Rounding millis is rounding boundary in minutes * 60 s/min * 1000 ms/s
+            long roundingMillis = roundingBounary * 60 * 1000;
+            // Round up to the nearest interval by subtracting the remainder from the rounding millis
+            long roundingAmount = roundingMillis - (total % roundingMillis);
+            Log.d(TAG, "Adding " + roundingAmount + " ms...");
+            total += roundingAmount;
+            Log.d(TAG, "Total is now (after rounding) " + total);
+        }
+        return total;
     }
 
     private class JobSpinnerAdapter extends AbstractArrayAdapter<Job> implements ViewBinder<Job> {
@@ -527,21 +533,19 @@ public class ReportingSummaryFragment extends AbstractFragment {
             getTotal(view).setText("");
             getProject(view).setText("");
             getJob(view).setText("");
-            getActiveHours(view).setVisibility(View.INVISIBLE);
+//            getActiveHours(view).setVisibility(View.INVISIBLE);
         }
 
         @Override
         public void bind(Hours hours, View view) {
-            final String METHOD = "bind(" + hours + ", view): ";
-            Log.d(TAG, METHOD + "BEGIN");
             TextView beginDateTextView = getBeginDate(view);
             beginDateTextView.setText(formatDate(hours.getBegin()));
             TextView endDateTextView = getEndDate(view);
             endDateTextView.setText(formatDate(hours.getEnd()));
             TextView breakTextView = getBreak(view);
             breakTextView.setText(formatPeriod(hours.getBreak()));
-            ImageView activeHoursImageView = getActiveHours(view);
-            activeHoursImageView.setVisibility((hours.getEnd() == null) ? View.VISIBLE : View.INVISIBLE);
+//            ImageView activeHoursImageView = getActiveHours(view);
+//            activeHoursImageView.setVisibility((hours.getEnd() == null) ? View.VISIBLE : View.INVISIBLE);
             TextView jobTextView = getJob(view);
             jobTextView.setText(hours.getJob().getName());
             TextView projectTextView = getProject(view);
@@ -552,9 +556,9 @@ public class ReportingSummaryFragment extends AbstractFragment {
             long end = (hours.getEnd() != null) ? hours.getEnd().getTime() : now;
             long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
             long total = end - begin - breakTime;
+            total = applyRoundingIfNecessary(total);
             TextView totalTextView = getTotal(view);
             totalTextView.setText(formatPeriod(total));
-            Log.d(TAG, METHOD + "END");
         }
 
         private TextView getBeginDate(View view) {
@@ -573,9 +577,9 @@ public class ReportingSummaryFragment extends AbstractFragment {
             return (TextView) view.findViewById(R.id.textview_reporting_summary_row_total);
         }
 
-        private ImageView getActiveHours(View view) {
-            return (ImageView) view.findViewById(R.id.imageview_reporting_summary_row_active_hours);
-        }
+//        private ImageView getActiveHours(View view) {
+//            return (ImageView) view.findViewById(R.id.imageview_reporting_summary_row_active_hours);
+//        }
 
         private TextView getJob(View view) {
             return (TextView) view.findViewById(R.id.textview_reporting_summary_row_job);
@@ -588,18 +592,4 @@ public class ReportingSummaryFragment extends AbstractFragment {
     }
 
     // A    T    T    I    C
-//    private Interval computeReportingInterval(Date beginDate, Date endDate) {
-//        Interval ret = null;
-//        if (beginDate != null && endDate != null) {
-//            ret = new Interval(beginDate.getTime(), endDate.getTime());
-//        } else if (beginDate == null && endDate != null) {
-//            ret = new Interval(DEFAULT_BEGIN_TIME_MILLIS, endDate.getTime());
-//        } else if (beginDate != null && endDate == null) {
-//            ret = new Interval(beginDate.getTime(), DEFAULT_END_TIME_MILLIS);
-//        } else {
-//            ret = new Interval(DEFAULT_BEGIN_TIME_MILLIS, DEFAULT_END_TIME_MILLIS);
-//        }
-//        return null;
-//    }
-//
 }

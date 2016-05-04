@@ -58,8 +58,8 @@
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".ReportingSummaryActivity"
-            android:label="@string/reporting_summary"
+            android:name=".BillingSummaryActivity"
+            android:label="@string/billing_summary"
             android:launchMode="singleTop"
             android:parentActivityName=".JobListActivity"
             android:screenOrientation="portrait">

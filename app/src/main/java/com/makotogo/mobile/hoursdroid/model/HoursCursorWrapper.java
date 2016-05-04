@@ -26,7 +26,7 @@ public class HoursCursorWrapper extends CursorWrapper {
         Date end = (millis > 0) ? new Date(millis) : null;
         long breakDuration = getLong(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.BREAK));
         String description = getString(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.DESCRIPTION));
-        boolean deleted = (getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.DELETED)) == 1) ? true : false;
+        boolean billed = (getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.BILLED)) == 1) ? true : false;
         millis = getLong(getColumnIndexOrThrow(HoursDbSchema.JobTable.Column.WHEN_CREATED));
         Date whenCreated = (millis > 0) ? new Date(millis) : null;
         int jobId = getInt(getColumnIndexOrThrow(HoursDbSchema.HoursTable.Column.JOB_ID));
@@ -40,10 +40,10 @@ public class HoursCursorWrapper extends CursorWrapper {
         ret.setEnd(end);
         ret.setBreak(breakDuration);
         ret.setDescription(description);
-        ret.setDeleted(deleted);
         ret.setWhenCreated(whenCreated);
         ret.setJob(job);
         ret.setProject(project);
+        ret.setBilled(billed);
         return ret;
     }
 }
