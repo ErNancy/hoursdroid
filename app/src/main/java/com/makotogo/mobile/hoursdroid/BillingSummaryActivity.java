@@ -15,7 +15,7 @@ public class BillingSummaryActivity extends AbstractSingleFragmentActivity {
 
     @Override
     protected String getActionBarTitle() {
-        return getStringResource(R.string.reporting_summary);
+        return getStringResource(R.string.billing_summary);
     }
 
     @Override

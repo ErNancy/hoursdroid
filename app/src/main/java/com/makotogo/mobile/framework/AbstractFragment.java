@@ -78,8 +78,6 @@ public abstract class AbstractFragment extends Fragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final String METHOD = "onCreateView(" + inflater + ", " + container + ", " + savedInstanceState + "): ";
-        Log.d(TAG, METHOD + "BEGIN");
         // Process Fragment arguments.
         processFragmentArguments();
         // Configure the View
@@ -89,17 +87,13 @@ public abstract class AbstractFragment extends Fragment {
             restoreInstanceState(savedInstanceState);
         }
         // Return the view
-        Log.d(TAG, METHOD + "END");
         return view;
     }
 
     @Override
     public void onPause() {
-        final String METHOD = "onPause(): ";
-        Log.d(TAG, METHOD + "BEGIN");
         super.onPause();
         updateSharedPreferences();
-        Log.d(TAG, METHOD + "END");
     }
 
     protected void updateSharedPreferences() {
@@ -112,21 +106,15 @@ public abstract class AbstractFragment extends Fragment {
 
     @Override
     public void onResume() {
-        final String METHOD = "onResume(): ";
-        Log.d(TAG, METHOD + "BEGIN");
         super.onResume();
         readSharedPreferences();
         updateUI();
-        Log.d(TAG, METHOD + "END");
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        final String METHOD = "onSaveInstanceState(Bundle): ";
-        Log.d(TAG, METHOD + "BEGIN");
         super.onSaveInstanceState(outState);
         saveInstanceState(outState);
-        Log.d(TAG, METHOD + "END");
     }
 
     protected final String getStringResource(int resourceId) {

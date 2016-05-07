@@ -27,6 +27,7 @@ import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Project;
 import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
+import com.makotogo.mobile.hoursdroid.util.RoundingUtils;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -237,6 +238,7 @@ public class HoursDetailFragment extends AbstractFragment {
             long endMillis = (mHours.getEnd() == null) ? 0L : mHours.getEnd().getTime();
             long breakMillis = (mHours.getBreak() == null) ? 0L : mHours.getBreak();
             totalMillis = endMillis - beginMillis - breakMillis;
+            totalMillis = RoundingUtils.applyRoundingIfNecessary(getActivity(), totalMillis);
         }
         Log.d(TAG, "Updating millis with value => " + totalMillis);
         ((TextView) getView().findViewById(R.id.textview_hours_detail_total))
@@ -321,7 +323,7 @@ public class HoursDetailFragment extends AbstractFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 // If there is already a Date displayed, use that.
                 Date dateToUse = (mHours.getBegin() == null) ? new Date() : mHours.getBegin();
-                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "Begin", DateTimePickerFragment.TIME);
+                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "Begin", DateTimePickerFragment.BOTH);
                 datePickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_BEGIN_DATE_PICKER);
                 datePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);
             }
@@ -348,7 +350,7 @@ public class HoursDetailFragment extends AbstractFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 // If there is already a Date displayed, use that.
                 Date dateToUse = (mHours.getEnd() == null) ? new Date() : mHours.getEnd();
-                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "End", DateTimePickerFragment.TIME);
+                DateTimePickerFragment datePickerFragment = FragmentFactory.createDatePickerFragment(dateToUse, "End", DateTimePickerFragment.BOTH);
                 datePickerFragment.setTargetFragment(HoursDetailFragment.this, REQUEST_END_DATE_PICKER);
                 datePickerFragment.show(fragmentManager, DateTimePickerFragment.DIALOG_TAG);
             }
@@ -386,6 +388,7 @@ public class HoursDetailFragment extends AbstractFragment {
         TextView totalTimeTextView = (TextView) view.findViewById(R.id.textview_hours_detail_total);
         if (isThisHoursRecordNotActive()) {
             long elapsedTime = mHours.getEnd().getTime() - mHours.getBegin().getTime() - mHours.getBreak();
+            elapsedTime = RoundingUtils.applyRoundingIfNecessary(getActivity(), elapsedTime);
             Period period = new Period(elapsedTime);
             totalTimeTextView.setText(sPeriodFormatter.print(period));
         }

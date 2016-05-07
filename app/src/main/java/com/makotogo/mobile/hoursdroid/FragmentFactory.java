@@ -24,7 +24,7 @@ public class FragmentFactory {
     public static final String FRAG_ARG_DATE_TYPE = FRAG_ARG_DATE + "Type";
     public static final String FRAG_ARG_FILTER_DIALOG_BEGIN_DATE = FRAG_ARG_PREFIX + "begin.date";
     public static final String FRAG_ARG_FILTER_DIALOG_END_DATE = FRAG_ARG_PREFIX + "end.date";
-    public static final String FRAG_ARG_DATETIME_PICKER_INITIAL_CHOICE = FRAG_ARG_PREFIX + "date.picker.initial.choice";
+    public static final String FRAG_ARG_DATETIME_PICKER_CHOICE = FRAG_ARG_PREFIX + "date.picker.choice";
 
     /**
      * Creates the JoblistFragment.
@@ -85,19 +85,20 @@ public class FragmentFactory {
      *
      * @param date          The Date to display on the Date Picker
      * @param dateType      The date type, used for display purposes
-     * @param initialChoice The initial choice to display to the user. One of:
+     * @param choice        The  choice to display to the user. One of:
      *                      <ol>
      *                      <li>{@link com.makotogo.mobile.hoursdroid.DateTimePickerFragment#DATE}</li>
      *                      <li>{@link com.makotogo.mobile.hoursdroid.DateTimePickerFragment#TIME}</li>
+     *                      <li>{@link com.makotogo.mobile.hoursdroid.DateTimePickerFragment#BOTH}</li>
      *                      </ol>
      * @return DateTimePickerFragment
      */
-    public static DateTimePickerFragment createDatePickerFragment(Date date, String dateType, String initialChoice) {
+    public static DateTimePickerFragment createDatePickerFragment(Date date, String dateType, String choice) {
         DateTimePickerFragment ret = new DateTimePickerFragment();
         Bundle args = new Bundle();
         args.putSerializable(FRAG_ARG_DATE, date);
         args.putSerializable(FRAG_ARG_DATE_TYPE, dateType);
-        args.putSerializable(FRAG_ARG_DATETIME_PICKER_INITIAL_CHOICE, initialChoice);
+        args.putSerializable(FRAG_ARG_DATETIME_PICKER_CHOICE, choice);
         ret.setArguments(args);
         return ret;
     }

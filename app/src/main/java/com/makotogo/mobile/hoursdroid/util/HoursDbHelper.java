@@ -14,7 +14,7 @@ public class HoursDbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = HoursDbHelper.class.getSimpleName();
 
-    private static final int DB_VERSION = 20160502;
+    private static final int DB_VERSION = 1;
 
     private static final String DB_NAME = "hoursdroid.db";
 
@@ -34,11 +34,5 @@ public class HoursDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion == 20160502) {
-            Log.i(TAG, "Upgrading DB to version " + newVersion);
-            String sql = HoursDbSchema.HoursTable.UPDATE_SQL_20160429;
-            Log.i(TAG, "Executing SQL: " + sql);
-            db.execSQL(sql);
-        }
     }
 }

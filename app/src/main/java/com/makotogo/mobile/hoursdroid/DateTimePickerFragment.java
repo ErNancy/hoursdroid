@@ -34,12 +34,13 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
     public static final String RESULT_DATE_TIME = "result." + DateTimePickerFragment.class.getName();
     public static final String TIME = "Time";
     public static final String DATE = "Date";
+    public static final String BOTH = "BOTH";
 
     private static final String TAG = DateTimePickerFragment.class.getSimpleName();
 
     private Date mDate;
     private String mDateType;
-    private String mInitialChoice;
+    private String mDateOrTimeChoice;
 
     /**
      * Maintain a reference to the DatePicker to work around a bug in Android 5.
@@ -123,8 +124,14 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
 
     private void configureDateTimeSpinner(final Spinner dateTimeSpinner) {
         List<String> choices = new ArrayList<>();
-        choices.add(computeChoice(DATE));
-        choices.add(computeChoice(TIME));
+        if (mDateOrTimeChoice == DATE) {
+            choices.add(computeChoice(DATE));
+        } else if (mDateOrTimeChoice == TIME) {
+            choices.add(computeChoice(TIME));
+        } else {
+            choices.add(computeChoice(TIME));
+            choices.add(computeChoice(DATE));
+        }
         dateTimeSpinner.setAdapter(
                 new ArrayAdapter<String>(
                         getActivity(),
@@ -150,8 +157,12 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
 
             }
         });
-        // Select initial choice.
-        dateTimeSpinner.setSelection(choices.indexOf(computeChoice(mInitialChoice)));
+        // Select initial choice if neither preferred.
+        if (mDateOrTimeChoice == null) {
+            dateTimeSpinner.setSelection(choices.indexOf(computeChoice(TIME)));
+        } else {
+            dateTimeSpinner.setSelection(choices.indexOf(computeChoice(mDateOrTimeChoice)));
+        }
     }
 
     private String computeChoice(String baseChoice) {
@@ -170,13 +181,13 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
         if (mDateType == null || mDateType.isEmpty()) {
             throw new RuntimeException("Fragment argument (" + FragmentFactory.FRAG_ARG_DATE_TYPE + ") cannot be null!");
         }
-        mInitialChoice = (String) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATETIME_PICKER_INITIAL_CHOICE);
-        if (mInitialChoice == null || mInitialChoice.isEmpty()) {
-            mInitialChoice = TIME;
-        }
+
+        mDateOrTimeChoice = (String) getArguments().getSerializable(FragmentFactory.FRAG_ARG_DATETIME_PICKER_CHOICE);
+
     }
 
     private Date computeDateFromComponents(int year, int monthOfYear, int dayOfMonth, int hourOfDay, int minuteOfHour) {
+        final String METHOD = "computeDateFromComponents(" + year + "," + monthOfYear + "," + dayOfMonth + "," + hourOfDay + "," + minuteOfHour + ")";
         Calendar changedDateCalendar = Calendar.getInstance();
         changedDateCalendar.set(Calendar.YEAR, year);
         changedDateCalendar.set(Calendar.MONTH, monthOfYear);
@@ -185,6 +196,8 @@ public class DateTimePickerFragment extends AbstractDialogFragment {
         changedDateCalendar.set(Calendar.MINUTE, minuteOfHour);
         changedDateCalendar.set(Calendar.SECOND, 0);
         changedDateCalendar.set(Calendar.MILLISECOND, 0);
-        return changedDateCalendar.getTime();
+        Date ret = changedDateCalendar.getTime();
+        Log.d(TAG, METHOD + "Returning date: " + ret);
+        return ret;
     }
 }

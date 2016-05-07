@@ -1,7 +1,6 @@
 package com.makotogo.mobile.framework;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +28,9 @@ public abstract class AbstractArrayAdapter<T extends ModelObject> extends ArrayA
      */
     public AbstractArrayAdapter(Context context, int resource) {
         super(context, 0);
-        final String METHOD = "<constructor>(" + context + ", " + resource + "): ";
-        Log.d(TAG, METHOD + "...");
         // Tells the superclass that we will be handling View inflation
         mContext = context;
         mLayoutResourceId = resource;
-        Log.d(TAG, METHOD + "...DONE");
     }
 
     public int getLayoutResourceId() {

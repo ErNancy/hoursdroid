@@ -23,6 +23,7 @@ import com.makotogo.mobile.hoursdroid.model.DataStore;
 import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Job;
 import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
+import com.makotogo.mobile.hoursdroid.util.RoundingUtils;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -52,6 +53,7 @@ public class BillingSummaryFragment extends AbstractFragment {
     private static final int REQUEST_END_DATE = 200;
 
     private static final String DATE_FORMAT_STRING = "MM/dd/yy hh:mm a";
+    private static final String SHORT_DATE_FORMAT_STRING = "MM/dd/yy";
     private static final String DATE_NONE = "NONE";
 
     private static PeriodFormatter sPeriodFormatter = new PeriodFormatterBuilder()
@@ -232,7 +234,8 @@ public class BillingSummaryFragment extends AbstractFragment {
         } else {
             if (end >= begin) {
                 // Sanity Check #2 - Begin must be before or equal to End.
-                // It is. Set the begin date the user chose
+                // It is. Set the begin date the user chose, at the BEGINNING of that day
+                LocalDateTime ldt = new LocalDateTime(beginDate).withHourOfDay(0).withMinuteOfHour(0);
                 mBeginDate = beginDate;
                 // Update the new filter setting
                 updateSharedPreferences();
@@ -252,8 +255,9 @@ public class BillingSummaryFragment extends AbstractFragment {
         long begin = (mBeginDate != null) ? mBeginDate.getTime() : DEFAULT_BEGIN_TIME_MILLIS;
         if (begin <= end) {
             // Sanity Check #2 - Begin must be before or equal to End.
-            // It is. set the end date the user chose
-            mEndDate = endDate;
+            // It is. Set the end date the user chose, at the END of that day
+            LocalDateTime ldt = new LocalDateTime(endDate).withHourOfDay(23).withMinuteOfHour(59);
+            mEndDate = ldt.toDate();
             // Update the new filter setting
             updateSharedPreferences();
         } else {
@@ -308,7 +312,7 @@ public class BillingSummaryFragment extends AbstractFragment {
         // Take the End part of the Interval setting and display it
         TextView beginDateTextView = (TextView) getView().findViewById(R.id.textview_reporting_summary_begin_date);
         if (mBeginDate != null) {
-            beginDateTextView.setText(new LocalDateTime(mBeginDate.getTime()).toString(DATE_FORMAT_STRING));
+            beginDateTextView.setText(new LocalDateTime(mBeginDate.getTime()).toString(SHORT_DATE_FORMAT_STRING));
         } else {
             beginDateTextView.setText(DATE_NONE);
         }
@@ -338,7 +342,7 @@ public class BillingSummaryFragment extends AbstractFragment {
         // Take the End part of the Interval setting and display it
         TextView endDateTextView = (TextView) getView().findViewById(R.id.textview_reporting_summary_end_date);
         if (mEndDate != null) {
-            endDateTextView.setText(new LocalDateTime(mEndDate.getTime()).toString(DATE_FORMAT_STRING));
+            endDateTextView.setText(new LocalDateTime(mEndDate.getTime()).toString(SHORT_DATE_FORMAT_STRING));
         } else {
             endDateTextView.setText(DATE_NONE);
         }
@@ -428,33 +432,10 @@ public class BillingSummaryFragment extends AbstractFragment {
             }
             long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
             long total = end - begin - breakTime;
-            total = applyRoundingIfNecessary(total);
+            total = RoundingUtils.applyRoundingIfNecessary(getActivity(), total);
             ret += total;
         }
         return ret;
-    }
-
-    /**
-     * Apply any rounding to the specified total (in millis) if necessary. That is,
-     * if rounding is specified in the System Options.
-     *
-     * @param total The total to round (in millis)
-     * @return long - the rounded (if necessary) total
-     */
-    private long applyRoundingIfNecessary(long total) {
-        Log.d(TAG, "Total is " + total + " ms...");
-        int roundingBounary = ApplicationOptions.instance(getActivity()).getRounding();
-        Log.d(TAG, "Rounding to nearest " + roundingBounary + " minute...");
-        if (roundingBounary > 0) {
-            // Rounding millis is rounding boundary in minutes * 60 s/min * 1000 ms/s
-            long roundingMillis = roundingBounary * 60 * 1000;
-            // Round up to the nearest interval by subtracting the remainder from the rounding millis
-            long roundingAmount = roundingMillis - (total % roundingMillis);
-            Log.d(TAG, "Adding " + roundingAmount + " ms...");
-            total += roundingAmount;
-            Log.d(TAG, "Total is now (after rounding) " + total);
-        }
-        return total;
     }
 
     private class JobSpinnerAdapter extends AbstractArrayAdapter<Job> implements ViewBinder<Job> {
@@ -533,7 +514,6 @@ public class BillingSummaryFragment extends AbstractFragment {
             getTotal(view).setText("");
             getProject(view).setText("");
             getJob(view).setText("");
-//            getActiveHours(view).setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -544,8 +524,6 @@ public class BillingSummaryFragment extends AbstractFragment {
             endDateTextView.setText(formatDate(hours.getEnd()));
             TextView breakTextView = getBreak(view);
             breakTextView.setText(formatPeriod(hours.getBreak()));
-//            ImageView activeHoursImageView = getActiveHours(view);
-//            activeHoursImageView.setVisibility((hours.getEnd() == null) ? View.VISIBLE : View.INVISIBLE);
             TextView jobTextView = getJob(view);
             jobTextView.setText(hours.getJob().getName());
             TextView projectTextView = getProject(view);
@@ -556,7 +534,7 @@ public class BillingSummaryFragment extends AbstractFragment {
             long end = (hours.getEnd() != null) ? hours.getEnd().getTime() : now;
             long breakTime = (hours.getBreak() != null) ? hours.getBreak() : 0L;
             long total = end - begin - breakTime;
-            total = applyRoundingIfNecessary(total);
+            total = RoundingUtils.applyRoundingIfNecessary(getActivity(), total);
             TextView totalTextView = getTotal(view);
             totalTextView.setText(formatPeriod(total));
         }
@@ -576,10 +554,6 @@ public class BillingSummaryFragment extends AbstractFragment {
         private TextView getTotal(View view) {
             return (TextView) view.findViewById(R.id.textview_reporting_summary_row_total);
         }
-
-//        private ImageView getActiveHours(View view) {
-//            return (ImageView) view.findViewById(R.id.imageview_reporting_summary_row_active_hours);
-//        }
 
         private TextView getJob(View view) {
             return (TextView) view.findViewById(R.id.textview_reporting_summary_row_job);

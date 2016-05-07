@@ -27,6 +27,7 @@ import com.makotogo.mobile.hoursdroid.model.Hours;
 import com.makotogo.mobile.hoursdroid.model.Job;
 import com.makotogo.mobile.hoursdroid.model.Project;
 import com.makotogo.mobile.hoursdroid.util.ApplicationOptions;
+import com.makotogo.mobile.hoursdroid.util.RoundingUtils;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -94,8 +95,6 @@ public class HoursListFragment extends AbstractFragment {
      */
     @Override
     protected View configureUI(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        final String METHOD = "configureUI(...): ";
-        Log.d(TAG, METHOD + "BEGIN");
         // Inflate the view
         View view = layoutInflater.inflate(R.layout.fragment_hours_list, container, false);
         Spinner projectSpinner = (Spinner) view.findViewById(R.id.spinner_hours_list_project);
@@ -109,14 +108,11 @@ public class HoursListFragment extends AbstractFragment {
         //configureFilterListener(filterIcon);
         // Create Start/Stop button
         configureStartStopButton(view);
-        Log.d(TAG, METHOD + "END");
         return view;
     }
 
     @Override
     protected void processFragmentArguments() {
-        final String METHOD = "processFragmentArguments(): ";
-        Log.d(TAG, METHOD);
         Bundle arguments = getArguments();
         mJob = (Job) arguments.getSerializable(FragmentFactory.FRAG_ARG_JOB);
         // Sanity check
@@ -125,7 +121,6 @@ public class HoursListFragment extends AbstractFragment {
             throw new RuntimeException("Fragment (" + TAG + ") argument (" + FragmentFactory.FRAG_ARG_JOB + ") cannot be null!");
         }
         mProject = fetchProjectToUse(mJob);
-        Log.d(TAG, METHOD + "DONE.");
     }
 
     /**
@@ -139,8 +134,6 @@ public class HoursListFragment extends AbstractFragment {
      */
     private Project fetchProjectToUse(Job job) {
         Project ret = mProject;
-        final String METHOD = "fetchProjectToUse(" + job + "): ";
-        Log.d(TAG, METHOD);
         if (mProject == null) {
             DataStore dataStore = DataStore.instance(getActivity());
             ret = dataStore.getDefaultProject(job);// Default
@@ -157,21 +150,17 @@ public class HoursListFragment extends AbstractFragment {
                     Log.d(TAG, "No active Hours. Using default project");
                 }
             }
-            Log.d(TAG, METHOD + "DONE.");
         }
         return ret;
     }
 
     @Override
     public void saveInstanceState(Bundle outState) {
-        final String METHOD = "saveInstanceState(" + outState + "): ";
-        Log.d(TAG, METHOD);
         // Save the Active Hours object
         outState.putSerializable(STATE_ACTIVE_HOURS, mActiveHours);
         outState.putSerializable(STATE_FILTER_BEGIN_DATE, mFilterBeginDate);
         outState.putSerializable(STATE_FILTER_END_DATE, mFilterEndDate);
         updateSharedPreferences();
-        Log.d(TAG, METHOD + "DONE.");
     }
 
     @Override
@@ -184,21 +173,15 @@ public class HoursListFragment extends AbstractFragment {
 
     @Override
     protected void updateSharedPreferences() {
-        final String METHOD = "updateSharedPreferences(ApplicationOptions): ";
-        Log.d(TAG, METHOD);
         ApplicationOptions applicationOptions = ApplicationOptions.instance(getActivity());
         // Save the last used project
         applicationOptions.saveLastUsedProjectId(mJob.getId(), mProject.getId());
-        Log.d(TAG, METHOD + "DONE.");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         final String METHOD = "onActivityResult(" + requestCode + ", " + resultCode + ", " + data + "): ";
-        Log.d(TAG, METHOD);
-//        super.onActivityResult(requestCode, resultCode, data);// Not necessary
         if (resultCode == Activity.RESULT_OK) {
-            Log.d(TAG, METHOD + "Processing result...");
             switch (requestCode) {
                 case REQUEST_CODE_MANAGE_PROJECTS:
                     Project project = (Project) data.getSerializableExtra(ProjectListActivity.RESULT_PROJECT);
@@ -231,8 +214,6 @@ public class HoursListFragment extends AbstractFragment {
      * - Update the View
      */
     protected void updateUI() {
-        final String METHOD = "updateUI()...";
-        Log.d(TAG, METHOD);
         DataStore dataStore = DataStore.instance(getActivity());
         // Now refresh the view
         List<Hours> hours = dataStore.getHours(mProject);
@@ -241,14 +222,9 @@ public class HoursListFragment extends AbstractFragment {
         projects.add(Project.MANAGE_PROJECTS);
         updateProjectSpinner(projects);
         updateStartStopButton();
-        // Filter REMOVED
-        //updateFilterBackground();
-        Log.d(TAG, "updateUI()...DONE");
     }
 
     private void configureProjectSpinner(final Spinner projectSpinner) {
-        final String METHOD = "configureProjectSpinner(Spinner): ";
-        Log.d(TAG, METHOD + "...");
         projectSpinner.setAdapter(new AbstractArrayAdapter(getActivity(), R.layout.project_list_row) {
             @Override
             protected ViewBinder<Project> createViewBinder() {
@@ -277,7 +253,6 @@ public class HoursListFragment extends AbstractFragment {
 
             }
         });
-        Log.d(TAG, METHOD + "DONE.");
     }
 
     private void updateProjectSpinner(List<Project> projects) {
@@ -341,7 +316,6 @@ public class HoursListFragment extends AbstractFragment {
     }
 
     private void configureHoursListView(final ListView listView) {
-        final String METHOD = "configureHoursListView(ListView): ";
         // Create a new JobAdapter
         listView.setAdapter(new HoursAdapter(getActivity(), R.layout.hours_list_row));
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -352,7 +326,6 @@ public class HoursListFragment extends AbstractFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final String METHOD = "onItemClick(): ";
                 if (!mInActionMode) {
                     Hours hours = (Hours) listView.getAdapter().getItem(position);
                     Intent intent = new Intent(getActivity(), HoursDetailActivity.class);
@@ -364,9 +337,7 @@ public class HoursListFragment extends AbstractFragment {
     }
 
     private void updateHoursListView(List<Hours> hours) {
-        String METHOD = "updateHoursListView(List<Hours>): ";
         if (getHoursListViewAdapter() != null) {
-            Log.d(TAG, METHOD + "Adding " + hours.size() + " Hours objects to the list...");
             getHoursListViewAdapter().clear();
             getHoursListViewAdapter().addAll(hours);
             getHoursListViewAdapter().notifyDataSetChanged();
@@ -377,15 +348,11 @@ public class HoursListFragment extends AbstractFragment {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                final String METHOD = "onItemLongClick(): ";
                 boolean ret = false;
                 // If the selected item is the active one, then do nothing (except display
                 /// a Toast)
                 final Hours hours = (Hours) listView.getAdapter().getItem(position);
-                if (hours.equals(mActiveHours)) {
-                    String message = "Sorry, you cannot edit an active Hours.";
-                    Log.w(TAG, METHOD + message);
-                } else {
+                if (!hours.equals(mActiveHours)) {
                     // Long press... It will be handled first. Set the state variable (yuck).
                     setInActionMode(IN_ACTION_MODE);
                     getActivity().startActionMode(new ActionMode.Callback() {
@@ -400,14 +367,11 @@ public class HoursListFragment extends AbstractFragment {
 
                         @Override
                         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                            final String METHOD = "onActionItemClicked(" + mode + ", " + item + "): ";
                             boolean ret;
                             // Switch on the menu item ID
                             switch (item.getItemId()) {
                                 case R.id.menu_item_hours_delete:
-                                    Log.d(TAG, METHOD + "Deleting item...");
                                     DataStore.instance(getActivity()).delete(hours);
-                                    Log.d(TAG, METHOD + "Done.");
                                     ret = true;// handled
                                     break;
                                 default:
@@ -423,15 +387,11 @@ public class HoursListFragment extends AbstractFragment {
 
                         @Override
                         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                            final String METHOD = "onPrepareActionMode(" + mode + ", " + menu + "): ";
-                            Log.d(TAG, METHOD + "...");
                             return false;
                         }
 
                         @Override
                         public void onDestroyActionMode(ActionMode mode) {
-                            final String METHOD = "onDestroyActionMode(" + mode + "): ";
-                            Log.d(TAG, METHOD + "...");
                             // Through with Action Mode. The list view can go back to handling
                             /// short press.
                             setInActionMode(NOT_IN_ACTION_MODE);
@@ -460,11 +420,9 @@ public class HoursListFragment extends AbstractFragment {
     }
 
     private void updateStartStopButton() {
-        String METHOD = "updateStartStopButton(): ";
         // Handle the button
         if (isActive()) {
             if (getView() != null) {
-                Log.d(TAG, METHOD + "Setting Start/Stop button text...");
                 Button button = (Button) getView().findViewById(R.id.button_hours_start_stop);
                 button.setText(getActivity().getResources().getText(R.string.stop_work));
                 button.setEnabled(isActiveHoursProjectSameAsCurrentProject());
@@ -491,7 +449,7 @@ public class HoursListFragment extends AbstractFragment {
         if (mActiveHours == null) {
             // No active Hours, start one
             Hours hours = new Hours();
-            hours.setBegin(calculateDateWithRounding());
+            hours.setBegin(RoundingUtils.calculateDateWithRounding());
             hours.setProject(mProject);
             hours.setJob(mProject.getJob());
             hours.setBilled(false);
@@ -499,21 +457,13 @@ public class HoursListFragment extends AbstractFragment {
             // Add mActiveHours to the List
         } else {
             // Active hours, stop it now
-            mActiveHours.setEnd(calculateDateWithRounding());
+            mActiveHours.setEnd(RoundingUtils.calculateDateWithRounding());
             dataStore.update(mActiveHours);
             mActiveHours = null;
             updateSharedPreferences();
         }
         // Now update the UI
         updateUI();
-    }
-
-    private Date calculateDateWithRounding() {
-        final String METHOD = "calculateDateWithRounding()";
-        LocalDateTime localDateTime = new LocalDateTime().withSecondOfMinute(0).withMillisOfSecond(0);
-        Date ret = localDateTime.toDate();
-        Log.d(TAG, METHOD + "Returning new date: " + ret);
-        return ret;
     }
 
     /**
@@ -560,7 +510,6 @@ public class HoursListFragment extends AbstractFragment {
 
         @Override
         public void bind(final Hours hours, final View view) {
-            final String METHOD = "bind(" + hours + ", View): ";
             // TODO: Move this formatting to AsyncTask?
             final long beginTime = hours.getBegin().getTime();
             final long breakTime = hours.getBreak();
@@ -570,7 +519,6 @@ public class HoursListFragment extends AbstractFragment {
             getBeginDate(view).setText(beginDateTime.toString(dateTimeFormatString));
             if (hours.getEnd() == null) {
                 // Found the active record
-                Log.d(TAG, METHOD + "Found the active hours record...");
                 // NOTE: DO NOT REFACTOR THIS CLASS OUTSIDE OF ITS CONTAINING CLASS!!
                 mActiveHours = hours;
                 Button startStopButton = (Button) getView().findViewById(R.id.button_hours_start_stop);
@@ -595,12 +543,13 @@ public class HoursListFragment extends AbstractFragment {
                 long endTime = hours.getEnd().getTime();
                 LocalDateTime endDateTime = new LocalDateTime(endTime);
                 getEndDate(view).setText(endDateTime.toString(dateTimeFormatString));
-                        // Total
-                        long elapsedTime = endTime - beginTime - breakTime;
-                        Period period = new Period(elapsedTime);
+                // Total
+                long elapsedTime = endTime - beginTime - breakTime;
+                elapsedTime = RoundingUtils.applyRoundingIfNecessary(getActivity(), elapsedTime);
+                Period period = new Period(elapsedTime);
                 getTotal(view).setText(periodFormatter.print(period));
-                        // Break
-                        period = new Period(breakTime);
+                // Break
+                period = new Period(breakTime);
                 getBreak(view).setText(periodFormatter.print(period));
             }
             if (hours.isBilled()) {

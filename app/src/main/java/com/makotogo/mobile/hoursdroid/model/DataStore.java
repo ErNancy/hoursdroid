@@ -509,7 +509,7 @@ public class DataStore {
 
     public List<Hours> getHours(Project project) {
         List<Hours> ret = new ArrayList<>();
-        String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
+        String orderByClause = HoursDbSchema.HoursTable.Column.BEGIN + " desc";
         String whereClause = computeGetHoursWhereClause(project);
         Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
                 null,// select *
@@ -535,7 +535,7 @@ public class DataStore {
     public List<Hours> getHours(Job job, Date beginDate, Date endDate) {
         final String METHOD = "getHours(" + job + ", " + beginDate + ", " + endDate + "): ";
         List<Hours> ret = new ArrayList<>();
-        String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
+        String orderByClause = HoursDbSchema.HoursTable.Column.BEGIN + " desc";
         String whereClause = computeGetHoursWhereClause(job, beginDate, endDate);
         Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
                 null,// select *
@@ -561,7 +561,7 @@ public class DataStore {
 
     public List<Hours> getHours(Job job) {
         List<Hours> ret = new ArrayList<>();
-        String orderByClause = HoursDbSchema.HoursTable.Column.WHEN_CREATED + " desc";
+        String orderByClause = HoursDbSchema.HoursTable.Column.BEGIN + " desc";
         String whereClause = computeGetHoursWhereClause(job);
         Cursor cursor = mDatabase.query(HoursDbSchema.HoursTable.NAME,
                 null,// select *
