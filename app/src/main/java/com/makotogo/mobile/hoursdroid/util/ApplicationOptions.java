@@ -121,14 +121,13 @@ public class ApplicationOptions {
             // Complain. Loudly.
             throw new RuntimeException("Job ID must be greater than zero!");
         }
-        if (mLastUsedProjectId == null) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            mLastUsedProjectId = sharedPreferences.getInt(computeKeyForLastUsedProjectId(jobId), -100);
-        }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mLastUsedProjectId = sharedPreferences.getInt(computeKeyForLastUsedProjectId(jobId), -100);
         return mLastUsedProjectId;
     }
 
     public void saveLastUsedProjectId(int jobId, int lastUsedProjectId) {
+        Log.d(TAG, "** APPLICATION OPTIONS ** Saving last used project ID. Job/Project: " + jobId + "/" + lastUsedProjectId);
         // Sanity check
         if (jobId <= 0) {
             // Complain. Loudly.

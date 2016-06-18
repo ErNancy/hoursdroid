@@ -143,9 +143,10 @@ public class HoursListFragment extends AbstractFragment {
                 ret = mActiveHours.getProject();
             } else {
                 int lastUsedProjectId = ApplicationOptions.instance(getActivity()).getLastUsedProjectId(job.getId());
+                Log.d(TAG, "Last project ID Used: " + lastUsedProjectId);
                 if (lastUsedProjectId > 0) {
                     ret = dataStore.getProject(lastUsedProjectId);
-                    Log.d(TAG, "Using Project: " + ret);
+                    Log.d(TAG, "Using Project: " + ret.getName());
                 } else {
                     Log.d(TAG, "No active Hours. Using default project");
                 }

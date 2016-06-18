@@ -38,6 +38,7 @@ public class NumberPickerFragment extends AbstractDialogFragment {
         numberPicker.setMaxValue(mMaxMinutes);
         numberPicker.setMinValue(0);
         numberPicker.setWrapSelectorWheel(true);
+        numberPicker.setValue(mMinutes);
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

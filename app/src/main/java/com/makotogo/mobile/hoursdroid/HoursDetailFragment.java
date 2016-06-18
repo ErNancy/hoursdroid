@@ -373,7 +373,8 @@ public class HoursDetailFragment extends AbstractFragment {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getFragmentManager();
-                Integer minutes = mHours.getBreak().intValue();
+                Integer minutes = renderStorageBreakForEdit(mHours.getBreak().intValue());
+                Log.d(TAG, "Number of minutes: " + minutes);
                 // Max minutes can at most be number of minutes diff between end and begin
                 Integer maxMinutes = (int) (mHours.getEnd().getTime() - mHours.getBegin().getTime()) / 60000;
                 NumberPickerFragment numberPickerFragment = FragmentFactory.createNumberPickerFragment(minutes, maxMinutes, "Break Time");
@@ -462,6 +463,11 @@ public class HoursDetailFragment extends AbstractFragment {
     private Long renderBreakForStorage(long breakTimeInMinutes) {
         Long breakTimeInMillis = breakTimeInMinutes * 60000L;
         return breakTimeInMillis;
+    }
+
+    private Integer renderStorageBreakForEdit(long breakTimeInMillis) {
+        Long breakTimeInMinutes = breakTimeInMillis / 60000;
+        return breakTimeInMinutes.intValue();
     }
 
     private boolean isThisHoursRecordNotActive() {
