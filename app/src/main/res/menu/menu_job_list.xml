@@ -11,10 +11,10 @@
         app:showAsAction="ifRoom|withText"/>
 
     <item
-        android:id="@+id/menu_item_job_reporting_summary"
-        android:icon="@drawable/ic_menu_reporting_summary"
+        android:id="@+id/menu_item_job_billing_summary"
+        android:icon="@drawable/ic_menu_billing_summary"
         android:orderInCategory="200"
-        android:title="@string/menu_item_title_job_reporting_summary"
+        android:title="@string/menu_item_title_job_billing_summary"
         app:showAsAction="ifRoom|withText"/>
 
     <item

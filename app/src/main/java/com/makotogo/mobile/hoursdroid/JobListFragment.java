@@ -93,7 +93,7 @@ public class JobListFragment extends AbstractFragment {
                 ret = true;
                 break;
             }
-            case R.id.menu_item_job_reporting_summary: {
+            case R.id.menu_item_job_billing_summary: {
                 // Fire off Reporting Summary Activity
                 Intent intent = new Intent(getActivity(), BillingSummaryActivity.class);
                 startActivity(intent);
@@ -279,7 +279,7 @@ public class JobListFragment extends AbstractFragment {
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                         final String METHOD = "onActionItemClicked(ActionMode, MenuItem): ";
                         boolean ret;
-                        Job job = (Job) getListViewAdapter().getItem(position);
+                        Job job = getListViewAdapter().getItem(position);
                         // Switch on the menu item ID
                         switch (item.getItemId()) {
                             case R.id.menu_item_job_edit:
@@ -354,7 +354,7 @@ public class JobListFragment extends AbstractFragment {
         }
 
         private View getIsJobActiveView(View view) {
-            return (View) view.findViewById(R.id.job_list_row_active);
+            return view.findViewById(R.id.job_list_row_active);
         }
 
         private ImageView getActiveHours(View view) {
