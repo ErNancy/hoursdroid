@@ -21,8 +21,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="21"/>
+        android:minSdkVersion="19"
+        android:targetSdkVersion="19"/>
 
     <application
         android:allowBackup="true"

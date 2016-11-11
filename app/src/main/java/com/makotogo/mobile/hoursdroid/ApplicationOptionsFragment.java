@@ -66,7 +66,7 @@ public class ApplicationOptionsFragment extends PreferenceFragment implements Sh
                 )
         );
 
-        // Show Inactive Jobs?
+        // Show Notifications?
         checkboxPreference = (CheckBoxPreference) findPreference(ApplicationOptions.PREFS_KEY_SHOW_NOTIFICATIONS);
         checkboxPreference.setSummary(
                 toNiceBooleanSummary(
