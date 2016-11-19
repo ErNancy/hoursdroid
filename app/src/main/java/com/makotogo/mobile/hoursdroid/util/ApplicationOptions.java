@@ -33,17 +33,17 @@ import java.util.Date;
 public class ApplicationOptions {
 
     public static final String PREFS_KEY_SHOW_INACTIVE_JOBS = "PREFS_KEY_SHOW_INACTIVE_JOBS";
-    public static final String PREFS_KEY_SHOW_NOTIFICATIONS = "PREFS_KEY_SHOW_NOTIFICATIONS";
     public static final String PREFS_KEY_LAST_USED_PROJECT_ID = "PREFS_KEY_LAST_USED_PROJECT_ID";
     public static final String PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE = "PREFS_KEY_REPORT_SUMMARY_BEGIN_DATE";
     public static final String PREFS_KEY_REPORT_SUMMARY_END_DATE = "PREFS_KEY_REPORT_SUMMARY_END_DATE";
     public static final String PREFS_KEY_REPORT_SUMMARY_LAST_SELECTED_JOB_ID = "PREFS_KEY_REPORT_SUMMARY_LAST_SELECTED_JOB_ID";
     public static final String PREFS_KEY_SHOW_BILLED_HOURS_RECORDS = "PREFS_KEY_SHOW_BILLED_HOURS_RECORDS";
     public static final String PREFS_KEY_ROUNDING = "PREFS_KEY_ROUNDING";
+    public static final String PREFS_KEY_SHOW_NOTIFICATIONS = "PREFS_KEY_SHOW_NOTIFICATIONS";
+
     private static final String TAG = ApplicationOptions.class.getSimpleName();
     private static ApplicationOptions mInstance;
     private Context mContext;
-    private Boolean mShowNotifications;
     private Boolean mShowInactiveJobs;
     private Boolean mShowBilledHoursRecords;
     private Integer mRounding;
@@ -52,6 +52,7 @@ public class ApplicationOptions {
     private Date mReportSummaryBeginDate;
     private Date mReportSummaryEndDate;
     private Job mReportSummaryLastSelectedJob;
+    private Boolean mShowNotifications;
 
     protected ApplicationOptions(Context context) {
         mContext = context;

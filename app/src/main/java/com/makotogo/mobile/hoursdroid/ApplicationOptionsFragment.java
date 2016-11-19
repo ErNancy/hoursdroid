@@ -17,6 +17,7 @@
 
 package com.makotogo.mobile.hoursdroid;
 
+import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -66,13 +67,6 @@ public class ApplicationOptionsFragment extends PreferenceFragment implements Sh
                 )
         );
 
-        // Show Notifications?
-        checkboxPreference = (CheckBoxPreference) findPreference(ApplicationOptions.PREFS_KEY_SHOW_NOTIFICATIONS);
-        checkboxPreference.setSummary(
-                toNiceBooleanSummary(
-                        ApplicationOptions.instance(getActivity()).showNotifications()
-                )
-        );
         //
         // Show Billed Hours Records?
         checkboxPreference = (CheckBoxPreference) findPreference(ApplicationOptions.PREFS_KEY_SHOW_BILLED_HOURS_RECORDS);
@@ -86,6 +80,11 @@ public class ApplicationOptionsFragment extends PreferenceFragment implements Sh
         listPreference.setSummary(toNiceIntegerSummary(
                 ApplicationOptions.PREFS_KEY_ROUNDING,
                 ApplicationOptions.instance(getActivity()).getRounding()));
+
+        // Show Notifications?
+        checkboxPreference = (CheckBoxPreference)findPreference(ApplicationOptions.PREFS_KEY_SHOW_NOTIFICATIONS);
+        checkboxPreference.setSummary(toNiceBooleanSummary(ApplicationOptions.instance(getActivity()).showNotifications()));
+
         return ret;
     }
 
